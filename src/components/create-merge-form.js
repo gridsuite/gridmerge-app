@@ -1,0 +1,321 @@
+/**
+ * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+import React, { useEffect } from 'react';
+
+import { makeStyles } from '@material-ui/core/styles';
+import Button from '@material-ui/core/Button';
+import AddIcon from '@material-ui/icons/Add';
+import TextField from '@material-ui/core/TextField';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import Switch from '@material-ui/core/Switch';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
+import InputLabel from '@material-ui/core/InputLabel';
+import FormControl from '@material-ui/core/FormControl';
+import Alert from '@material-ui/lab/Alert';
+import CircularProgress from '@material-ui/core/CircularProgress';
+
+import { createMerge, fetchCases, fetchStudies } from '../utils/rest-api';
+import { FormattedMessage, useIntl } from 'react-intl';
+
+import { useDispatch, useSelector } from 'react-redux';
+import {
+    loadCasesSuccess,
+    loadStudiesSuccess,
+    removeSelectedFile,
+    selectCase,
+    selectFile,
+} from '../redux/actions';
+import { store } from '../redux/store';
+import CardActionArea from '@material-ui/core/CardActionArea';
+
+const useStyles = makeStyles(() => ({
+    addIcon: {
+        fontSize: '64px',
+    },
+    addButtonArea: {
+        height: '136px',
+    },
+}));
+
+const SelectCase = () => {
+    const dispatch = useDispatch();
+    const cases = useSelector((state) => state.cases);
+
+    const [openSelectCase, setSelectCase] = React.useState(false);
+
+    useEffect(() => {
+        fetchCases().then((cases) => {
+            dispatch(loadCasesSuccess(cases));
+        });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    const handleChangeSelectCase = (event) => {
+        dispatch(selectCase(event.target.value));
+    };
+
+    const handleCloseSelectCase = () => {
+        setSelectCase(false);
+    };
+
+    const handleOpenSelectCase = () => {
+        setSelectCase(true);
+    };
+
+    return (
+        <div>
+            <FormControl fullWidth>
+                <InputLabel id="demo-controlled-open-select-label">
+                    <FormattedMessage id="caseName" />
+                </InputLabel>
+                <Select
+                    labelId="demo-controlled-open-select-label"
+                    id="demo-controlled-open-select"
+                    open={openSelectCase}
+                    onClose={handleCloseSelectCase}
+                    onOpen={handleOpenSelectCase}
+                    value={
+                        store.getState().selectedCase != null
+                            ? store.getState().selectedCase
+                            : ''
+                    }
+                    onChange={handleChangeSelectCase}
+                >
+                    {cases.map(function (element) {
+                        return (
+                            <MenuItem key={element.uuid} value={element.uuid}>
+                                {element.name}
+                            </MenuItem>
+                        );
+                    })}
+                </Select>
+            </FormControl>
+        </div>
+    );
+};
+
+const UploadCase = () => {
+    const dispatch = useDispatch();
+    const selectedFile = useSelector((state) => state.selectedFile);
+
+    const handleFileUpload = (e) => {
+        e.preventDefault();
+        let files = e.target.files;
+        dispatch(selectFile(files[0]));
+    };
+
+    return (
+        <table>
+            <tbody>
+                <tr>
+                    <th>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            component="label"
+                        >
+                            <FormattedMessage id="uploadCase" />
+                            <input
+                                type="file"
+                                name="file"
+                                onChange={(e) => handleFileUpload(e)}
+                                style={{ display: 'none' }}
+                            />
+                        </Button>
+                    </th>
+                    <th>
+                        <p>
+                            {selectedFile === null ? (
+                                <FormattedMessage id="uploadMessage" />
+                            ) : (
+                                selectedFile.name
+                            )}
+                        </p>
+                    </th>
+                </tr>
+            </tbody>
+        </table>
+    );
+};
+
+export const CreateMergeForm = () => {
+    const [open, setOpen] = React.useState(false);
+    const [caseExist, setCaseExist] = React.useState(false);
+
+    const [mergeName, setMergeName] = React.useState('');
+    const [mergeDescription, setMergeDescription] = React.useState('');
+    const [createMergeErr, setCreateMergeErr] = React.useState('');
+
+    const [loading, setLoading] = React.useState(false);
+
+    const classes = useStyles();
+    const intl = useIntl();
+    const dispatch = useDispatch();
+
+    const selectedFile = useSelector((state) => state.selectedFile);
+    const caseName = useSelector((state) => state.selectedCase);
+
+    const handleClickOpenDialog = () => {
+        setOpen(true);
+    };
+
+    const handleCloseDialog = () => {
+        setOpen(false);
+        setCreateMergeErr('');
+    };
+
+    const handleChangeSwitch = (e) => {
+        setCaseExist(e.target.checked);
+        setCreateMergeErr('');
+    };
+
+    const handleMergeDescriptionChanges = (e) => {
+        setMergeDescription(e.target.value);
+    };
+
+    const handleMergeNameChanges = (e) => {
+        setMergeName(e.target.value);
+    };
+
+    const handleCreateNewMerge = () => {
+        if (mergeName === '') {
+            setCreateMergeErr(intl.formatMessage({ id: 'mergeNameErrorMsg' }));
+            return;
+        } else if (caseExist && caseName === null) {
+            setCreateMergeErr(intl.formatMessage({ id: 'caseNameErrorMsg' }));
+            return;
+        } else if (!caseExist && selectedFile === null) {
+            setCreateMergeErr(intl.formatMessage({ id: 'uploadErrorMsg' }));
+            return;
+        }
+        setLoading(true);
+        createMerge(
+            caseExist,
+            mergeName,
+            mergeDescription,
+            caseName,
+            selectedFile
+        ).then((res) => {
+            if (res.ok) {
+                setCreateMergeErr('');
+                setMergeName('');
+                setMergeDescription('');
+                dispatch(removeSelectedFile());
+                setLoading(false);
+                setOpen(false);
+                fetchStudies().then((studies) => {
+                    dispatch(loadStudiesSuccess(studies));
+                });
+            } else {
+                console.debug('Error when creating the merge');
+                setCreateMergeErr(
+                    intl.formatMessage({ id: 'mergeCreatingError' })
+                );
+                setLoading(false);
+            }
+        });
+    };
+
+    const handleKeyPressed = (event) => {
+        if (event.key === 'Enter') {
+            handleCreateNewMerge();
+        }
+    };
+
+    return (
+        <div>
+            <CardActionArea
+                className={classes.addButtonArea}
+                onClick={() => handleClickOpenDialog()}
+            >
+                <AddIcon className={classes.addIcon} />
+            </CardActionArea>
+
+            <Dialog
+                open={open}
+                onClose={handleCloseDialog}
+                aria-labelledby="form-dialog-title"
+                onKeyPress={handleKeyPressed}
+            >
+                <DialogTitle id="form-dialog-title">
+                    <FormattedMessage id="addNewMerge" />
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        <FormattedMessage id="addNewMergeDescription" />
+                    </DialogContentText>
+                    <FormControlLabel
+                        control={
+                            <Switch
+                                checked={caseExist}
+                                onChange={(e) => handleChangeSwitch(e)}
+                                value="checked"
+                                color="primary"
+                                inputProps={{
+                                    'aria-label': 'primary checkbox',
+                                }}
+                            />
+                        }
+                        label=<FormattedMessage id="caseExist" />
+                    />
+                    <TextField
+                        onChange={(e) => handleMergeNameChanges(e)}
+                        autoFocus
+                        margin="dense"
+                        value={mergeName}
+                        type="text"
+                        fullWidth
+                        label=<FormattedMessage id="mergeName" />
+                    />
+                    <TextField
+                        onChange={(e) => handleMergeDescriptionChanges(e)}
+                        margin="dense"
+                        value={mergeDescription}
+                        type="text"
+                        fullWidth
+                        label=<FormattedMessage id="mergeDescription" />
+                    />
+                    {caseExist && <SelectCase />}
+                    {!caseExist && <UploadCase />}
+                    {createMergeErr !== '' && (
+                        <Alert severity="error">{createMergeErr}</Alert>
+                    )}
+                    {loading && (
+                        <div
+                            style={{
+                                display: 'flex',
+                                justifyContent: 'center',
+                            }}
+                        >
+                            <CircularProgress className={classes.progress} />
+                        </div>
+                    )}
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => handleCloseDialog()} variant="text">
+                        <FormattedMessage id="cancel" />
+                    </Button>
+                    <Button
+                        onClick={() => handleCreateNewMerge()}
+                        variant="outlined"
+                    >
+                        <FormattedMessage id="create" />
+                    </Button>
+                </DialogActions>
+            </Dialog>
+        </div>
+    );
+};
+
+export default CreateMergeForm;

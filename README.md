@@ -1,5 +1,6 @@
 # gridmerge-app
 
+This is the source code of the grid merge application
 
 This app uses commons-ui library which released in the npmjs packages.
 
