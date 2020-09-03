@@ -114,7 +114,7 @@ const App = () => {
         <ThemeProvider theme={getMuiTheme(theme)}>
             <React.Fragment>
                 <CssBaseline />
-                <TopBar appName="GridMerge" onParametersClick={() => console.log("onParametersClick")} onLogoutClick={() => logout(dispatch, userManager.instance)} onLogoClick={() => onLogoClicked()} user={user}/>
+                <TopBar appName="Merge" appColor="#0CA789" onParametersClick={() => console.log("onParametersClick")} onLogoutClick={() => logout(dispatch, userManager.instance)} onLogoClick={() => onLogoClicked()} user={user}/>
                 { user !== null ? (
                         <Switch>
                             <Route exact path="/">
