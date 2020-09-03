@@ -6,8 +6,8 @@ module.exports = function(app) {
         })
     );
     app.use(
-        createProxyMiddleware('http://localhost:5002/ws/merge-orchestrator-server', {
-            pathRewrite: { '^/ws/merge-orchestrator-server': '/' },
+        createProxyMiddleware('http://localhost:5002/ws/merge-notification-server', {
+            pathRewrite: { '^/ws/merge-notification-server': '/' },
             ws: true,
         })
     );
