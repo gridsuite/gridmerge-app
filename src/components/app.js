@@ -25,7 +25,7 @@ import {
 } from '@gridsuite/commons-ui';
 import {FormattedMessage} from 'react-intl';
 
-import MergeMap from './merge-map'
+import MergeMap, {IgmStatus} from './merge-map'
 import Parameters from './parameters';
 
 const lightTheme = createMuiTheme({
@@ -128,7 +128,20 @@ const App = () => {
                 { user !== null ? (
                         <Switch>
                             <Route exact path="/">
-                                <MergeMap countries={['fr', 'be', 'es', 'pt']} />
+                                <MergeMap countries={['fr', 'be', 'es', 'pt']} config={{
+                                    'fr':  {
+                                        status: IgmStatus.ABSENT
+                                    },
+                                    'be': {
+                                        status: IgmStatus.IMPORTED_VALID
+                                    },
+                                    'es': {
+                                        status: IgmStatus.RECEIVED
+                                    },
+                                    'pt': {
+                                        status: IgmStatus.MERGED
+                                    }
+                                }}/>
                             </Route>
                             <Route exact path="/sign-in-callback">
                                 <Redirect to={getPreLoginPath() || "/"} />

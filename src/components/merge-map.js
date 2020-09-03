@@ -12,7 +12,6 @@ import {ComposableMap, Geographies, Geography, ZoomableGroup} from "react-simple
 import {makeStyles} from '@material-ui/core/styles';
 import bbox from 'geojson-bbox';
 
-const COUNTRY_FILL_COLOR = '#78899a';
 const COUNTRY_STROKE_COLOR = 'white';
 const DEFAULT_CENTER = [0, 0];
 
@@ -21,12 +20,19 @@ const useStyles = makeStyles((theme) => ({
         backgroundColor: theme.palette.background.paper
     },
     country: {
-        fill: COUNTRY_FILL_COLOR,
         stroke: COUNTRY_STROKE_COLOR,
         strokeWidth: '1px',
         vectorEffect: 'non-scaling-stroke'
     }
 }));
+
+export const IgmStatus = {
+    ABSENT: 'absent',
+    RECEIVED: 'received',
+    IMPORTED_VALID: 'inportedValid',
+    IMPORTED_INVALID: 'inportedInvalid',
+    MERGED: 'merged'
+}
 
 const MergeMap = (props) => {
 
@@ -53,6 +59,21 @@ const MergeMap = (props) => {
         return [(bb[0] + bb[2]) / 2, (bb[1] + bb[3]) / 2];
     }
 
+    function countryColor(status) {
+        switch (status) {
+            case IgmStatus.RECEIVED:
+                return 'yellow';
+            case IgmStatus.IMPORTED_VALID:
+                return 'blue';
+            case IgmStatus.IMPORTED_INVALID:
+                return 'red';
+            case IgmStatus.MERGED:
+                return 'green';
+            default:
+                return '#78899a';
+        }
+    }
+
     useEffect(() => {
         if (props.countries.length > 0) {
             Promise.all(props.countries.map(country => {
@@ -76,8 +97,12 @@ const MergeMap = (props) => {
                 <ZoomableGroup center={center} minZoom={1} maxZoom={1}>
                     <Geographies geography={geographies}>
                         {({geographies}) =>
-                            geographies.map(geo => {
-                                return <Geography key={geo.rsmKey} geography={geo} className={classes.country}/>
+                            geographies.map((geo, index) => {
+                                const country = props.countries[index];
+                                const config = props.config[country];
+                                const status = config ? config.status : IgmStatus.ABSENT;
+                                const color = countryColor(status);
+                                return <Geography key={geo.rsmKey} geography={geo} className={classes.country} fill={color}/>
                             })
                         }
                     </Geographies>
@@ -88,10 +113,12 @@ const MergeMap = (props) => {
 }
 MergeMap.defaultProps = {
     countries: [],
+    config: {}
 };
 
 MergeMap.propTypes = {
-    countries: PropTypes.array
+    countries: PropTypes.array,
+    config: PropTypes.object
 }
 
 export default MergeMap;
