@@ -35,6 +35,8 @@ import { FormattedMessage } from 'react-intl';
 import Typography from "@material-ui/core/Typography";
 import Box from "@material-ui/core/Box";
 
+import MergeMap from './merge-map'
+
 const lightTheme = createMuiTheme({
     palette: {
         type: 'light',
@@ -114,13 +116,12 @@ const App = () => {
         <ThemeProvider theme={getMuiTheme(theme)}>
             <React.Fragment>
                 <CssBaseline />
-                <TopBar appName="GridMerge" onParametersClick={() => console.log("onParametersClick")} onLogoutClick={() => logout(dispatch, userManager.instance)} onLogoClick={() => onLogoClicked()} user={user}/>
+                <TopBar appName="Merge" appColor="#0CA789" onParametersClick={() => console.log("onParametersClick")} onLogoutClick={() => logout(dispatch, userManager.instance)} onLogoClick={() => onLogoClicked()} user={user}/>
                 { user !== null ? (
                         <Switch>
                             <Route exact path="/">
-                                <Box mt={20}>
-                                    <Typography variant="h3"  color="textPrimary" align="center">Connected</Typography>
-                                </Box>                            </Route>
+                                <MergeMap />
+                            </Route>
                             <Route exact path="/sign-in-callback">
                                 <Redirect to={getPreLoginPath() || "/"} />
                             </Route>
