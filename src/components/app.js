@@ -128,7 +128,7 @@ const App = () => {
                 { user !== null ? (
                         <Switch>
                             <Route exact path="/">
-                                <MergeMap />
+                                <MergeMap countries={['fr', 'be', 'es', 'pt']} />
                             </Route>
                             <Route exact path="/sign-in-callback">
                                 <Redirect to={getPreLoginPath() || "/"} />

@@ -6,15 +6,15 @@
  */
 
 import React, {useEffect, useState} from 'react';
+import PropTypes from 'prop-types';
 import {ComposableMap, Geographies, Geography, ZoomableGroup} from "react-simple-maps";
 
 import {makeStyles} from '@material-ui/core/styles';
 import bbox from 'geojson-bbox';
 
-const countries = ['fr', 'be', 'es', 'pt'];
-
 const COUNTRY_FILL_COLOR = '#78899a';
 const COUNTRY_STROKE_COLOR = 'white';
+const DEFAULT_CENTER = [0, 0];
 
 const useStyles = makeStyles((theme) => ({
     map: {
@@ -28,44 +28,51 @@ const useStyles = makeStyles((theme) => ({
     }
 }));
 
-const MergeMap = () => {
+const MergeMap = (props) => {
 
     const [geographies, setGeographies] = useState([]);
-    const [center, setCenter] = useState([0, 0]);
+    const [center, setCenter] = useState(DEFAULT_CENTER);
 
     const classes = useStyles();
 
-    useEffect(() => {
-        Promise.all(countries.map(country => {
-            const url = country + '.json';
-            return fetch(url).then(resp => resp.json())
-        }
-        )).then(jsons => {
-            // compute geometries bounding box
-            const reducer = (oldBb, json) =>  {
-                const newBb = bbox(json);
-                if (oldBb) {
-                    return [Math.min(oldBb[0], newBb[0]),
-                            Math.min(oldBb[1], newBb[1]),
-                            Math.max(oldBb[2], newBb[2]),
-                            Math.max(oldBb[3], newBb[3])];
-                }
-                return newBb;
+    function computeCenter(geoJsons) {
+        // compute geometries bounding box
+        const reducer = (oldBb, json) =>  {
+            const newBb = bbox(json);
+            if (oldBb) {
+                return [Math.min(oldBb[0], newBb[0]),
+                    Math.min(oldBb[1], newBb[1]),
+                    Math.max(oldBb[2], newBb[2]),
+                    Math.max(oldBb[3], newBb[3])];
             }
-            const bb = jsons.reduce(reducer, null);
+            return newBb;
+        }
+        const bb = geoJsons.reduce(reducer, null);
 
-            // compute geometries center
-            const c = [(bb[0] + bb[2]) / 2, (bb[1] + bb[3]) / 2];
+        // compute geometries center
+        return [(bb[0] + bb[2]) / 2, (bb[1] + bb[3]) / 2];
+    }
 
-            setCenter(c);
-            setGeographies(jsons);
-        })
-    }, [countries]);
+    useEffect(() => {
+        if (props.countries.length > 0) {
+            Promise.all(props.countries.map(country => {
+                    const url = country + '.json';
+                    return fetch(url).then(resp => resp.json())
+                }
+            )).then(jsons => {
+                setCenter(computeCenter(jsons));
+                setGeographies(jsons);
+            })
+        } else {
+            setCenter(DEFAULT_CENTER);
+            setGeographies([]);
+        }
+    }, [props.countries]);
 
     return (
         <div className={classes.map}>
             <ComposableMap style={{position:'absolute', top:'0', left:'0', height:'100%', width:'100%', zIndex:'-1'}}
-                           projectionConfig={{ scale: 2000}}>
+                           projectionConfig={{ scale: 1800}}>
                 <ZoomableGroup center={center} minZoom={1} maxZoom={1}>
                     <Geographies geography={geographies}>
                         {({geographies}) =>
@@ -78,6 +85,13 @@ const MergeMap = () => {
             </ComposableMap>
         </div>
   )
+}
+MergeMap.defaultProps = {
+    countries: [],
+};
+
+MergeMap.propTypes = {
+    countries: PropTypes.array
 }
 
 export default MergeMap;
