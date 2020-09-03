@@ -9,6 +9,7 @@ import React, {useEffect, useState} from 'react';
 import {ComposableMap, Geographies, Geography, ZoomableGroup} from "react-simple-maps";
 
 import {makeStyles} from '@material-ui/core/styles';
+import bbox from 'geojson-bbox';
 
 const countries = ['fr', 'be', 'es', 'pt'];
 
@@ -30,6 +31,7 @@ const useStyles = makeStyles((theme) => ({
 const MergeMap = () => {
 
     const [geographies, setGeographies] = useState([]);
+    const [center, setCenter] = useState([0, 0]);
 
     const classes = useStyles();
 
@@ -39,6 +41,23 @@ const MergeMap = () => {
             return fetch(url).then(resp => resp.json())
         }
         )).then(jsons => {
+            // compute geometries bounding box
+            const reducer = (oldBb, json) =>  {
+                const newBb = bbox(json);
+                if (oldBb) {
+                    return [Math.min(oldBb[0], newBb[0]),
+                            Math.min(oldBb[1], newBb[1]),
+                            Math.max(oldBb[2], newBb[2]),
+                            Math.max(oldBb[3], newBb[3])];
+                }
+                return newBb;
+            }
+            const bb = jsons.reduce(reducer, null);
+
+            // compute geometries center
+            const c = [(bb[0] + bb[2]) / 2, (bb[1] + bb[3]) / 2];
+
+            setCenter(c);
             setGeographies(jsons);
         })
     }, [countries]);
@@ -47,7 +66,7 @@ const MergeMap = () => {
         <div className={classes.map}>
             <ComposableMap style={{position:'absolute', top:'0', left:'0', height:'100%', width:'100%', zIndex:'-1'}}
                            projectionConfig={{ scale: 2000}}>
-                <ZoomableGroup center={[1, 44]} minZoom={1} maxZoom={1}>
+                <ZoomableGroup center={center} minZoom={1} maxZoom={1}>
                     <Geographies geography={geographies}>
                         {({geographies}) =>
                             geographies.map(geo => {
