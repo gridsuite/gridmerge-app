@@ -5,10 +5,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import React, { useEffect, useState } from 'react';
-import { ComposableMap, Geographies, Geography, ZoomableGroup } from "react-simple-maps";
+import React, {useEffect, useState} from 'react';
+import {ComposableMap, Geographies, Geography, ZoomableGroup} from "react-simple-maps";
 
-import { makeStyles } from '@material-ui/core/styles';
+import {makeStyles} from '@material-ui/core/styles';
 
 const countries = ['fr', 'be', 'es', 'pt'];
 
@@ -45,10 +45,9 @@ const MergeMap = () => {
 
     return (
         <div className={classes.map}>
-            <ComposableMap projectionConfig={{
-                scale: 1000
-            }}>
-                <ZoomableGroup center={[1, 48]}>
+            <ComposableMap style={{position:'absolute', top:'0', left:'0', height:'100%', width:'100%', zIndex:'-1'}}
+                           projectionConfig={{ scale: 2000}}>
+                <ZoomableGroup center={[1, 44]} minZoom={1} maxZoom={1}>
                     <Geographies geography={geographies}>
                         {({geographies}) =>
                             geographies.map(geo => {
