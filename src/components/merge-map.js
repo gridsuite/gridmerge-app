@@ -14,11 +14,10 @@ const countries = ['fr', 'be', 'es', 'pt'];
 
 const COUNTRY_FILL_COLOR = '#78899a';
 const COUNTRY_STROKE_COLOR = 'white';
-const MAP_BG_COLOR = '#0a2846';
 
 const useStyles = makeStyles((theme) => ({
     map: {
-        backgroundColor: MAP_BG_COLOR
+        backgroundColor: theme.palette.background.paper
     },
     country: {
         fill: COUNTRY_FILL_COLOR,

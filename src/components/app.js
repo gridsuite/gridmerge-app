@@ -5,37 +5,28 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 
-import { useDispatch, useSelector } from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 
-import {
-    Redirect,
-    Route,
-    Switch,
-    useHistory,
-    useLocation,
-} from 'react-router-dom';
+import {Redirect, Route, Switch, useHistory, useLocation, useRouteMatch,} from 'react-router-dom';
 
 import CssBaseline from '@material-ui/core/CssBaseline';
-import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
-import { LIGHT_THEME } from '../redux/actions';
+import {createMuiTheme, ThemeProvider} from '@material-ui/core/styles';
+import {LIGHT_THEME} from '../redux/actions';
 
 import {
-    TopBar,
     AuthenticationRouter,
-    logout,
     getPreLoginPath,
-    initializeAuthenticationProd,
     initializeAuthenticationDev,
+    initializeAuthenticationProd,
+    logout,
+    TopBar,
 } from '@gridsuite/commons-ui';
-
-import { useRouteMatch } from 'react-router-dom';
-import { FormattedMessage } from 'react-intl';
-import Typography from "@material-ui/core/Typography";
-import Box from "@material-ui/core/Box";
+import {FormattedMessage} from 'react-intl';
 
 import MergeMap from './merge-map'
+import Parameters from './parameters';
 
 const lightTheme = createMuiTheme({
     palette: {
@@ -69,6 +60,8 @@ const App = () => {
     const signInCallbackError = useSelector(state => state.signInCallbackError);
 
     const [userManager, setUserManager] = useState(noUserManager);
+
+    const [showParameters, setShowParameters] = useState(false);
 
     const history = useHistory();
 
@@ -112,11 +105,26 @@ const App = () => {
         history.replace("/");
     }
 
+    function showParametersClicked() {
+        setShowParameters(true);
+    }
+
+    function hideParameters() {
+        setShowParameters(false);
+    }
+
     return (
         <ThemeProvider theme={getMuiTheme(theme)}>
             <React.Fragment>
                 <CssBaseline />
-                <TopBar appName="Merge" appColor="#0CA789" onParametersClick={() => console.log("onParametersClick")} onLogoutClick={() => logout(dispatch, userManager.instance)} onLogoClick={() => onLogoClicked()} user={user}/>
+                <TopBar appName="Merge" appColor="#0CA789"
+                        onParametersClick={() => showParametersClicked()}
+                        onLogoutClick={() => logout(dispatch, userManager.instance)}
+                        onLogoClick={() => onLogoClicked()} user={user}/>
+                <Parameters
+                    showParameters={showParameters}
+                    hideParameters={hideParameters}
+                />
                 { user !== null ? (
                         <Switch>
                             <Route exact path="/">
