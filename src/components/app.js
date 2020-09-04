@@ -5,14 +5,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 
 import {useDispatch, useSelector} from 'react-redux';
 
 import {Redirect, Route, Switch, useHistory, useLocation, useRouteMatch,} from 'react-router-dom';
 
+import {createMuiTheme, makeStyles, ThemeProvider} from "@material-ui/core/styles";
 import CssBaseline from '@material-ui/core/CssBaseline';
-import {createMuiTheme, ThemeProvider} from '@material-ui/core/styles';
 import {LIGHT_THEME} from '../redux/actions';
 
 import {
@@ -24,9 +24,10 @@ import {
 } from '@gridsuite/commons-ui';
 import {FormattedMessage} from 'react-intl';
 
-import MergeMap, {IgmStatus} from './merge-map'
+import Process from './process';
 import Parameters from './parameters';
-import {connectNotificationsWebsocket} from './api';
+import Tabs from "@material-ui/core/Tabs";
+import Tab from "@material-ui/core/Tab";
 
 const lightTheme = createMuiTheme({
     palette: {
@@ -50,9 +51,18 @@ const getMuiTheme = (theme) => {
     }
 };
 
+const useStyles = makeStyles(() => ({
+    process: {
+        marginLeft: 18,
+    }
+}));
+
 const noUserManager = { instance: null, error: null };
 
 const App = () => {
+
+    const processNames = ['TEST'];
+
     const theme = useSelector(state => state.theme);
 
     const user = useSelector(state => state.user);
@@ -69,7 +79,9 @@ const App = () => {
 
     const location = useLocation();
 
-    const websocketExpectedCloseRef = useRef();
+    const classes = useStyles();
+
+    const [tabIndex, setTabIndex] = React.useState(0);
 
     let matchSilentRenewCallbackUrl= useRouteMatch({
         path: '/silent-renew-callback',
@@ -92,19 +104,6 @@ const App = () => {
             });
     }, []);
 
-    useEffect(() => {
-        if (user) {
-            websocketExpectedCloseRef.current = false;
-
-            const ws = connectNotifications("TEST");
-
-            return function () {
-                websocketExpectedCloseRef.current = true;
-                ws.close();
-            };
-        }
-    }, [user]);
-
     function onLogoClicked() {
         history.replace("/");
     }
@@ -117,24 +116,6 @@ const App = () => {
         setShowParameters(false);
     }
 
-    function connectNotifications(process) {
-        console.info(`Connecting to notifications...`);
-
-        const ws = connectNotificationsWebsocket(process);
-        ws.onmessage = function (event) {
-            console.info(event);
-        };
-        ws.onclose = function (event) {
-            if (!websocketExpectedCloseRef.current) {
-                console.error('Unexpected Notification WebSocket closed');
-            }
-        };
-        ws.onerror = function (event) {
-            console.error('Unexpected Notification WebSocket error', event);
-        };
-        return ws;
-    }
-
     return (
         <ThemeProvider theme={getMuiTheme(theme)}>
             <React.Fragment>
@@ -142,7 +123,18 @@ const App = () => {
                 <TopBar appName="Merge" appColor="#0CA789"
                         onParametersClick={() => showParametersClicked()}
                         onLogoutClick={() => logout(dispatch, userManager.instance)}
-                        onLogoClick={() => onLogoClicked()} user={user}/>
+                        onLogoClick={() => onLogoClicked()} user={user}>
+                    <Tabs
+                        value={tabIndex}
+                        indicatorColor="primary"
+                        variant="scrollable"
+                        scrollButtons="auto"
+                        onChange={(event, newValue) => setTabIndex(newValue)}
+                        aria-label="parameters"
+                        className={classes.process}>
+                        { processNames.map(processName => <Tab label={processName} />) }
+                    </Tabs>
+                </TopBar>
                 <Parameters
                     showParameters={showParameters}
                     hideParameters={hideParameters}
@@ -150,20 +142,7 @@ const App = () => {
                 { user !== null ? (
                         <Switch>
                             <Route exact path="/">
-                                <MergeMap countries={['fr', 'be', 'es', 'pt']} config={{
-                                    'fr':  {
-                                        status: IgmStatus.ABSENT
-                                    },
-                                    'be': {
-                                        status: IgmStatus.IMPORTED_VALID
-                                    },
-                                    'es': {
-                                        status: IgmStatus.RECEIVED
-                                    },
-                                    'pt': {
-                                        status: IgmStatus.MERGED
-                                    }
-                                }}/>
+                               <Process name={processNames[tabIndex]}/>
                             </Route>
                             <Route exact path="/sign-in-callback">
                                 <Redirect to={getPreLoginPath() || "/"} />
