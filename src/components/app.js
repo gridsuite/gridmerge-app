@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 
 import {useDispatch, useSelector} from 'react-redux';
 
@@ -18,7 +18,6 @@ import {LIGHT_THEME} from '../redux/actions';
 import {
     AuthenticationRouter,
     getPreLoginPath,
-    initializeAuthenticationDev,
     initializeAuthenticationProd,
     logout,
     TopBar,
@@ -27,6 +26,7 @@ import {FormattedMessage} from 'react-intl';
 
 import MergeMap, {IgmStatus} from './merge-map'
 import Parameters from './parameters';
+import {connectNotificationsWebsocket} from './api';
 
 const lightTheme = createMuiTheme({
     palette: {
@@ -69,28 +69,19 @@ const App = () => {
 
     const location = useLocation();
 
+    const websocketExpectedCloseRef = useRef();
+
     let matchSilentRenewCallbackUrl= useRouteMatch({
         path: '/silent-renew-callback',
         exact: true,
     });
 
-    function initialize() {
-        if (process.env.REACT_APP_USE_AUTHENTICATION === true) {
-            return initializeAuthenticationProd(
-                dispatch,
-                matchSilentRenewCallbackUrl != null,
-                fetch('idpSettings.json')
-            );
-        } else {
-            return initializeAuthenticationDev(
-                dispatch,
-                matchSilentRenewCallbackUrl != null
-            );
-        }
-    }
-
     useEffect(() => {
-        initialize()
+        initializeAuthenticationProd(
+            dispatch,
+            matchSilentRenewCallbackUrl != null,
+            fetch('idpSettings.json')
+        )
             .then((userManager) => {
                 setUserManager({ instance: userManager, error: null });
                 userManager.signinSilent();
@@ -100,6 +91,19 @@ const App = () => {
                 console.debug('error when importing the idp settings');
             });
     }, []);
+
+    useEffect(() => {
+        if (user) {
+            websocketExpectedCloseRef.current = false;
+
+            const ws = connectNotifications("TEST");
+
+            return function () {
+                websocketExpectedCloseRef.current = true;
+                ws.close();
+            };
+        }
+    }, [user]);
 
     function onLogoClicked() {
         history.replace("/");
@@ -111,6 +115,24 @@ const App = () => {
 
     function hideParameters() {
         setShowParameters(false);
+    }
+
+    function connectNotifications(process) {
+        console.info(`Connecting to notifications...`);
+
+        const ws = connectNotificationsWebsocket(process);
+        ws.onmessage = function (event) {
+            console.info(event);
+        };
+        ws.onclose = function (event) {
+            if (!websocketExpectedCloseRef.current) {
+                console.error('Unexpected Notification WebSocket closed');
+            }
+        };
+        ws.onerror = function (event) {
+            console.error('Unexpected Notification WebSocket error', event);
+        };
+        return ws;
     }
 
     return (
