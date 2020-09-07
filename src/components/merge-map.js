@@ -77,7 +77,7 @@ const MergeMap = (props) => {
     useEffect(() => {
         if (props.countries.length > 0) {
             Promise.all(props.countries.map(country => {
-                    const url = country + '.json';
+                    const url = country.name + '.json';
                     return fetch(url).then(resp => resp.json())
                 }
             )).then(jsons => {
@@ -99,8 +99,7 @@ const MergeMap = (props) => {
                         {({geographies}) =>
                             geographies.map((geo, index) => {
                                 const country = props.countries[index];
-                                const config = props.config[country];
-                                const status = config ? config.status : IgmStatus.ABSENT;
+                                const status = country ? country.status : IgmStatus.ABSENT;
                                 const color = countryColor(status);
                                 return <Geography key={geo.rsmKey} geography={geo} className={classes.country} fill={color}/>
                             })
@@ -114,12 +113,13 @@ const MergeMap = (props) => {
 }
 MergeMap.defaultProps = {
     countries: [],
-    config: {}
 };
 
 MergeMap.propTypes = {
-    countries: PropTypes.array,
-    config: PropTypes.object
+    countries: PropTypes.arrayOf(PropTypes.shape({
+        name: PropTypes.string.isRequired,
+        status: PropTypes.objectOf(IgmStatus)
+    })),
 }
 
 export default MergeMap;

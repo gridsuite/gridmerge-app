@@ -5,52 +5,40 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import React, {useEffect, useRef, useState} from "react";
+import React, {useEffect, useRef} from "react";
 
 import PropTypes from "prop-types";
 
+import {useDispatch, useSelector} from 'react-redux';
+
 import MergeMap, {IgmStatus} from "./merge-map";
 import {connectNotificationsWebsocket} from "./api";
-
-const countries = ['be', 'nl'];
+import {updateCountryStatus, updateLastDate} from "../redux/actions";
 
 const Process = (props) => {
 
     const websocketExpectedCloseRef = useRef();
 
-    const [lastDate, setLastDate] = useState(null);
+    const lastDate = useSelector((state) => state.lastDate);
 
-    const [config, setConfig] = useState(initConfig());
+    const countries = useSelector((state) => state.countries);
 
-    function initConfig() {
-        let config = {};
-        countries.forEach(country => {
-            config[country] = {
-                status: IgmStatus.ABSENT
-            };
-        });
-        return config;
-    }
+    const dispatch = useDispatch();
 
     function update(message) {
         const date = message.headers.date;
 
-        // reinit map in case of new date
-        if (lastDate == null) {
-            setLastDate(new Date(date));
-            setConfig(initConfig());
-        }
+        dispatch(updateLastDate(new Date(date)));
+
         if (message.headers.type === "TSO_IGM") {
-            const tso = message.headers.tso.toLowerCase();
-            config[tso].status = IgmStatus.IMPORTED_VALID;
-            setConfig(config);
+            const countryName = message.headers.tso.toLowerCase();
+            dispatch(updateCountryStatus(countryName, IgmStatus.IMPORTED_VALID));
         } else if (message.headers.type === "MERGE_PROCESS_FINISHED") {
-            const tso = message.headers.tso;
-            const tsos = tso.substr(1, tso.length - 2).split(', '); // FIXME beurk...
-            tsos.forEach(tso => {
-                config[tso.toLowerCase()].status = IgmStatus.MERGED;
+            const headersTso = message.headers.tso;
+            const countryNames = headersTso.substr(1, headersTso.length - 2).split(', '); // FIXME beurk...
+            countryNames.forEach(countryName => {
+                dispatch(updateCountryStatus(countryName.toLowerCase(), IgmStatus.MERGED));
             })
-            setConfig(config);
         }
     }
 
@@ -85,7 +73,7 @@ const Process = (props) => {
     }, []);
 
     return (
-        <MergeMap countries={countries} config={config}>
+        <MergeMap countries={countries}>
             <div style={{ position: 'absolute', left: 8, top: 50, zIndex: 1 }} >
                 <h2>{lastDate ? lastDate.toLocaleString() : ""}</h2>
             </div>

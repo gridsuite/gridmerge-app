@@ -13,7 +13,7 @@ import {Redirect, Route, Switch, useHistory, useLocation, useRouteMatch,} from '
 
 import {createMuiTheme, makeStyles, ThemeProvider} from "@material-ui/core/styles";
 import CssBaseline from '@material-ui/core/CssBaseline';
-import {LIGHT_THEME} from '../redux/actions';
+import {initCountries, LIGHT_THEME} from '../redux/actions';
 
 import {
     AuthenticationRouter,
@@ -59,6 +59,8 @@ const useStyles = makeStyles(() => ({
 
 const noUserManager = { instance: null, error: null };
 
+const COUNTRY_NAMES = ['be', 'nl'];
+
 const App = () => {
 
     const processNames = ['TEST'];
@@ -103,6 +105,10 @@ const App = () => {
                 console.debug('error when importing the idp settings');
             });
     }, []);
+
+    useEffect(() => {
+        dispatch(initCountries(COUNTRY_NAMES));
+    }, [user]);
 
     function onLogoClicked() {
         history.replace("/");

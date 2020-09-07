@@ -7,24 +7,25 @@
 
 import {createReducer} from "@reduxjs/toolkit";
 
-import {
-    getLocalStorageTheme,
-    saveLocalStorageTheme,
-} from "./local-storage";
+import {getLocalStorageTheme, saveLocalStorageTheme,} from "./local-storage";
 
 import {
+    INIT_COUNTRIES,
+    RESET_COUNTRIES_STATUS,
     SELECT_THEME,
+    UPDATE_COUNTRY_STATUS,
+    UPDATE_LAST_DATE,
 } from "./actions";
 
-import {
-    USER,
-    SIGNIN_CALLBACK_ERROR,
-} from "@gridsuite/commons-ui";
+import {SIGNIN_CALLBACK_ERROR, USER,} from "@gridsuite/commons-ui";
+import {IgmStatus} from "../components/merge-map";
 
 const initialState = {
     theme: getLocalStorageTheme(),
     user : null,
     signInCallbackError : null,
+    lastDate: null,
+    countries: []
 };
 
 export const reducer = createReducer(initialState, {
@@ -39,5 +40,35 @@ export const reducer = createReducer(initialState, {
 
     [SIGNIN_CALLBACK_ERROR]: (state, action) => {
         state.signInCallbackError = action.signInCallbackError;
+    },
+
+    [INIT_COUNTRIES]: (state, action) => {
+        state.countries = action.names.map(name => {
+            return {
+                name: name,
+                status: IgmStatus.ABSENT
+            };
+        });
+    },
+
+    [UPDATE_COUNTRY_STATUS]: (state, action) => {
+        const country = state.countries.find(country => country.name === action.name);
+        country.status = action.status;
+    },
+
+    [RESET_COUNTRIES_STATUS]: (state) => {
+        state.countries.forEach(country => {
+           country.status = IgmStatus.ABSENT;
+        });
+    },
+
+    [UPDATE_LAST_DATE]: (state, action) => {
+        if (state.lastDate == null) {
+            state.lastDate = action.lastDate;
+            // also reset country status
+            state.countries.forEach(country => {
+                country.status = IgmStatus.ABSENT;
+            });
+        }
     },
 });
