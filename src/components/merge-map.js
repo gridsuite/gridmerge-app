@@ -108,6 +108,7 @@ const MergeMap = (props) => {
                     </Geographies>
                 </ZoomableGroup>
             </ComposableMap>
+            {props.children}
         </div>
   )
 }
