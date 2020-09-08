@@ -62,13 +62,13 @@ const MergeMap = (props) => {
     function countryColor(status) {
         switch (status) {
             case IgmStatus.RECEIVED:
-                return 'yellow';
+                return '#009CD8';
             case IgmStatus.IMPORTED_VALID:
-                return 'blue';
+                return '#02538B';
             case IgmStatus.IMPORTED_INVALID:
-                return 'red';
+                return '#D8404D';
             case IgmStatus.MERGED:
-                return 'green';
+                return '#37AE4B';
             default:
                 return '#78899a';
         }
