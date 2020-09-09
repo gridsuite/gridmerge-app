@@ -115,11 +115,11 @@ MergeMap.defaultProps = {
     countries: [],
 };
 
-// MergeMap.propTypes = {
-//     countries: PropTypes.arrayOf(PropTypes.shape({
-//         name: PropTypes.string.isRequired,
-//         status: PropTypes.objectOf(IgmStatus)
-//     })),
-// }
+MergeMap.propTypes = {
+    countries: PropTypes.arrayOf(PropTypes.shape({
+        name: PropTypes.string.isRequired,
+        status: PropTypes.string.isRequired
+    })),
+}
 
 export default MergeMap;

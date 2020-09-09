@@ -77,8 +77,8 @@ const Process = (props) => {
     );
 };
 
-// Process.propTypes = {
-//     name: PropTypes.string.isRequired
-// }
+Process.propTypes = {
+    process: PropTypes.object.isRequired
+}
 
 export default Process;
