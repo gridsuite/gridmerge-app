@@ -125,6 +125,8 @@ const App = () => {
         setShowParameters(false);
     }
 
+    const currentProcess = processes.length > 0 ? processes[tabIndex] : null;
+
     return (
         <ThemeProvider theme={getMuiTheme(theme)}>
             <React.Fragment>
@@ -151,7 +153,9 @@ const App = () => {
                 { user !== null ? (
                         <Switch>
                             <Route exact path="/">
-                                { processes.length > 0 && <Process process={processes[tabIndex]}/> }
+                                { currentProcess && <Process name={currentProcess.name}
+                                                             date={currentProcess.lastDate}
+                                                             countries={currentProcess.countries}/> }
                             </Route>
                             <Route exact path="/sign-in-callback">
                                 <Redirect to={getPreLoginPath() || "/"} />
