@@ -10,10 +10,24 @@ import ReconnectingWebSocket from 'reconnecting-websocket';
 import { store } from '../redux/store';
 
 const PREFIX_NOTIFICATION_WS = process.env.REACT_APP_WS_GATEWAY + '/merge-notification';
+const PREFIX_ORCHESTRATOR_QUERIES = process.env.REACT_APP_API_GATEWAY + '/merge';
 
 function getToken() {
     const state = store.getState();
     return state.user.id_token;
+}
+
+function backendFetch(url, init) {
+    if (!(typeof init == 'undefined' || typeof init == 'object')) {
+        throw new TypeError(
+            'Argument 2 of backendFetch is not an object' + typeof init
+        );
+    }
+    const initCopy = Object.assign({}, init);
+    initCopy.headers = new Headers(initCopy.headers || {});
+    initCopy.headers.append('Authorization', 'Bearer ' + getToken());
+
+    return fetch(url, initCopy);
 }
 
 export function connectNotificationsWebsocket(process) {
@@ -29,4 +43,11 @@ export function connectNotificationsWebsocket(process) {
         console.info('Connected Websocket ' + wsadress + ' ...');
     };
     return rws;
+}
+
+export function fetchMergeConfigs() {
+    console.info('Fetching merge configs...');
+    const fetchConfigsUrl = PREFIX_ORCHESTRATOR_QUERIES + '/v1/configs';
+    console.debug(fetchConfigsUrl);
+    return backendFetch(fetchConfigsUrl).then((response) => response.json());
 }

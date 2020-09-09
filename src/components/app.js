@@ -13,7 +13,7 @@ import {Redirect, Route, Switch, useHistory, useLocation, useRouteMatch,} from '
 
 import {createMuiTheme, makeStyles, ThemeProvider} from "@material-ui/core/styles";
 import CssBaseline from '@material-ui/core/CssBaseline';
-import {initCountries, LIGHT_THEME} from '../redux/actions';
+import {initProcesses, LIGHT_THEME} from '../redux/actions';
 
 import {
     AuthenticationRouter,
@@ -28,6 +28,7 @@ import Process from './process';
 import Parameters from './parameters';
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
+import {fetchMergeConfigs} from "./api";
 
 const lightTheme = createMuiTheme({
     palette: {
@@ -59,11 +60,9 @@ const useStyles = makeStyles(() => ({
 
 const noUserManager = { instance: null, error: null };
 
-const COUNTRY_NAMES = ['be', 'nl'];
-
 const App = () => {
 
-    const processNames = ['TEST'];
+    const processes = useSelector(state => state.processes);
 
     const theme = useSelector(state => state.theme);
 
@@ -107,7 +106,11 @@ const App = () => {
     }, []);
 
     useEffect(() => {
-        dispatch(initCountries(COUNTRY_NAMES));
+        if (user !== null) {
+            fetchMergeConfigs().then(configs => {
+                dispatch(initProcesses(configs));
+            });
+        }
     }, [user]);
 
     function onLogoClicked() {
@@ -138,7 +141,7 @@ const App = () => {
                         onChange={(event, newValue) => setTabIndex(newValue)}
                         aria-label="parameters"
                         className={classes.process}>
-                        { processNames.map(processName => <Tab label={processName} />) }
+                        { processes.map(process => <Tab label={process.name} />) }
                     </Tabs>
                 </TopBar>
                 <Parameters
@@ -148,7 +151,7 @@ const App = () => {
                 { user !== null ? (
                         <Switch>
                             <Route exact path="/">
-                               <Process name={processNames[tabIndex]}/>
+                                { processes.length > 0 && <Process process={processes[tabIndex]}/> }
                             </Route>
                             <Route exact path="/sign-in-callback">
                                 <Redirect to={getPreLoginPath() || "/"} />

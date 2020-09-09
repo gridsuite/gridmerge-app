@@ -10,7 +10,7 @@ import {createReducer} from "@reduxjs/toolkit";
 import {getLocalStorageTheme, saveLocalStorageTheme,} from "./local-storage";
 
 import {
-    INIT_COUNTRIES,
+    INIT_PROCESSES,
     RESET_COUNTRIES_STATUS,
     SELECT_THEME,
     UPDATE_COUNTRY_STATUS,
@@ -25,7 +25,7 @@ const initialState = {
     user : null,
     signInCallbackError : null,
     lastDate: null,
-    countries: []
+    processes: []
 };
 
 export const reducer = createReducer(initialState, {
@@ -42,31 +42,40 @@ export const reducer = createReducer(initialState, {
         state.signInCallbackError = action.signInCallbackError;
     },
 
-    [INIT_COUNTRIES]: (state, action) => {
-        state.countries = action.names.map(name => {
+    [INIT_PROCESSES]: (state, action) => {
+        state.processes = action.configs.map(config => {
             return {
-                name: name,
-                status: IgmStatus.ABSENT
-            };
+                name: config.process,
+                lastDate: null,
+                countries: config.tsos.map(tso => {
+                    return {
+                        name: tso.toLowerCase(),
+                        status: IgmStatus.ABSENT
+                    }
+                }),
+            }
         });
     },
 
     [UPDATE_COUNTRY_STATUS]: (state, action) => {
-        const country = state.countries.find(country => country.name === action.name);
+        const process = state.processes.find(process => process.name === action.process);
+        const country = process.countries.find(country => country.name === action.country);
         country.status = action.status;
     },
 
-    [RESET_COUNTRIES_STATUS]: (state) => {
-        state.countries.forEach(country => {
+    [RESET_COUNTRIES_STATUS]: (state, action) => {
+        const process = state.processes.find(process => process.name === action.process);
+        process.countries.forEach(country => {
            country.status = IgmStatus.ABSENT;
         });
     },
 
     [UPDATE_LAST_DATE]: (state, action) => {
-        if (state.lastDate == null) {
-            state.lastDate = action.lastDate;
+        const process = state.processes.find(process => process.name === action.process);
+        if (process.lastDate == null) {
+            process.lastDate = action.lastDate;
             // also reset country status
-            state.countries.forEach(country => {
+            process.countries.forEach(country => {
                 country.status = IgmStatus.ABSENT;
             });
         }

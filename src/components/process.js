@@ -19,25 +19,21 @@ const Process = (props) => {
 
     const websocketExpectedCloseRef = useRef();
 
-    const lastDate = useSelector((state) => state.lastDate);
-
-    const countries = useSelector((state) => state.countries);
-
     const dispatch = useDispatch();
 
     function update(message) {
         const date = message.headers.date;
 
-        dispatch(updateLastDate(new Date(date)));
+        dispatch(updateLastDate(props.process.name, new Date(date)));
 
         if (message.headers.type === "TSO_IGM") {
             const countryName = message.headers.tso.toLowerCase();
-            dispatch(updateCountryStatus(countryName, IgmStatus.IMPORTED_VALID));
+            dispatch(updateCountryStatus(props.process.name, countryName, IgmStatus.IMPORTED_VALID));
         } else if (message.headers.type === "MERGE_PROCESS_FINISHED") {
             const headersTso = message.headers.tso;
             const countryNames = headersTso.substr(1, headersTso.length - 2).split(', '); // FIXME beurk...
             countryNames.forEach(countryName => {
-                dispatch(updateCountryStatus(countryName.toLowerCase(), IgmStatus.MERGED));
+                dispatch(updateCountryStatus(props.process.name, countryName.toLowerCase(), IgmStatus.MERGED));
             })
         }
     }
@@ -64,7 +60,7 @@ const Process = (props) => {
     useEffect(() => {
         websocketExpectedCloseRef.current = false;
 
-        const ws = connectNotifications(props.name);
+        const ws = connectNotifications(props.process.name);
 
         return function () {
             websocketExpectedCloseRef.current = true;
@@ -73,16 +69,16 @@ const Process = (props) => {
     }, []);
 
     return (
-        <MergeMap countries={countries}>
+        <MergeMap countries={props.process.countries}>
             <div style={{ position: 'absolute', left: 8, top: 50, zIndex: 1 }} >
-                <h2>{lastDate ? lastDate.toLocaleString() : ""}</h2>
+                <h2>{props.process.lastDate ? props.process.lastDate.toLocaleString() : ""}</h2>
             </div>
         </MergeMap>
     );
 };
 
-Process.propTypes = {
-    name: PropTypes.string.isRequired
-}
+// Process.propTypes = {
+//     name: PropTypes.string.isRequired
+// }
 
 export default Process;
