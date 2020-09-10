@@ -48,6 +48,5 @@ export function connectNotificationsWebsocket(process) {
 export function fetchMergeConfigs() {
     console.info('Fetching merge configs...');
     const fetchConfigsUrl = PREFIX_ORCHESTRATOR_QUERIES + '/v1/configs';
-    console.debug(fetchConfigsUrl);
     return backendFetch(fetchConfigsUrl).then((response) => response.json());
 }

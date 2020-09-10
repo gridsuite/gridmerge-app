@@ -14,6 +14,7 @@ import bbox from 'geojson-bbox';
 
 const COUNTRY_STROKE_COLOR = 'white';
 const DEFAULT_CENTER = [0, 0];
+const DEFAULT_SCALE = 30000;
 
 const useStyles = makeStyles((theme) => ({
     map: {
@@ -38,11 +39,11 @@ const MergeMap = (props) => {
 
     const [geographies, setGeographies] = useState([]);
     const [center, setCenter] = useState(DEFAULT_CENTER);
+    const [scale, setScale] = useState(DEFAULT_SCALE);
 
     const classes = useStyles();
 
-    function computeCenter(geoJsons) {
-        // compute geometries bounding box
+    function computeBoundingBox(geoJsons) {
         const reducer = (oldBb, json) =>  {
             const newBb = bbox(json);
             if (oldBb) {
@@ -53,10 +54,20 @@ const MergeMap = (props) => {
             }
             return newBb;
         }
-        const bb = geoJsons.reduce(reducer, null);
+        return geoJsons.reduce(reducer, null);
+    }
 
+    function computeCenter(bb) {
         // compute geometries center
         return [(bb[0] + bb[2]) / 2, (bb[1] + bb[3]) / 2];
+    }
+
+    function computeScale(bb) {
+        // this is a very simple heuristic to compute a scale that fit map to screen
+        // ideally we should try to understand how scale is taken into account in the
+        // default projection
+        const factor = Math.max(bb[2] - bb[0], bb[3] - bb[1]);
+        return DEFAULT_SCALE / factor;
     }
 
     function countryColor(status) {
@@ -81,20 +92,26 @@ const MergeMap = (props) => {
                     return fetch(url).then(resp => resp.json())
                 }
             )).then(jsons => {
-                setCenter(computeCenter(jsons));
+                // compute geometries bounding box
+                const bb = computeBoundingBox(jsons);
+                setCenter(computeCenter(bb));
+                setScale(computeScale(bb));
                 setGeographies(jsons);
             })
         } else {
             setCenter(DEFAULT_CENTER);
+            setScale(DEFAULT_SCALE);
             setGeographies([]);
         }
     }, [props.countries]);
 
+    const projectionConfig = { center: center, scale: scale };
+
     return (
         <div className={classes.map}>
             <ComposableMap style={{position:'absolute', top:'0', left:'0', height:'100%', width:'100%', zIndex:'-1'}}
-                           projectionConfig={{ scale: 1800}}>
-                <ZoomableGroup center={center} minZoom={1} maxZoom={1}>
+                           projectionConfig={projectionConfig}>
+                <ZoomableGroup minZoom={1} maxZoom={1}>
                     <Geographies geography={geographies}>
                         {({geographies}) =>
                             geographies.map((geo, index) => {
