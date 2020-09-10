@@ -9,13 +9,7 @@ import {createReducer} from "@reduxjs/toolkit";
 
 import {getLocalStorageTheme, saveLocalStorageTheme,} from "./local-storage";
 
-import {
-    INIT_PROCESSES,
-    RESET_COUNTRIES_STATUS,
-    SELECT_THEME,
-    UPDATE_COUNTRY_STATUS,
-    UPDATE_LAST_DATE,
-} from "./actions";
+import {INIT_PROCESSES, SELECT_THEME, UPDATE_PROCESS_LAST_DATE, UPDATE_TSO_STATUS,} from "./actions";
 
 import {SIGNIN_CALLBACK_ERROR, USER,} from "@gridsuite/commons-ui";
 import {IgmStatus} from "../components/merge-map";
@@ -47,7 +41,7 @@ export const reducer = createReducer(initialState, {
             return {
                 name: config.process,
                 lastDate: null,
-                countries: config.tsos.map(tso => {
+                tsos: config.tsos.map(tso => {
                     return {
                         name: tso.toLowerCase(),
                         status: IgmStatus.ABSENT
@@ -57,26 +51,19 @@ export const reducer = createReducer(initialState, {
         });
     },
 
-    [UPDATE_COUNTRY_STATUS]: (state, action) => {
+    [UPDATE_TSO_STATUS]: (state, action) => {
         const process = state.processes.find(process => process.name === action.process);
-        const country = process.countries.find(country => country.name === action.country);
-        country.status = action.status;
+        const tso = process.tsos.find(tso => tso.name === action.tso);
+        tso.status = action.status;
     },
 
-    [RESET_COUNTRIES_STATUS]: (state, action) => {
-        const process = state.processes.find(process => process.name === action.process);
-        process.countries.forEach(country => {
-           country.status = IgmStatus.ABSENT;
-        });
-    },
-
-    [UPDATE_LAST_DATE]: (state, action) => {
+    [UPDATE_PROCESS_LAST_DATE]: (state, action) => {
         const process = state.processes.find(process => process.name === action.process);
         if (process.lastDate == null || action.lastDate > process.lastDate) {
             process.lastDate = action.lastDate;
-            // also reset country status
-            process.countries.forEach(country => {
-                country.status = IgmStatus.ABSENT;
+            // also reset TSO status
+            process.tsos.forEach(tso => {
+                tso.status = IgmStatus.ABSENT;
             });
         }
     },

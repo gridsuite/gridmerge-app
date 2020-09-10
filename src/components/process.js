@@ -9,11 +9,11 @@ import React, {useEffect, useRef} from "react";
 
 import PropTypes from "prop-types";
 
-import {useDispatch, useSelector} from 'react-redux';
+import {useDispatch} from 'react-redux';
 
 import MergeMap, {IgmStatus} from "./merge-map";
 import {connectNotificationsWebsocket} from "./api";
-import {updateCountryStatus, updateLastDate} from "../redux/actions";
+import {updateProcessLastDate, updateTsoStatus} from "../redux/actions";
 
 const Process = (props) => {
 
@@ -24,16 +24,16 @@ const Process = (props) => {
     function update(message) {
         const date = message.headers.date;
 
-        dispatch(updateLastDate(props.name, new Date(date)));
+        dispatch(updateProcessLastDate(props.name, new Date(date)));
 
         if (message.headers.type === "TSO_IGM") {
-            const countryName = message.headers.tso.toLowerCase();
-            dispatch(updateCountryStatus(props.name, countryName, IgmStatus.IMPORTED_VALID));
+            const tso = message.headers.tso.toLowerCase();
+            dispatch(updateTsoStatus(props.name, tso, IgmStatus.IMPORTED_VALID));
         } else if (message.headers.type === "MERGE_PROCESS_FINISHED") {
             const headersTso = message.headers.tso;
-            const countryNames = headersTso.substr(1, headersTso.length - 2).split(', '); // FIXME beurk...
-            countryNames.forEach(countryName => {
-                dispatch(updateCountryStatus(props.name, countryName.toLowerCase(), IgmStatus.MERGED));
+            const tsos = headersTso.substr(1, headersTso.length - 2).split(', '); // FIXME beurk...
+            tsos.forEach(tso => {
+                dispatch(updateTsoStatus(props.name, tso.toLowerCase(), IgmStatus.MERGED));
             })
         }
     }
@@ -69,7 +69,7 @@ const Process = (props) => {
     }, []);
 
     return (
-        <MergeMap countries={props.countries}>
+        <MergeMap tsos={props.tsos}>
             <div style={{ position: 'absolute', left: 8, top: 50, zIndex: 1 }} >
                 <h2>{props.date ? props.date.toLocaleString() : ""}</h2>
             </div>
@@ -81,7 +81,7 @@ Process.propTypes = {
     process: PropTypes.shape({
         name: PropTypes.string.isRequired,
         date: PropTypes.object.isRequired,
-        countries: PropTypes.arrayOf(PropTypes.shape({
+        tsos: PropTypes.arrayOf(PropTypes.shape({
             name: PropTypes.string.isRequired,
             status: PropTypes.string.isRequired
         })),

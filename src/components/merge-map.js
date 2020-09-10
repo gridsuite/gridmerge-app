@@ -12,7 +12,7 @@ import {ComposableMap, Geographies, Geography, ZoomableGroup} from "react-simple
 import {makeStyles} from '@material-ui/core/styles';
 import bbox from 'geojson-bbox';
 
-const COUNTRY_STROKE_COLOR = 'white';
+const TSO_STROKE_COLOR = 'white';
 const DEFAULT_CENTER = [0, 0];
 const DEFAULT_SCALE = 30000;
 
@@ -20,8 +20,8 @@ const useStyles = makeStyles((theme) => ({
     map: {
         backgroundColor: theme.palette.background.paper
     },
-    country: {
-        stroke: COUNTRY_STROKE_COLOR,
+    tso: {
+        stroke: TSO_STROKE_COLOR,
         strokeWidth: '1px',
         vectorEffect: 'non-scaling-stroke'
     }
@@ -70,7 +70,7 @@ const MergeMap = (props) => {
         return DEFAULT_SCALE / factor;
     }
 
-    function countryColor(status) {
+    function tsoColor(status) {
         switch (status) {
             case IgmStatus.RECEIVED:
                 return '#009CD8';
@@ -86,9 +86,9 @@ const MergeMap = (props) => {
     }
 
     useEffect(() => {
-        if (props.countries.length > 0) {
-            Promise.all(props.countries.map(country => {
-                    const url = country.name + '.json';
+        if (props.tsos.length > 0) {
+            Promise.all(props.tsos.map(tso => {
+                    const url = tso.name + '.json';
                     return fetch(url).then(resp => resp.json())
                 }
             )).then(jsons => {
@@ -103,7 +103,7 @@ const MergeMap = (props) => {
             setScale(DEFAULT_SCALE);
             setGeographies([]);
         }
-    }, [props.countries]);
+    }, [props.tsos]);
 
     const projectionConfig = { center: center, scale: scale };
 
@@ -115,10 +115,10 @@ const MergeMap = (props) => {
                     <Geographies geography={geographies}>
                         {({geographies}) =>
                             geographies.map((geo, index) => {
-                                const country = props.countries[index];
-                                const status = country ? country.status : IgmStatus.ABSENT;
-                                const color = countryColor(status);
-                                return <Geography key={geo.rsmKey} geography={geo} className={classes.country} fill={color}/>
+                                const tso = props.tsos[index];
+                                const status = tso ? tso.status : IgmStatus.ABSENT;
+                                const color = tsoColor(status);
+                                return <Geography key={geo.rsmKey} geography={geo} className={classes.tso} fill={color}/>
                             })
                         }
                     </Geographies>
@@ -128,12 +128,13 @@ const MergeMap = (props) => {
         </div>
   )
 }
+
 MergeMap.defaultProps = {
-    countries: [],
+    tsos: [],
 };
 
 MergeMap.propTypes = {
-    countries: PropTypes.arrayOf(PropTypes.shape({
+    tsos: PropTypes.arrayOf(PropTypes.shape({
         name: PropTypes.string.isRequired,
         status: PropTypes.string.isRequired
     })),

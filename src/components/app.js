@@ -155,7 +155,7 @@ const App = () => {
                             <Route exact path="/">
                                 { currentProcess && <Process name={currentProcess.name}
                                                              date={currentProcess.lastDate}
-                                                             countries={currentProcess.countries}/> }
+                                                             tsos={currentProcess.tsos}/> }
                             </Route>
                             <Route exact path="/sign-in-callback">
                                 <Redirect to={getPreLoginPath() || "/"} />
