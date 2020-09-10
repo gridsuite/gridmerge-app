@@ -5,35 +5,30 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 
-import { useDispatch, useSelector } from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 
-import {
-    Redirect,
-    Route,
-    Switch,
-    useHistory,
-    useLocation,
-} from 'react-router-dom';
+import {Redirect, Route, Switch, useHistory, useLocation, useRouteMatch,} from 'react-router-dom';
 
+import {createMuiTheme, makeStyles, ThemeProvider} from "@material-ui/core/styles";
 import CssBaseline from '@material-ui/core/CssBaseline';
-import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
-import { LIGHT_THEME } from '../redux/actions';
+import {initProcesses, LIGHT_THEME} from '../redux/actions';
 
 import {
-    TopBar,
     AuthenticationRouter,
-    logout,
     getPreLoginPath,
     initializeAuthenticationProd,
-    initializeAuthenticationDev,
+    logout,
+    TopBar,
 } from '@gridsuite/commons-ui';
+import {FormattedMessage} from 'react-intl';
 
-import { useRouteMatch } from 'react-router-dom';
-import { FormattedMessage } from 'react-intl';
-import Typography from "@material-ui/core/Typography";
-import Box from "@material-ui/core/Box";
+import Process from './process';
+import Parameters from './parameters';
+import Tabs from "@material-ui/core/Tabs";
+import Tab from "@material-ui/core/Tab";
+import {fetchMergeConfigs} from "../utils/api";
 
 const lightTheme = createMuiTheme({
     palette: {
@@ -57,9 +52,18 @@ const getMuiTheme = (theme) => {
     }
 };
 
+const useStyles = makeStyles(() => ({
+    process: {
+        marginLeft: 18,
+    }
+}));
+
 const noUserManager = { instance: null, error: null };
 
 const App = () => {
+
+    const processes = useSelector(state => state.processes);
+
     const theme = useSelector(state => state.theme);
 
     const user = useSelector(state => state.user);
@@ -68,34 +72,29 @@ const App = () => {
 
     const [userManager, setUserManager] = useState(noUserManager);
 
+    const [showParameters, setShowParameters] = useState(false);
+
     const history = useHistory();
 
     const dispatch = useDispatch();
 
     const location = useLocation();
 
+    const classes = useStyles();
+
+    const [tabIndex, setTabIndex] = React.useState(0);
+
     let matchSilentRenewCallbackUrl= useRouteMatch({
         path: '/silent-renew-callback',
         exact: true,
     });
 
-    function initialize() {
-        if (process.env.REACT_APP_USE_AUTHENTICATION === true) {
-            return initializeAuthenticationProd(
-                dispatch,
-                matchSilentRenewCallbackUrl != null,
-                fetch('idpSettings.json')
-            );
-        } else {
-            return initializeAuthenticationDev(
-                dispatch,
-                matchSilentRenewCallbackUrl != null
-            );
-        }
-    }
-
     useEffect(() => {
-        initialize()
+        initializeAuthenticationProd(
+            dispatch,
+            matchSilentRenewCallbackUrl != null,
+            fetch('idpSettings.json')
+        )
             .then((userManager) => {
                 setUserManager({ instance: userManager, error: null });
                 userManager.signinSilent();
@@ -106,21 +105,58 @@ const App = () => {
             });
     }, []);
 
+    useEffect(() => {
+        if (user !== null) {
+            fetchMergeConfigs().then(configs => {
+                dispatch(initProcesses(configs));
+            });
+        }
+    }, [user]);
+
     function onLogoClicked() {
         history.replace("/");
     }
+
+    function showParametersClicked() {
+        setShowParameters(true);
+    }
+
+    function hideParameters() {
+        setShowParameters(false);
+    }
+
+    const currentProcess = processes.length > 0 ? processes[tabIndex] : null;
 
     return (
         <ThemeProvider theme={getMuiTheme(theme)}>
             <React.Fragment>
                 <CssBaseline />
-                <TopBar appName="Merge" appColor="#0CA789" onParametersClick={() => console.log("onParametersClick")} onLogoutClick={() => logout(dispatch, userManager.instance)} onLogoClick={() => onLogoClicked()} user={user}/>
+                <TopBar appName="Merge" appColor="#0CA789"
+                        onParametersClick={() => showParametersClicked()}
+                        onLogoutClick={() => logout(dispatch, userManager.instance)}
+                        onLogoClick={() => onLogoClicked()} user={user}>
+                    <Tabs
+                        value={tabIndex}
+                        indicatorColor="primary"
+                        variant="scrollable"
+                        scrollButtons="auto"
+                        onChange={(event, newValue) => setTabIndex(newValue)}
+                        aria-label="parameters"
+                        className={classes.process}>
+                        { processes.map(process => <Tab label={process.name} />) }
+                    </Tabs>
+                </TopBar>
+                <Parameters
+                    showParameters={showParameters}
+                    hideParameters={hideParameters}
+                />
                 { user !== null ? (
                         <Switch>
                             <Route exact path="/">
-                                <Box mt={20}>
-                                    <Typography variant="h3"  color="textPrimary" align="center">Connected</Typography>
-                                </Box>                            </Route>
+                                { currentProcess && <Process name={currentProcess.name}
+                                                             date={currentProcess.lastDate}
+                                                             tsos={currentProcess.tsos}/> }
+                            </Route>
                             <Route exact path="/sign-in-callback">
                                 <Redirect to={getPreLoginPath() || "/"} />
                             </Route>

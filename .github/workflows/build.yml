@@ -20,12 +20,13 @@ jobs:
           npm install
           npm run-script build
           npm run-script test
+
       - name: Build and publish Docker image
         if: github.ref == 'refs/heads/master'
         uses: elgohr/Publish-Docker-Github-Action@master
         with:
-          name: powsybl/gridmerge-app
-          username: powsyblci
+          name: gridsuite/gridmerge-app
+          username: gridsuiteci
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Broadcast update event

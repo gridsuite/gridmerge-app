@@ -7,24 +7,19 @@
 
 import {createReducer} from "@reduxjs/toolkit";
 
-import {
-    getLocalStorageTheme,
-    saveLocalStorageTheme,
-} from "./local-storage";
+import {getLocalStorageTheme, saveLocalStorageTheme,} from "./local-storage";
 
-import {
-    SELECT_THEME,
-} from "./actions";
+import {INIT_PROCESSES, SELECT_THEME, UPDATE_PROCESS_LAST_DATE, UPDATE_TSO_STATUS,} from "./actions";
 
-import {
-    USER,
-    SIGNIN_CALLBACK_ERROR,
-} from "@gridsuite/commons-ui";
+import {SIGNIN_CALLBACK_ERROR, USER,} from "@gridsuite/commons-ui";
+import {IgmStatus} from "../components/merge-map";
 
 const initialState = {
     theme: getLocalStorageTheme(),
     user : null,
     signInCallbackError : null,
+    lastDate: null,
+    processes: []
 };
 
 export const reducer = createReducer(initialState, {
@@ -39,5 +34,37 @@ export const reducer = createReducer(initialState, {
 
     [SIGNIN_CALLBACK_ERROR]: (state, action) => {
         state.signInCallbackError = action.signInCallbackError;
+    },
+
+    [INIT_PROCESSES]: (state, action) => {
+        state.processes = action.configs.map(config => {
+            return {
+                name: config.process,
+                lastDate: null,
+                tsos: config.tsos.map(tso => {
+                    return {
+                        name: tso.toLowerCase(),
+                        status: IgmStatus.ABSENT
+                    }
+                }),
+            }
+        });
+    },
+
+    [UPDATE_TSO_STATUS]: (state, action) => {
+        const process = state.processes.find(process => process.name === action.process);
+        const tso = process.tsos.find(tso => tso.name === action.tso);
+        tso.status = action.status;
+    },
+
+    [UPDATE_PROCESS_LAST_DATE]: (state, action) => {
+        const process = state.processes.find(process => process.name === action.process);
+        if (process.lastDate == null || action.lastDate > process.lastDate) {
+            process.lastDate = action.lastDate;
+            // also reset TSO status
+            process.tsos.forEach(tso => {
+                tso.status = IgmStatus.ABSENT;
+            });
+        }
     },
 });
