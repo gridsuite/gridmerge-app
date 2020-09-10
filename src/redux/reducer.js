@@ -72,7 +72,7 @@ export const reducer = createReducer(initialState, {
 
     [UPDATE_LAST_DATE]: (state, action) => {
         const process = state.processes.find(process => process.name === action.process);
-        if (process.lastDate == null) {
+        if (process.lastDate == null || action.lastDate > process.lastDate) {
             process.lastDate = action.lastDate;
             // also reset country status
             process.countries.forEach(country => {
