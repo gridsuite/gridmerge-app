@@ -28,7 +28,7 @@ import Process from './process';
 import Parameters from './parameters';
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
-import {fetchMergeConfigs} from "./api";
+import {fetchMergeConfigs} from "../utils/api";
 
 const lightTheme = createMuiTheme({
     palette: {

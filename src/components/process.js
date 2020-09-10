@@ -12,7 +12,7 @@ import PropTypes from "prop-types";
 import {useDispatch} from 'react-redux';
 
 import MergeMap, {IgmStatus} from "./merge-map";
-import {connectNotificationsWebsocket} from "./api";
+import {connectNotificationsWebsocket} from "../utils/api";
 import {updateProcessLastDate, updateTsoStatus} from "../redux/actions";
 
 const Process = (props) => {
