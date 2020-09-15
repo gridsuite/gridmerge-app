@@ -9,7 +9,13 @@ import {createReducer} from "@reduxjs/toolkit";
 
 import {getLocalStorageTheme, saveLocalStorageTheme,} from "./local-storage";
 
-import {INIT_PROCESSES, SELECT_THEME, UPDATE_PROCESS_LAST_DATE, UPDATE_TSO_STATUS,} from "./actions";
+import {
+    INIT_PROCESSES,
+    SELECT_THEME,
+    UPDATE_ALL_IGMS_STATUS,
+    UPDATE_IGM_STATUS,
+    UPDATE_PROCESS_LAST_DATE,
+} from "./actions";
 
 import {SIGNIN_CALLBACK_ERROR, USER,} from "@gridsuite/commons-ui";
 import {IgmStatus} from "../components/merge-map";
@@ -41,9 +47,9 @@ export const reducer = createReducer(initialState, {
             return {
                 name: config.process,
                 lastDate: null,
-                tsos: config.tsos.map(tso => {
+                igms: config.tsos.map(tso => {
                     return {
-                        name: tso.toLowerCase(),
+                        tso: tso.toLowerCase(),
                         status: IgmStatus.ABSENT
                     }
                 }),
@@ -51,10 +57,17 @@ export const reducer = createReducer(initialState, {
         });
     },
 
-    [UPDATE_TSO_STATUS]: (state, action) => {
+    [UPDATE_IGM_STATUS]: (state, action) => {
         const process = state.processes.find(process => process.name === action.process);
-        const tso = process.tsos.find(tso => tso.name === action.tso);
-        tso.status = action.status;
+        const igm = process.igms.find(igm => igm.tso === action.tso);
+        igm.status = action.status;
+    },
+
+    [UPDATE_ALL_IGMS_STATUS]: (state, action) => {
+        const process = state.processes.find(process => process.name === action.process);
+        process.igms.forEach(igm => {
+            igm.status = action.status;
+        });
     },
 
     [UPDATE_PROCESS_LAST_DATE]: (state, action) => {
@@ -62,8 +75,8 @@ export const reducer = createReducer(initialState, {
         if (process.lastDate == null || action.lastDate > process.lastDate) {
             process.lastDate = action.lastDate;
             // also reset TSO status
-            process.tsos.forEach(tso => {
-                tso.status = IgmStatus.ABSENT;
+            process.igms.forEach(igm => {
+                igm.status = IgmStatus.ABSENT;
             });
         }
     },

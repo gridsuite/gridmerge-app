@@ -13,7 +13,7 @@ import {useDispatch} from 'react-redux';
 
 import MergeMap, {IgmStatus} from "./merge-map";
 import {connectNotificationsWebsocket} from "../utils/api";
-import {updateProcessLastDate, updateTsoStatus} from "../redux/actions";
+import {updateAllIgmsStatus, updateProcessLastDate, updateIgmStatus} from "../redux/actions";
 
 const Process = (props) => {
 
@@ -21,20 +21,41 @@ const Process = (props) => {
 
     const dispatch = useDispatch();
 
+    function updateIgm(tso, status) {
+        dispatch(updateIgmStatus(props.name, tso.toLowerCase(), status));
+    }
+
+    function updateAllIgms(status) {
+        dispatch(updateAllIgmsStatus(props.name, status));
+    }
+
     function update(message) {
         const date = message.headers.date;
 
         dispatch(updateProcessLastDate(props.name, new Date(date)));
 
-        if (message.headers.type === "TSO_IGM") {
-            const tso = message.headers.tso.toLowerCase();
-            dispatch(updateTsoStatus(props.name, tso, IgmStatus.IMPORTED_VALID));
-        } else if (message.headers.type === "MERGE_PROCESS_FINISHED") {
-            const headersTso = message.headers.tso;
-            const tsos = headersTso.substr(1, headersTso.length - 2).split(', '); // FIXME beurk...
-            tsos.forEach(tso => {
-                dispatch(updateTsoStatus(props.name, tso.toLowerCase(), IgmStatus.MERGED));
-            })
+        switch (message.headers.status) {
+            case 'AVAILABLE':
+                updateIgm(message.headers.tso, IgmStatus.AVAILABLE);
+                break;
+
+            case 'VALIDATION_SUCCEED':
+                updateIgm(message.headers.tso, IgmStatus.VALID);
+                break;
+
+            case 'VALIDATION_FAILED':
+                updateIgm(message.headers.tso, IgmStatus.INVALID);
+                break;
+
+            case 'BALANCE_ADJUSTMENT_SUCCEED':
+            case 'LOADFLOW_SUCCEED':
+                updateAllIgms(IgmStatus.MERGED);
+                break;
+
+            case 'BALANCE_ADJUSTMENT_FAILED':
+            case 'LOADFLOW_FAILED':
+                // TODO
+                break;
         }
     }
 
@@ -69,7 +90,7 @@ const Process = (props) => {
     }, []);
 
     return (
-        <MergeMap tsos={props.tsos}>
+        <MergeMap igms={props.igms}>
             <div style={{ position: 'absolute', left: 8, top: 50, zIndex: 1 }} >
                 <h2>{props.date ? props.date.toLocaleString() : ""}</h2>
             </div>
@@ -78,14 +99,12 @@ const Process = (props) => {
 };
 
 Process.propTypes = {
-    process: PropTypes.shape({
-        name: PropTypes.string.isRequired,
-        date: PropTypes.object.isRequired,
-        tsos: PropTypes.arrayOf(PropTypes.shape({
-            name: PropTypes.string.isRequired,
-            status: PropTypes.string.isRequired
-        })),
-    })
+    name: PropTypes.string.isRequired,
+    date: PropTypes.object.isRequired,
+    igms: PropTypes.arrayOf(PropTypes.shape({
+        tso: PropTypes.string.isRequired,
+        status: PropTypes.string.isRequired
+    }))
 }
 
 export default Process;

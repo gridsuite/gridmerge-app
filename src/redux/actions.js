@@ -19,10 +19,16 @@ export function initProcesses(configs) {
     return { type: INIT_PROCESSES, configs: configs };
 }
 
-export const UPDATE_TSO_STATUS = 'UPDATE_TSO_STATUS';
+export const UPDATE_IGM_STATUS = 'UPDATE_IGM_STATUS';
 
-export function updateTsoStatus(process, tso, status) {
-    return { type: UPDATE_TSO_STATUS, process: process, tso: tso, status: status };
+export function updateIgmStatus(process, tso, status) {
+    return { type: UPDATE_IGM_STATUS, process: process, tso: tso, status: status };
+}
+
+export const UPDATE_ALL_IGMS_STATUS = 'UPDATE_ALL_IGMS_STATUS';
+
+export function updateAllIgmsStatus(process, status) {
+    return { type: UPDATE_ALL_IGMS_STATUS, process: process, status: status };
 }
 
 export const UPDATE_PROCESS_LAST_DATE = 'UPDATE_PROCESS_LAST_DATE';
