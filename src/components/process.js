@@ -101,7 +101,6 @@ const Process = (props) => {
         fetchMerges(props.name).then(merges => {
             if (merges.length > 0) {
                 const lastMerge = merges[merges.length - 1];
-                console.info(lastMerge)
                 dispatch(updateMergeDate(props.name, new Date(lastMerge.date)));
                 lastMerge.igms.forEach(igm => {
                     const status = lastMerge.status ? lastMerge.status : igm.status;
