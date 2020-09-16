@@ -14,7 +14,7 @@ import {
     SELECT_THEME,
     UPDATE_ALL_IGMS_STATUS,
     UPDATE_IGM_STATUS,
-    UPDATE_PROCESS_LAST_DATE,
+    UPDATE_MERGE_DATE,
 } from "./actions";
 
 import {SIGNIN_CALLBACK_ERROR, USER,} from "@gridsuite/commons-ui";
@@ -24,8 +24,11 @@ const initialState = {
     theme: getLocalStorageTheme(),
     user : null,
     signInCallbackError : null,
-    lastDate: null,
-    processes: []
+    configs: [],
+    merge: {
+        date: null,
+        igms: []
+    }
 };
 
 export const reducer = createReducer(initialState, {
@@ -43,10 +46,25 @@ export const reducer = createReducer(initialState, {
     },
 
     [INIT_PROCESSES]: (state, action) => {
-        state.processes = action.configs.map(config => {
-            return {
-                name: config.process,
-                lastDate: null,
+        state.configs = action.configs;
+    },
+
+    [UPDATE_IGM_STATUS]: (state, action) => {
+        const igm = state.merge.igms.find(igm => igm.tso === action.tso);
+        igm.status = action.status;
+    },
+
+    [UPDATE_ALL_IGMS_STATUS]: (state, action) => {
+        state.merge.igms.forEach(igm => {
+            igm.status = action.status;
+        });
+    },
+
+    [UPDATE_MERGE_DATE]: (state, action) => {
+        if (state.merge.date == null || action.date.getTime() !== state.merge.date.getTime()) {
+            const config = state.configs.find(config => config.process === action.process);
+            state.merge = {
+                date: action.date,
                 igms: config.tsos.map(tso => {
                     return {
                         tso: tso.toLowerCase(),
@@ -54,30 +72,6 @@ export const reducer = createReducer(initialState, {
                     }
                 }),
             }
-        });
-    },
-
-    [UPDATE_IGM_STATUS]: (state, action) => {
-        const process = state.processes.find(process => process.name === action.process);
-        const igm = process.igms.find(igm => igm.tso === action.tso);
-        igm.status = action.status;
-    },
-
-    [UPDATE_ALL_IGMS_STATUS]: (state, action) => {
-        const process = state.processes.find(process => process.name === action.process);
-        process.igms.forEach(igm => {
-            igm.status = action.status;
-        });
-    },
-
-    [UPDATE_PROCESS_LAST_DATE]: (state, action) => {
-        const process = state.processes.find(process => process.name === action.process);
-        if (process.lastDate == null || action.lastDate > process.lastDate) {
-            process.lastDate = action.lastDate;
-            // also reset TSO status
-            process.igms.forEach(igm => {
-                igm.status = IgmStatus.ABSENT;
-            });
         }
     },
 });

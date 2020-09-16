@@ -31,8 +31,8 @@ export function updateAllIgmsStatus(process, status) {
     return { type: UPDATE_ALL_IGMS_STATUS, process: process, status: status };
 }
 
-export const UPDATE_PROCESS_LAST_DATE = 'UPDATE_PROCESS_LAST_DATE';
+export const UPDATE_MERGE_DATE = 'UPDATE_MERGE_DATE';
 
-export function updateProcessLastDate(process, lastDate) {
-    return { type: UPDATE_PROCESS_LAST_DATE, process: process, lastDate: lastDate };
+export function updateMergeDate(process, date) {
+    return { type: UPDATE_MERGE_DATE, process: process, date: date };
 }

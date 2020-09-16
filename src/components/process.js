@@ -9,13 +9,15 @@ import React, {useEffect, useRef} from "react";
 
 import PropTypes from "prop-types";
 
-import {useDispatch} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 
 import MergeMap, {IgmStatus} from "./merge-map";
-import {connectNotificationsWebsocket} from "../utils/api";
-import {updateAllIgmsStatus, updateProcessLastDate, updateIgmStatus} from "../redux/actions";
+import {connectNotificationsWebsocket, fetchMerges} from "../utils/api";
+import {updateAllIgmsStatus, updateIgmStatus, updateMergeDate} from "../redux/actions";
 
 const Process = (props) => {
+
+    const merge = useSelector(state => state.merge);
 
     const websocketExpectedCloseRef = useRef();
 
@@ -29,32 +31,49 @@ const Process = (props) => {
         dispatch(updateAllIgmsStatus(props.name, status));
     }
 
-    function update(message) {
-        const date = message.headers.date;
-
-        dispatch(updateProcessLastDate(props.name, new Date(date)));
-
-        switch (message.headers.status) {
+    function toIgmStatus(status) {
+        switch (status) {
             case 'AVAILABLE':
-                updateIgm(message.headers.tso, IgmStatus.AVAILABLE);
-                break;
+                return IgmStatus.AVAILABLE;
 
             case 'VALIDATION_SUCCEED':
-                updateIgm(message.headers.tso, IgmStatus.VALID);
-                break;
+                return IgmStatus.VALID;
 
             case 'VALIDATION_FAILED':
-                updateIgm(message.headers.tso, IgmStatus.INVALID);
-                break;
+                return IgmStatus.INVALID;
 
             case 'BALANCE_ADJUSTMENT_SUCCEED':
             case 'LOADFLOW_SUCCEED':
-                updateAllIgms(IgmStatus.MERGED);
-                break;
+                return IgmStatus.MERGED;
 
             case 'BALANCE_ADJUSTMENT_FAILED':
             case 'LOADFLOW_FAILED':
                 // TODO
+                break;
+        }
+    }
+
+    function update(message) {
+        const date = message.headers.date;
+
+        dispatch(updateMergeDate(props.name, new Date(date)));
+
+        // message.headers.status could be a server side IGM status or a merge status
+        // here we convert to front IGM status for individual TSO map coloration
+        const status = toIgmStatus(message.headers.status);
+
+        switch (message.headers.status) {
+            case 'AVAILABLE':
+            case 'VALIDATION_SUCCEED':
+            case 'VALIDATION_FAILED':
+                updateIgm(message.headers.tso, status);
+                break;
+
+            case 'BALANCE_ADJUSTMENT_SUCCEED':
+            case 'LOADFLOW_SUCCEED':
+            case 'BALANCE_ADJUSTMENT_FAILED':
+            case 'LOADFLOW_FAILED':
+                updateAllIgms(status);
                 break;
         }
     }
@@ -79,6 +98,18 @@ const Process = (props) => {
     }
 
     useEffect(() => {
+        fetchMerges(props.name).then(merges => {
+            if (merges.length > 0) {
+                const lastMerge = merges[merges.length - 1];
+                console.info(lastMerge)
+                dispatch(updateMergeDate(props.name, new Date(lastMerge.date)));
+                lastMerge.igms.forEach(igm => {
+                    const status = lastMerge.status ? lastMerge.status : igm.status;
+                    updateIgm(igm.tso, toIgmStatus(status));
+                })
+            }
+        });
+
         websocketExpectedCloseRef.current = false;
 
         const ws = connectNotifications(props.name);
@@ -90,21 +121,16 @@ const Process = (props) => {
     }, []);
 
     return (
-        <MergeMap igms={props.igms}>
+        <MergeMap igms={merge.igms}>
             <div style={{ position: 'absolute', left: 8, top: 50, zIndex: 1 }} >
-                <h2>{props.date ? props.date.toLocaleString() : ""}</h2>
+                <h2>{merge.date ? merge.date.toLocaleString() : ""}</h2>
             </div>
         </MergeMap>
     );
 };
 
 Process.propTypes = {
-    name: PropTypes.string.isRequired,
-    date: PropTypes.object.isRequired,
-    igms: PropTypes.arrayOf(PropTypes.shape({
-        tso: PropTypes.string.isRequired,
-        status: PropTypes.string.isRequired
-    }))
+    name: PropTypes.string.isRequired
 }
 
 export default Process;
