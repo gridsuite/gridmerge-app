@@ -15,6 +15,8 @@ import {createMuiTheme, makeStyles, ThemeProvider} from "@material-ui/core/style
 import CssBaseline from '@material-ui/core/CssBaseline';
 import {initProcesses, LIGHT_THEME} from '../redux/actions';
 
+import Stepper from './stepper';
+
 import {
     AuthenticationRouter,
     getPreLoginPath,
@@ -162,6 +164,7 @@ const App = () => {
                     hideParameters={hideParameters}
                 />
                 { user !== null ? (
+                    <>
                         <Switch>
                             <Route exact path="/">
                                 { config && <Process name={config.process}/> }
@@ -175,8 +178,10 @@ const App = () => {
                             <Route>
                                 <h1><FormattedMessage id="PageNotFound"/> </h1>
                             </Route>
-                        </Switch>)
-                    : (
+                        </Switch>
+                        <Stepper />
+                    </>
+                    ) : (
                         <AuthenticationRouter userManager={userManager} signInCallbackError={signInCallbackError} dispatch={dispatch} history={history} location={location}/>
                     )}
             </React.Fragment>
