@@ -26,6 +26,8 @@ import {
 import CssBaseline from '@material-ui/core/CssBaseline';
 import { initProcesses, LIGHT_THEME } from '../redux/actions';
 
+import Stepper from './stepper';
+
 import {
     AuthenticationRouter,
     getPreLoginPath,
@@ -36,8 +38,6 @@ import {
 import { FormattedMessage } from 'react-intl';
 
 import Process from './process';
-import DownloadButton from './stepper';
-
 import Parameters from './parameters';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
@@ -135,6 +135,7 @@ const App = () => {
                 setUserManager({ instance: null, error: error.message });
                 console.debug('error when importing the idp settings');
             });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
@@ -143,6 +144,7 @@ const App = () => {
                 dispatch(initProcesses(configs));
             });
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user]);
 
     function onLogoClicked() {
@@ -180,9 +182,10 @@ const App = () => {
                         aria-label="parameters"
                         className={classes.process}
                     >
-                        {Array.isArray(configs) && configs.map((config) => (
-                            <Tab label={config.process} />
-                        ))}
+                        {Array.isArray(configs) &&
+                            configs.map((config) => (
+                                <Tab label={config.process} />
+                            ))}
                     </Tabs>
                 </TopBar>
                 <Parameters
@@ -210,7 +213,7 @@ const App = () => {
                                 </h1>
                             </Route>
                         </Switch>
-                        <DownloadButton />
+                        <Stepper />
                     </>
                 ) : (
                     <AuthenticationRouter

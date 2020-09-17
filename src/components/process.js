@@ -51,7 +51,7 @@ const Process = (props) => {
 
             case 'BALANCE_ADJUSTMENT_FAILED':
             case 'LOADFLOW_FAILED':
-                // TODO
+            default:
                 break;
         }
     }
@@ -77,6 +77,8 @@ const Process = (props) => {
             case 'BALANCE_ADJUSTMENT_FAILED':
             case 'LOADFLOW_FAILED':
                 updateAllIgms(status);
+                break;
+            default:
                 break;
         }
     }
@@ -124,6 +126,7 @@ const Process = (props) => {
             websocketExpectedCloseRef.current = true;
             ws.close();
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.name]);
 
     return (
