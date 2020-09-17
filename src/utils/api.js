@@ -50,3 +50,9 @@ export function fetchMergeConfigs() {
     const fetchConfigsUrl = PREFIX_ORCHESTRATOR_QUERIES + '/v1/configs';
     return backendFetch(fetchConfigsUrl).then((response) => response.json());
 }
+
+export function fetchMerges(process) {
+    console.info(`Fetching merges of process ${process}...`);
+    const url = PREFIX_ORCHESTRATOR_QUERIES + '/v1/' + process + '/merges';
+    return backendFetch(url).then((response) => response.json());
+}

@@ -29,9 +29,9 @@ const useStyles = makeStyles((theme) => ({
 
 export const IgmStatus = {
     ABSENT: 'absent',
-    RECEIVED: 'received',
-    IMPORTED_VALID: 'inportedValid',
-    IMPORTED_INVALID: 'inportedInvalid',
+    AVAILABLE: 'available',
+    VALID: 'valid',
+    INVALID: 'invalid',
     MERGED: 'merged'
 }
 
@@ -72,11 +72,11 @@ const MergeMap = (props) => {
 
     function tsoColor(status) {
         switch (status) {
-            case IgmStatus.RECEIVED:
+            case IgmStatus.AVAILABLE:
                 return '#009CD8';
-            case IgmStatus.IMPORTED_VALID:
+            case IgmStatus.VALID:
                 return '#02538B';
-            case IgmStatus.IMPORTED_INVALID:
+            case IgmStatus.INVALID:
                 return '#D8404D';
             case IgmStatus.MERGED:
                 return '#37AE4B';
@@ -86,9 +86,9 @@ const MergeMap = (props) => {
     }
 
     useEffect(() => {
-        if (props.tsos.length > 0) {
-            Promise.all(props.tsos.map(tso => {
-                    const url = tso.name + '.json';
+        if (props.igms.length > 0) {
+            Promise.all(props.igms.map(igm => {
+                    const url = igm.tso + '.json';
                     return fetch(url).then(resp => resp.json())
                 }
             )).then(jsons => {
@@ -103,7 +103,7 @@ const MergeMap = (props) => {
             setScale(DEFAULT_SCALE);
             setGeographies([]);
         }
-    }, [props.tsos]);
+    }, [props.igms]);
 
     const projectionConfig = { center: center, scale: scale };
 
@@ -115,8 +115,8 @@ const MergeMap = (props) => {
                     <Geographies geography={geographies}>
                         {({geographies}) =>
                             geographies.map((geo, index) => {
-                                const tso = props.tsos[index];
-                                const status = tso ? tso.status : IgmStatus.ABSENT;
+                                const igm = props.igms[index];
+                                const status = igm ? igm.status : IgmStatus.ABSENT;
                                 const color = tsoColor(status);
                                 return <Geography key={geo.rsmKey} geography={geo} className={classes.tso} fill={color}/>
                             })
@@ -130,12 +130,12 @@ const MergeMap = (props) => {
 }
 
 MergeMap.defaultProps = {
-    tsos: [],
+    igms: [],
 };
 
 MergeMap.propTypes = {
-    tsos: PropTypes.arrayOf(PropTypes.shape({
-        name: PropTypes.string.isRequired,
+    igms: PropTypes.arrayOf(PropTypes.shape({
+        tso: PropTypes.string.isRequired,
         status: PropTypes.string.isRequired
     })),
 }

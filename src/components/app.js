@@ -62,7 +62,7 @@ const noUserManager = { instance: null, error: null };
 
 const App = () => {
 
-    const processes = useSelector(state => state.processes);
+    const configs = useSelector(state => state.configs);
 
     const theme = useSelector(state => state.theme);
 
@@ -125,7 +125,7 @@ const App = () => {
         setShowParameters(false);
     }
 
-    const currentProcess = processes.length > 0 ? processes[tabIndex] : null;
+    const config = configs.length > 0 ? configs[tabIndex] : null;
 
     return (
         <ThemeProvider theme={getMuiTheme(theme)}>
@@ -143,7 +143,7 @@ const App = () => {
                         onChange={(event, newValue) => setTabIndex(newValue)}
                         aria-label="parameters"
                         className={classes.process}>
-                        { processes.map(process => <Tab label={process.name} />) }
+                        { configs.map(config => <Tab label={config.process} />) }
                     </Tabs>
                 </TopBar>
                 <Parameters
@@ -153,9 +153,7 @@ const App = () => {
                 { user !== null ? (
                         <Switch>
                             <Route exact path="/">
-                                { currentProcess && <Process name={currentProcess.name}
-                                                             date={currentProcess.lastDate}
-                                                             tsos={currentProcess.tsos}/> }
+                                { config && <Process name={config.process}/> }
                             </Route>
                             <Route exact path="/sign-in-callback">
                                 <Redirect to={getPreLoginPath() || "/"} />
