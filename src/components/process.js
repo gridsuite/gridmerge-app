@@ -106,6 +106,8 @@ const Process = (props) => {
                     const status = lastMerge.status ? lastMerge.status : igm.status;
                     updateIgm(igm.tso, toIgmStatus(status));
                 })
+            } else {
+                dispatch(updateMergeDate(props.name, null));
             }
         });
 
