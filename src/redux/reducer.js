@@ -61,7 +61,7 @@ export const reducer = createReducer(initialState, {
     },
 
     [UPDATE_MERGE_DATE]: (state, action) => {
-        if (state.merge.date == null || action.date.getTime() !== state.merge.date.getTime()) {
+        if (state.merge.date == null || action.date.getTime() !== state.merge.date.getTime() || action.process !== state.merge.process) {
             const config = state.configs.find(config => config.process === action.process);
             state.merge = {
                 date: action.date,
