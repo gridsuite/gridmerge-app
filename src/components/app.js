@@ -15,8 +15,6 @@ import {createMuiTheme, makeStyles, ThemeProvider} from "@material-ui/core/style
 import CssBaseline from '@material-ui/core/CssBaseline';
 import {initProcesses, LIGHT_THEME} from '../redux/actions';
 
-import Stepper from './stepper';
-
 import {
     AuthenticationRouter,
     getPreLoginPath,
@@ -27,6 +25,8 @@ import {
 import {FormattedMessage} from 'react-intl';
 
 import Process from './process';
+import DownloadButton from './stepper';
+
 import Parameters from './parameters';
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
@@ -179,7 +179,7 @@ const App = () => {
                                 <h1><FormattedMessage id="PageNotFound"/> </h1>
                             </Route>
                         </Switch>
-                        <Stepper />
+                        <DownloadButton />
                     </>
                     ) : (
                         <AuthenticationRouter userManager={userManager} signInCallbackError={signInCallbackError} dispatch={dispatch} history={history} location={location}/>
