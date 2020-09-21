@@ -26,6 +26,7 @@ const initialState = {
     signInCallbackError : null,
     configs: [],
     merge: {
+        process: null,
         date: null,
         igms: []
     }
@@ -61,9 +62,10 @@ export const reducer = createReducer(initialState, {
     },
 
     [UPDATE_MERGE_DATE]: (state, action) => {
-        if (state.merge.date == null || action.date.getTime() !== state.merge.date.getTime()) {
+        if (state.merge.date == null || action.date.getTime() !== state.merge.date.getTime() || action.process !== state.merge.process) {
             const config = state.configs.find(config => config.process === action.process);
             state.merge = {
+                process: action.process,
                 date: action.date,
                 igms: config.tsos.map(tso => {
                     return {

@@ -119,7 +119,7 @@ const Process = (props) => {
             websocketExpectedCloseRef.current = true;
             ws.close();
         };
-    }, []);
+    }, [props.name]);
 
     return (
         <MergeMap igms={merge.igms}>
