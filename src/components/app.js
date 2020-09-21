@@ -94,26 +94,25 @@ const App = () => {
             dispatch,
             matchSilentRenewCallbackUrl != null,
             fetch('idpSettings.json')
-        )
-            .then((userManager) => {
-                setUserManager({ instance: userManager, error: null });
-                userManager.getUser().then( user => {
-                    if (user == null) {
-                        userManager.signinSilent().catch(error => {
-                            const oidcHackReloaded = "gridsuite-oidc-hack-reloaded";
-                            if (!sessionStorage.getItem(oidcHackReloaded) && error.message === "authority mismatch on settings vs. signin state") {
-                                sessionStorage.setItem(oidcHackReloaded, true);
-                                console.log("Hack oidc, reload page to make login work");
-                                window.location.reload();
-                            }
-                        });
-                    }
-                });
-            })
-            .catch(function (error) {
-                setUserManager({ instance: null, error: error.message });
-                console.debug('error when importing the idp settings');
+        ).then((userManager) => {
+            setUserManager({ instance: userManager, error: null });
+            userManager.getUser().then( user => {
+                if (user == null) {
+                    userManager.signinSilent().catch(error => {
+                        const oidcHackReloaded = "gridsuite-oidc-hack-reloaded";
+                        if (!sessionStorage.getItem(oidcHackReloaded) && error.message === "authority mismatch on settings vs. signin state") {
+                            sessionStorage.setItem(oidcHackReloaded, true);
+                            console.log("Hack oidc, reload page to make login work");
+                            window.location.reload();
+                        }
+                    });
+                }
             });
+        })
+        .catch(function (error) {
+            setUserManager({ instance: null, error: error.message });
+            console.debug('error when importing the idp settings');
+        });
     }, []);
 
     useEffect(() => {
