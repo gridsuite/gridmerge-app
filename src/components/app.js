@@ -25,6 +25,8 @@ import {
 import {FormattedMessage} from 'react-intl';
 
 import Process from './process';
+import DownloadButton from './stepper';
+
 import Parameters from './parameters';
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
@@ -161,6 +163,7 @@ const App = () => {
                     hideParameters={hideParameters}
                 />
                 { user !== null ? (
+                    <>
                         <Switch>
                             <Route exact path="/">
                                 { config && <Process name={config.process}/> }
@@ -174,8 +177,10 @@ const App = () => {
                             <Route>
                                 <h1><FormattedMessage id="PageNotFound"/> </h1>
                             </Route>
-                        </Switch>)
-                    : (
+                        </Switch>
+                        <DownloadButton />
+                    </>
+                    ) : (
                         <AuthenticationRouter userManager={userManager} signInCallbackError={signInCallbackError} dispatch={dispatch} history={history} location={location}/>
                     )}
             </React.Fragment>
