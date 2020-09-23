@@ -9,8 +9,10 @@ import ReconnectingWebSocket from 'reconnecting-websocket';
 
 import { store } from '../redux/store';
 
-const PREFIX_NOTIFICATION_WS = process.env.REACT_APP_WS_GATEWAY + '/merge-notification';
-const PREFIX_ORCHESTRATOR_QUERIES = process.env.REACT_APP_API_GATEWAY + '/merge';
+const PREFIX_NOTIFICATION_WS =
+    process.env.REACT_APP_WS_GATEWAY + '/merge-notification';
+const PREFIX_ORCHESTRATOR_QUERIES =
+    process.env.REACT_APP_API_GATEWAY + '/merge';
 
 function getToken() {
     const state = store.getState();
@@ -32,9 +34,14 @@ function backendFetch(url, init) {
 
 export function connectNotificationsWebsocket(process) {
     // The websocket API doesn't allow relative urls
-    const wsbase = document.baseURI.replace(/^http:\/\//, 'ws://')
-                                   .replace(/^https:\/\//, 'wss://');
-    const wsadress = wsbase + PREFIX_NOTIFICATION_WS + '/notify?process=' + encodeURIComponent(process);
+    const wsbase = document.baseURI
+        .replace(/^http:\/\//, 'ws://')
+        .replace(/^https:\/\//, 'wss://');
+    const wsadress =
+        wsbase +
+        PREFIX_NOTIFICATION_WS +
+        '/notify?process=' +
+        encodeURIComponent(process);
     const wsaddressWithToken = wsadress + '&access_token=' + getToken();
 
     const rws = new ReconnectingWebSocket(wsaddressWithToken);

@@ -7,9 +7,9 @@
 
 import React from 'react';
 
-import {FormattedMessage} from 'react-intl';
+import { FormattedMessage } from 'react-intl';
 
-import {useDispatch, useSelector} from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
@@ -19,14 +19,14 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Grid from '@material-ui/core/Grid';
-import {makeStyles} from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 import Typography from '@material-ui/core/Typography';
 
-import {DARK_THEME, LIGHT_THEME, selectTheme,} from '../redux/actions';
+import { DARK_THEME, LIGHT_THEME, selectTheme } from '../redux/actions';
 
 const useStyles = makeStyles((theme) => ({
     controlItem: {

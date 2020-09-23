@@ -22,7 +22,12 @@ export function initProcesses(configs) {
 export const UPDATE_IGM_STATUS = 'UPDATE_IGM_STATUS';
 
 export function updateIgmStatus(process, tso, status) {
-    return { type: UPDATE_IGM_STATUS, process: process, tso: tso, status: status };
+    return {
+        type: UPDATE_IGM_STATUS,
+        process: process,
+        tso: tso,
+        status: status,
+    };
 }
 
 export const UPDATE_ALL_IGMS_STATUS = 'UPDATE_ALL_IGMS_STATUS';

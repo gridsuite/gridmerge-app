@@ -1,6 +1,5 @@
 # gridmerge-app
 
-
 This app uses commons-ui library which released in the npmjs packages.
 
 To launch the app type `npm install` then `npm start` .

@@ -5,15 +5,26 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 
-import {useDispatch, useSelector} from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
-import {Redirect, Route, Switch, useHistory, useLocation, useRouteMatch,} from 'react-router-dom';
+import {
+    Redirect,
+    Route,
+    Switch,
+    useHistory,
+    useLocation,
+    useRouteMatch,
+} from 'react-router-dom';
 
-import {createMuiTheme, makeStyles, ThemeProvider} from "@material-ui/core/styles";
+import {
+    createMuiTheme,
+    makeStyles,
+    ThemeProvider,
+} from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import {initProcesses, LIGHT_THEME} from '../redux/actions';
+import { initProcesses, LIGHT_THEME } from '../redux/actions';
 
 import {
     AuthenticationRouter,
@@ -22,15 +33,15 @@ import {
     logout,
     TopBar,
 } from '@gridsuite/commons-ui';
-import {FormattedMessage} from 'react-intl';
+import { FormattedMessage } from 'react-intl';
 
 import Process from './process';
 import DownloadButton from './stepper';
 
 import Parameters from './parameters';
-import Tabs from "@material-ui/core/Tabs";
-import Tab from "@material-ui/core/Tab";
-import {fetchMergeConfigs} from "../utils/api";
+import Tabs from '@material-ui/core/Tabs';
+import Tab from '@material-ui/core/Tab';
+import { fetchMergeConfigs } from '../utils/api';
 
 const lightTheme = createMuiTheme({
     palette: {
@@ -57,20 +68,21 @@ const getMuiTheme = (theme) => {
 const useStyles = makeStyles(() => ({
     process: {
         marginLeft: 18,
-    }
+    },
 }));
 
 const noUserManager = { instance: null, error: null };
 
 const App = () => {
+    const configs = useSelector((state) => state.configs);
 
-    const configs = useSelector(state => state.configs);
+    const theme = useSelector((state) => state.theme);
 
-    const theme = useSelector(state => state.theme);
+    const user = useSelector((state) => state.user);
 
-    const user = useSelector(state => state.user);
-
-    const signInCallbackError = useSelector(state => state.signInCallbackError);
+    const signInCallbackError = useSelector(
+        (state) => state.signInCallbackError
+    );
 
     const [userManager, setUserManager] = useState(noUserManager);
 
@@ -86,7 +98,7 @@ const App = () => {
 
     const [tabIndex, setTabIndex] = React.useState(0);
 
-    let matchSilentRenewCallbackUrl= useRouteMatch({
+    let matchSilentRenewCallbackUrl = useRouteMatch({
         path: '/silent-renew-callback',
         exact: true,
     });
@@ -96,37 +108,45 @@ const App = () => {
             dispatch,
             matchSilentRenewCallbackUrl != null,
             fetch('idpSettings.json')
-        ).then((userManager) => {
-            setUserManager({ instance: userManager, error: null });
-            userManager.getUser().then( user => {
-                if (user == null) {
-                    userManager.signinSilent().catch(error => {
-                        const oidcHackReloaded = "gridsuite-oidc-hack-reloaded";
-                        if (!sessionStorage.getItem(oidcHackReloaded) && error.message === "authority mismatch on settings vs. signin state") {
-                            sessionStorage.setItem(oidcHackReloaded, true);
-                            console.log("Hack oidc, reload page to make login work");
-                            window.location.reload();
-                        }
-                    });
-                }
+        )
+            .then((userManager) => {
+                setUserManager({ instance: userManager, error: null });
+                userManager.getUser().then((user) => {
+                    if (user == null) {
+                        userManager.signinSilent().catch((error) => {
+                            const oidcHackReloaded =
+                                'gridsuite-oidc-hack-reloaded';
+                            if (
+                                !sessionStorage.getItem(oidcHackReloaded) &&
+                                error.message ===
+                                    'authority mismatch on settings vs. signin state'
+                            ) {
+                                sessionStorage.setItem(oidcHackReloaded, true);
+                                console.log(
+                                    'Hack oidc, reload page to make login work'
+                                );
+                                window.location.reload();
+                            }
+                        });
+                    }
+                });
+            })
+            .catch(function (error) {
+                setUserManager({ instance: null, error: error.message });
+                console.debug('error when importing the idp settings');
             });
-        })
-        .catch(function (error) {
-            setUserManager({ instance: null, error: error.message });
-            console.debug('error when importing the idp settings');
-        });
     }, []);
 
     useEffect(() => {
         if (user !== null) {
-            fetchMergeConfigs().then(configs => {
+            fetchMergeConfigs().then((configs) => {
                 dispatch(initProcesses(configs));
             });
         }
     }, [user]);
 
     function onLogoClicked() {
-        history.replace("/");
+        history.replace('/');
     }
 
     function showParametersClicked() {
@@ -143,10 +163,14 @@ const App = () => {
         <ThemeProvider theme={getMuiTheme(theme)}>
             <React.Fragment>
                 <CssBaseline />
-                <TopBar appName="Merge" appColor="#0CA789"
-                        onParametersClick={() => showParametersClicked()}
-                        onLogoutClick={() => logout(dispatch, userManager.instance)}
-                        onLogoClick={() => onLogoClicked()} user={user}>
+                <TopBar
+                    appName="Merge"
+                    appColor="#0CA789"
+                    onParametersClick={() => showParametersClicked()}
+                    onLogoutClick={() => logout(dispatch, userManager.instance)}
+                    onLogoClick={() => onLogoClicked()}
+                    user={user}
+                >
                     <Tabs
                         value={tabIndex}
                         indicatorColor="primary"
@@ -154,38 +178,52 @@ const App = () => {
                         scrollButtons="auto"
                         onChange={(event, newValue) => setTabIndex(newValue)}
                         aria-label="parameters"
-                        className={classes.process}>
-                        { configs.map(config => <Tab label={config.process} />) }
+                        className={classes.process}
+                    >
+                        {configs.map((config) => (
+                            <Tab label={config.process} />
+                        ))}
                     </Tabs>
                 </TopBar>
                 <Parameters
                     showParameters={showParameters}
                     hideParameters={hideParameters}
                 />
-                { user !== null ? (
+                {user !== null ? (
                     <>
                         <Switch>
                             <Route exact path="/">
-                                { config && <Process name={config.process}/> }
+                                {config && <Process name={config.process} />}
                             </Route>
                             <Route exact path="/sign-in-callback">
-                                <Redirect to={getPreLoginPath() || "/"} />
+                                <Redirect to={getPreLoginPath() || '/'} />
                             </Route>
                             <Route exact path="/logout-callback">
-                                <h1>Error: logout failed; you are still logged in.</h1>
+                                <h1>
+                                    Error: logout failed; you are still logged
+                                    in.
+                                </h1>
                             </Route>
                             <Route>
-                                <h1><FormattedMessage id="PageNotFound"/> </h1>
+                                <h1>
+                                    <FormattedMessage id="PageNotFound" />{' '}
+                                </h1>
                             </Route>
                         </Switch>
                         <DownloadButton />
                     </>
-                    ) : (
-                        <AuthenticationRouter userManager={userManager} signInCallbackError={signInCallbackError} dispatch={dispatch} history={history} location={location}/>
-                    )}
+                ) : (
+                    <AuthenticationRouter
+                        userManager={userManager}
+                        signInCallbackError={signInCallbackError}
+                        dispatch={dispatch}
+                        history={history}
+                        location={location}
+                    />
+                )}
             </React.Fragment>
         </ThemeProvider>
-    )
+    );
 };
 
 export default App;
