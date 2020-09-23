@@ -63,3 +63,12 @@ export function fetchMerges(process) {
     const url = PREFIX_ORCHESTRATOR_QUERIES + '/v1/' + process + '/merges';
     return backendFetch(url).then((response) => response.json());
 }
+
+function getUrlWithToken(baseUrl) {
+    return baseUrl + '?access_token=' + getToken();
+}
+
+export function getExportMergeUrl(process, date) {
+    const url = PREFIX_ORCHESTRATOR_QUERIES + '/v1/' + process + '/' + date + '/export/XIIDM';
+    return getUrlWithToken(url);
+}
