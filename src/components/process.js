@@ -5,19 +5,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import React, {useEffect, useRef} from "react";
+import React, { useEffect, useRef } from 'react';
 
-import PropTypes from "prop-types";
+import PropTypes from 'prop-types';
 
-import {useDispatch, useSelector} from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
-import MergeMap, {IgmStatus} from "./merge-map";
-import {connectNotificationsWebsocket, fetchMerges} from "../utils/api";
-import {updateAllIgmsStatus, updateIgmStatus, updateMergeDate} from "../redux/actions";
+import MergeMap, { IgmStatus } from './merge-map';
+import { connectNotificationsWebsocket, fetchMerges } from '../utils/api';
+import {
+    updateAllIgmsStatus,
+    updateIgmStatus,
+    updateMergeDate,
+} from '../redux/actions';
 
 const Process = (props) => {
-
-    const merge = useSelector(state => state.merge);
+    const merge = useSelector((state) => state.merge);
 
     const websocketExpectedCloseRef = useRef();
 
@@ -98,14 +101,16 @@ const Process = (props) => {
     }
 
     useEffect(() => {
-        fetchMerges(props.name).then(merges => {
+        fetchMerges(props.name).then((merges) => {
             if (merges.length > 0) {
                 const lastMerge = merges[merges.length - 1];
                 dispatch(updateMergeDate(props.name, new Date(lastMerge.date)));
-                lastMerge.igms.forEach(igm => {
-                    const status = lastMerge.status ? lastMerge.status : igm.status;
+                lastMerge.igms.forEach((igm) => {
+                    const status = lastMerge.status
+                        ? lastMerge.status
+                        : igm.status;
                     updateIgm(igm.tso, toIgmStatus(status));
-                })
+                });
             } else {
                 dispatch(updateMergeDate(props.name, null));
             }
@@ -123,15 +128,15 @@ const Process = (props) => {
 
     return (
         <MergeMap igms={merge.igms}>
-            <div style={{ position: 'absolute', left: 8, top: 50, zIndex: 1 }} >
-                <h2>{merge.date ? merge.date.toLocaleString() : ""}</h2>
+            <div style={{ position: 'absolute', left: 8, top: 50, zIndex: 1 }}>
+                <h2>{merge.date ? merge.date.toLocaleString() : ''}</h2>
             </div>
         </MergeMap>
     );
 };
 
 Process.propTypes = {
-    name: PropTypes.string.isRequired
-}
+    name: PropTypes.string.isRequired,
+};
 
 export default Process;

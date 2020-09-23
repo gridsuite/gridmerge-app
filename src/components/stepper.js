@@ -4,11 +4,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 
-import {makeStyles} from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import IconButton from '@material-ui/core/IconButton';
-import {FormattedMessage} from 'react-intl';
+import { FormattedMessage } from 'react-intl';
 import GetAppIcon from '@material-ui/icons/GetApp';
 
 const useStyles = makeStyles(() => ({
@@ -16,14 +16,14 @@ const useStyles = makeStyles(() => ({
         display: 'grid',
         float: 'right',
         position: 'absolute',
-        bottom: '0'
+        bottom: '0',
     },
     downloadLabel: {
-        fontSize: '15px'
+        fontSize: '15px',
     },
     downloadLabelDisabled: {
-        color: '#ffffff4d'
-    }
+        color: '#ffffff4d',
+    },
 }));
 
 const DownloadButton = () => {
@@ -31,14 +31,14 @@ const DownloadButton = () => {
     return (
         <div className={classes.download}>
             <IconButton aria-label="download">
-                <GetAppIcon fontSize="large"/>
+                <GetAppIcon fontSize="large" />
             </IconButton>
             <span>
-                <FormattedMessage id="download"/>
+                <FormattedMessage id="download" />
                 <span> CGM</span>
             </span>
         </div>
-    )
-}
+    );
+};
 
 export default DownloadButton;
