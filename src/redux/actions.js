@@ -41,3 +41,9 @@ export const UPDATE_MERGE_DATE = 'UPDATE_MERGE_DATE';
 export function updateMergeDate(process, date) {
     return { type: UPDATE_MERGE_DATE, process: process, date: date };
 }
+
+export const CURRENT_MERGES_LIST = 'CURRENT_MERGES_LIST';
+
+export function currentMergesList(merges) {
+    return { type: CURRENT_MERGES_LIST, merges: merges };
+}
