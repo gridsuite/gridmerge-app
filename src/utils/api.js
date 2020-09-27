@@ -72,3 +72,16 @@ export function getExportMergeUrl(process, date) {
     const url = PREFIX_ORCHESTRATOR_QUERIES + '/v1/' + process + '/' + date + '/export/XIIDM';
     return getUrlWithToken(url);
 }
+
+/**
+ * Function return list of merges by process name, date min and date max
+ * @param process
+ * @param minDate
+ * @param maxDate
+ * @returns {Promise<Response>}
+ */
+export function fetchMergesByProcessAndDate(process, minDate, maxDate) {
+    console.info('Fetching merge configs...');
+    const fetchConfigsUrl = PREFIX_ORCHESTRATOR_QUERIES + '/v1/' + encodeURIComponent(process) + '/merges?minDate=' + minDate + '&maxDate=' + maxDate;
+    return backendFetch(fetchConfigsUrl).then((response) => response.json());
+}
