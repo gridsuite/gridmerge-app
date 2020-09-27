@@ -3,5 +3,7 @@
     "General": "Général",
     "theme": "Thème",
     "close": "Fermer",
-    "download": "Télécharger"
+    "download": "Télécharger",
+    "MergesByDateIsEmpty": "Aucune merge trouvée pour cette date"
 }
+

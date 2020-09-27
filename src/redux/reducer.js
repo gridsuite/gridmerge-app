@@ -15,6 +15,7 @@ import {
     UPDATE_ALL_IGMS_STATUS,
     UPDATE_IGM_STATUS,
     UPDATE_MERGE_DATE,
+    CURRENT_MERGES_LIST
 } from './actions';
 
 import { SIGNIN_CALLBACK_ERROR, USER } from '@gridsuite/commons-ui';
@@ -82,5 +83,9 @@ export const reducer = createReducer(initialState, {
                 }),
             };
         }
+    },
+
+    [CURRENT_MERGES_LIST]: (state, action) => {
+        state.merges = action.merges;
     },
 });
