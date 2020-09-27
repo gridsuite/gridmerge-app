@@ -12,6 +12,7 @@ import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 
 import MergeMap, { IgmStatus } from './merge-map';
+import Timeline from './timeline';
 import { connectNotificationsWebsocket, fetchMerges } from '../utils/api';
 import {
     updateAllIgmsStatus,
@@ -127,11 +128,10 @@ const Process = (props) => {
     }, [props.name]);
 
     return (
-        <MergeMap igms={merge.igms}>
-            <div style={{ position: 'absolute', left: 8, top: 50, zIndex: 1 }}>
-                <h2>{merge.date ? merge.date.toLocaleString() : ''}</h2>
-            </div>
-        </MergeMap>
+        <>
+            <Timeline name={props.name}/>
+            <MergeMap igms={merge.igms}></MergeMap>
+        </>
     );
 };
 
