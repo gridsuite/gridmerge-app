@@ -180,7 +180,7 @@ const App = () => {
                         aria-label="parameters"
                         className={classes.process}
                     >
-                        {configs.map((config) => (
+                        {Array.isArray(configs) && configs.map((config) => (
                             <Tab label={config.process} />
                         ))}
                     </Tabs>
