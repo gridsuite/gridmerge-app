@@ -64,6 +64,15 @@ export function fetchMerges(process) {
     return backendFetch(url).then((response) => response.json());
 }
 
+function getUrlWithToken(baseUrl) {
+    return baseUrl + '?access_token=' + getToken();
+}
+
+export function getExportMergeUrl(process, date) {
+    const url = PREFIX_ORCHESTRATOR_QUERIES + '/v1/' + process + '/' + date + '/export/XIIDM';
+    return getUrlWithToken(url);
+}
+
 /**
  * Function return list of merges by process name, date min and date max
  * @param process
