@@ -135,6 +135,7 @@ const App = () => {
                 setUserManager({ instance: null, error: error.message });
                 console.debug('error when importing the idp settings');
             });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
@@ -143,6 +144,7 @@ const App = () => {
                 dispatch(initProcesses(configs));
             });
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user]);
 
     function onLogoClicked() {
@@ -180,9 +182,10 @@ const App = () => {
                         aria-label="parameters"
                         className={classes.process}
                     >
-                        {Array.isArray(configs) && configs.map((config) => (
-                            <Tab label={config.process} />
-                        ))}
+                        {Array.isArray(configs) &&
+                            configs.map((config) => (
+                                <Tab label={config.process} />
+                            ))}
                     </Tabs>
                 </TopBar>
                 <Parameters
