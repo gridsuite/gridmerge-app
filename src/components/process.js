@@ -12,13 +12,40 @@ import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 
 import MergeMap, { IgmStatus } from './merge-map';
-import Timeline from './timeline';
-import { connectNotificationsWebsocket, fetchMerges } from '../utils/api';
+import Timeline, { mergesForTimeline, currentDateFormat } from './timeline';
 import {
+    connectNotificationsWebsocket,
+    fetchMerges,
+    fetchMergesByProcessAndDate,
+} from '../utils/api';
+import {
+    currentMergesList,
     updateAllIgmsStatus,
     updateIgmStatus,
     updateMergeDate,
 } from '../redux/actions';
+
+export function toIgmStatus(status) {
+    switch (status) {
+        case 'AVAILABLE':
+            return IgmStatus.AVAILABLE;
+
+        case 'VALIDATION_SUCCEED':
+            return IgmStatus.VALID;
+
+        case 'VALIDATION_FAILED':
+            return IgmStatus.INVALID;
+
+        case 'BALANCE_ADJUSTMENT_SUCCEED':
+        case 'LOADFLOW_SUCCEED':
+            return IgmStatus.MERGED;
+
+        case 'BALANCE_ADJUSTMENT_FAILED':
+        case 'LOADFLOW_FAILED':
+        default:
+            break;
+    }
+}
 
 const Process = (props) => {
     const merge = useSelector((state) => state.merge);
@@ -27,34 +54,16 @@ const Process = (props) => {
 
     const dispatch = useDispatch();
 
+    const minHour = 'T00:00:00Z';
+
+    const maxHour = 'T23:59:59Z';
+
     function updateIgm(tso, status) {
         dispatch(updateIgmStatus(props.name, tso.toLowerCase(), status));
     }
 
     function updateAllIgms(status) {
         dispatch(updateAllIgmsStatus(props.name, status));
-    }
-
-    function toIgmStatus(status) {
-        switch (status) {
-            case 'AVAILABLE':
-                return IgmStatus.AVAILABLE;
-
-            case 'VALIDATION_SUCCEED':
-                return IgmStatus.VALID;
-
-            case 'VALIDATION_FAILED':
-                return IgmStatus.INVALID;
-
-            case 'BALANCE_ADJUSTMENT_SUCCEED':
-            case 'LOADFLOW_SUCCEED':
-                return IgmStatus.MERGED;
-
-            case 'BALANCE_ADJUSTMENT_FAILED':
-            case 'LOADFLOW_FAILED':
-                // TODO
-                break;
-        }
     }
 
     function update(message) {
@@ -79,6 +88,8 @@ const Process = (props) => {
             case 'LOADFLOW_FAILED':
                 updateAllIgms(status);
                 break;
+            default:
+                break;
         }
     }
 
@@ -89,6 +100,16 @@ const Process = (props) => {
         ws.onmessage = function (event) {
             const message = JSON.parse(event.data);
             update(message);
+            fetchMergesByProcessAndDate(
+                props,
+                currentDateFormat() + minHour,
+                currentDateFormat() + maxHour
+            ).then((merges) => {
+                if (merges.length > 0) {
+                    mergesForTimeline(merges);
+                    dispatch(currentMergesList(merges));
+                }
+            });
         };
         ws.onclose = function (event) {
             if (!websocketExpectedCloseRef.current) {
@@ -113,6 +134,7 @@ const Process = (props) => {
                     updateIgm(igm.tso, toIgmStatus(status));
                 });
             } else {
+                // eslint-disable-next-line react-hooks/exhaustive-deps
                 dispatch(updateMergeDate(props.name, null));
             }
         });
@@ -125,11 +147,13 @@ const Process = (props) => {
             websocketExpectedCloseRef.current = true;
             ws.close();
         };
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.name]);
 
     return (
         <>
-            <Timeline name={props.name}/>
+            <Timeline name={props.name} />
             <MergeMap igms={merge.igms}></MergeMap>
         </>
     );

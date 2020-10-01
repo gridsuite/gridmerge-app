@@ -11,8 +11,8 @@ import { makeStyles } from '@material-ui/core/styles';
 import IconButton from '@material-ui/core/IconButton';
 import { FormattedMessage } from 'react-intl';
 import GetAppIcon from '@material-ui/icons/GetApp';
-import {getExportMergeUrl} from "../utils/api";
-import {IgmStatus} from "./merge-map";
+import { getExportMergeUrl } from '../utils/api';
+import { IgmStatus } from './merge-map';
 
 const useStyles = makeStyles(() => ({
     download: {
@@ -34,23 +34,26 @@ const DownloadButton = (props) => {
 
     const classes = useStyles();
 
-    const merge = useSelector(state => state.merge);
+    const merge = useSelector((state) => state.merge);
 
     const [isDisabled, setDisabled] = useState(true);
 
     useEffect(() => {
         let disabled = !(merge.date && merge.process);
-        merge.igms.forEach( igm => {
+        merge.igms.forEach((igm) => {
             if (igm.status !== IgmStatus.MERGED) {
                 disabled = true;
             }
-        })
+        });
         setDisabled(disabled);
     }, [merge]);
 
     const handleClickExport = () => {
-        console.info("Downloading merge " + merge.process + "...");
-        window.open(getExportMergeUrl(merge.process, merge.date.toISOString()), DownloadIframe);
+        console.info('Downloading merge' + merge.process + '...');
+        window.open(
+            getExportMergeUrl(merge.process, merge.date.toISOString()),
+            DownloadIframe
+        );
     };
 
     return (
@@ -58,14 +61,16 @@ const DownloadButton = (props) => {
             <IconButton
                 aria-label="download"
                 onClick={handleClickExport}
-                disabled={isDisabled}>
-                <GetAppIcon fontSize="large"/>
+                disabled={isDisabled}
+            >
+                <GetAppIcon fontSize="large" />
             </IconButton>
             <span className={isDisabled ? classes.downloadLabelDisabled : ''}>
-                <FormattedMessage id="download"/>
+                <FormattedMessage id="download" />
                 <span> CGM</span>
             </span>
             <iframe
+                title="download"
                 id={DownloadIframe}
                 name={DownloadIframe}
                 style={{ visibility: 'hidden', width: 0, height: 0 }}

@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -15,46 +15,15 @@ import ClockIcon from '../images/icons/clock.svg';
 import TextField from '@material-ui/core/TextField';
 
 import { FormattedMessage } from 'react-intl';
-import {
-    connectNotificationsWebsocket,
-    fetchMergesByProcessAndDate,
-} from '../utils/api';
+import { fetchMergesByProcessAndDate } from '../utils/api';
 import {
     currentMergesList,
     updateIgmStatus,
     updateMergeDate,
 } from '../redux/actions';
-import { IgmStatus } from './merge-map';
+import { toIgmStatus } from './process';
 
 // eslint-disable-next-line
-const marks = [
-    { value: 60 },
-    { value: 120 },
-    { value: 180 },
-    { value: 240 },
-    { value: 300 },
-    { value: 360 },
-    { value: 420 },
-    { value: 480 },
-    { value: 540 },
-    { value: 600 },
-    { value: 660 },
-    { value: 720 },
-    { value: 780 },
-    { value: 840 },
-    { value: 900 },
-    { value: 960 },
-    { value: 1020 },
-    { value: 1080 },
-    { value: 1140 },
-    { value: 1200 },
-    { value: 1260 },
-    { value: 1320 },
-    { value: 1320 },
-    { value: 1380 },
-    { value: 1439 },
-];
-
 const useStyles = makeStyles((theme) => ({
     datePicker: {
         textAlign: 'center',
@@ -65,7 +34,6 @@ const useStyles = makeStyles((theme) => ({
         zIndex: 99,
     },
     customSlider: {
-        background: '#303030',
         padding: '50px 25px 20px 15px',
         position: 'absolute',
         top: 70,
@@ -147,10 +115,36 @@ const CustomSlider = withStyles((theme) => ({
 
 let mergeListByHours = [];
 
+/**
+ * Return array with hours convert to minutes
+ */
+export function mergesForTimeline(merges) {
+    if (merges) {
+        merges.forEach((merge) => {
+            const date = new Date(merge.date.toLocaleString());
+            const hour = date.getHours();
+            const min = date.getMinutes();
+            const marks = {
+                value: hour * 60 + parseInt(min),
+                label: hour + 'h' + min,
+            };
+            mergeListByHours.push(marks);
+        });
+        return mergeListByHours;
+    }
+}
+
+/**
+ * Return current date in format YYYY-MM-DD, example: 2020-09-23
+ * @returns {string}
+ */
+export function currentDateFormat() {
+    const date = new Date();
+    return date.toISOString().substr(0, 19).split('T')[0];
+}
+
 const Timeline = (props) => {
     const merges = useSelector((state) => state.merges);
-
-    const websocketExpectedCloseRef = useRef();
 
     const [showMessage, setShowMessage] = useState(false);
 
@@ -165,57 +159,6 @@ const Timeline = (props) => {
     function updateIgm(tso, status) {
         dispatch(updateIgmStatus(props.name, tso.toLowerCase(), status));
     }
-
-    function toIgmStatus(status) {
-        switch (status) {
-            case 'AVAILABLE':
-                return IgmStatus.AVAILABLE;
-
-            case 'VALIDATION_SUCCEED':
-                return IgmStatus.VALID;
-
-            case 'VALIDATION_FAILED':
-                return IgmStatus.INVALID;
-
-            case 'BALANCE_ADJUSTMENT_SUCCEED':
-            case 'LOADFLOW_SUCCEED':
-                return IgmStatus.MERGED;
-
-            case 'BALANCE_ADJUSTMENT_FAILED':
-            case 'LOADFLOW_FAILED':
-            default:
-                break;
-        }
-    }
-
-    /**
-     * Return current date in format YYYY-MM-DD, example: 2020-09-23
-     * @returns {string}
-     */
-    const currentDateFormat = () => {
-        const date = new Date();
-        return date.toISOString().substr(0, 19).split('T')[0];
-    };
-
-    /**
-     * Return array with hours convert to minutes
-     */
-    const mergesForTimeline = (merges) => {
-        mergeListByHours = [];
-        if (merges) {
-            setShowMessage(false);
-            merges.forEach((merge) => {
-                const hour = merge.date.split('T')[1].split(':')[0];
-                const min = merge.date.split('T')[1].split(':')[1];
-                const marks = {
-                    value: hour * 60 + parseInt(min),
-                    label: hour + 'h' + min,
-                };
-                mergeListByHours.push(marks);
-            });
-            return mergeListByHours;
-        }
-    };
 
     /**
      * Fetch merges by process name, min date and max date
@@ -303,48 +246,15 @@ const Timeline = (props) => {
      * @returns {number}
      */
     const convertHoursToMinutes = (merge) => {
-        const hour = merge.date.split('T')[1].split(':')[0];
-        const min = merge.date.split('T')[1].split(':')[1];
+        const date = new Date(merge.date.toLocaleString());
+        const hour = date.getHours();
+        const min = date.getMinutes();
         const convertHour = hour * 60 + parseInt(min);
         return convertHour;
     };
 
-    function connectNotifications(props) {
-        console.info(`Connecting to notifications '${props}'...`);
-        console.info(`Connecting to notifications xcxc'${props}'...`);
-        const ws = connectNotificationsWebsocket(props);
-        ws.onmessage = function (event) {
-            fetchMergesByProcessAndDate(
-                props,
-                currentDateFormat() + minHour,
-                currentDateFormat() + maxHour
-            ).then((merges) => {
-                mergesForTimeline(merges);
-                dispatch(currentMergesList(merges));
-            });
-        };
-        ws.onclose = function (event) {
-            if (!websocketExpectedCloseRef.current) {
-                console.error('Unexpected Notification WebSocket closed');
-            }
-        };
-        ws.onerror = function (event) {
-            console.error('Unexpected Notification WebSocket error', event);
-        };
-        return ws;
-    }
-
     useEffect(() => {
         fetchMergesByCurrentDay();
-
-        websocketExpectedCloseRef.current = false;
-
-        const ws = connectNotifications(props.name);
-
-        return function () {
-            websocketExpectedCloseRef.current = true;
-            ws.close();
-        };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.name]);
 
