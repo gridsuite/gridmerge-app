@@ -38,6 +38,7 @@ const useStyles = makeStyles((theme) => ({
         position: 'absolute',
         top: 70,
         width: '100%',
+        background: '#303030',
     },
     emptyMerge: {
         position: 'absolute',
