@@ -107,6 +107,13 @@ export function fetchAppsAndUrls() {
  */
 export function fetchMergesByProcessAndDate(process, minDate, maxDate) {
     console.info('Fetching merge configs...');
-    const fetchConfigsUrl = PREFIX_ORCHESTRATOR_QUERIES + '/v1/' + encodeURIComponent(process) + '/merges?minDate=' + minDate + '&maxDate=' + maxDate;
+    const fetchConfigsUrl =
+        PREFIX_ORCHESTRATOR_QUERIES +
+        '/v1/' +
+        encodeURIComponent(process) +
+        '/merges?minDate=' +
+        minDate +
+        '&maxDate=' +
+        maxDate;
     return backendFetch(fetchConfigsUrl).then((response) => response.json());
 }

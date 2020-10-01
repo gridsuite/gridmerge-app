@@ -140,6 +140,7 @@ const App = () => {
                 setUserManager({ instance: null, error: error.message });
                 console.debug('error when importing the idp settings');
             });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
@@ -152,6 +153,7 @@ const App = () => {
                 setAppsAndUrls(res);
             });
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user]);
 
     function onLogoClicked() {

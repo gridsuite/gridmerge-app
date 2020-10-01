@@ -78,6 +78,7 @@ const DownloadButton = (props) => {
                 <span> CGM</span>
             </span>
             <iframe
+                title="download"
                 id={DownloadIframe}
                 name={DownloadIframe}
                 style={{ visibility: 'hidden', width: 0, height: 0 }}
