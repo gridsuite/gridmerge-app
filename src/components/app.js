@@ -147,7 +147,6 @@ const App = () => {
             });
 
             fetchAppsAndUrls().then((res) => {
-                console.log(res);
                 setAppsAndUrls(res);
             });
         }
