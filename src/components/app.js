@@ -41,7 +41,7 @@ import DownloadButton from './stepper';
 import Parameters from './parameters';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
-import { fetchMergeConfigs } from '../utils/api';
+import {fetchAppsAndUrls, fetchMergeConfigs} from '../utils/api';
 
 const lightTheme = createMuiTheme({
     palette: {
@@ -98,6 +98,9 @@ const App = () => {
 
     const [tabIndex, setTabIndex] = React.useState(0);
 
+    const [appsAndUrls, setAppsAndUrls] = React.useState([]);
+
+
     let matchSilentRenewCallbackUrl = useRouteMatch({
         path: '/silent-renew-callback',
         exact: true,
@@ -142,6 +145,11 @@ const App = () => {
             fetchMergeConfigs().then((configs) => {
                 dispatch(initProcesses(configs));
             });
+
+            fetchAppsAndUrls().then((res) => {
+                console.log(res);
+                setAppsAndUrls(res);
+            });
         }
     }, [user]);
 
@@ -170,6 +178,7 @@ const App = () => {
                     onLogoutClick={() => logout(dispatch, userManager.instance)}
                     onLogoClick={() => onLogoClicked()}
                     user={user}
+                    appsAndUrls={appsAndUrls}
                 >
                     <Tabs
                         value={tabIndex}

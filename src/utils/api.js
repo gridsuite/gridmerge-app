@@ -14,6 +14,9 @@ const PREFIX_NOTIFICATION_WS =
 const PREFIX_ORCHESTRATOR_QUERIES =
     process.env.REACT_APP_API_GATEWAY + '/merge';
 
+const PREFIX_APPS_URLS_QUERIES = process.env.REACT_APP_APPS_URLS;
+const REACT_APP_DEV_MODE = process.env.REACT_APP_DEV_MODE;
+
 function getToken() {
     const state = store.getState();
     return state.user.id_token;
@@ -28,7 +31,7 @@ function backendFetch(url, init) {
     const initCopy = Object.assign({}, init);
     initCopy.headers = new Headers(initCopy.headers || {});
     initCopy.headers.append('Authorization', 'Bearer ' + getToken());
-
+    console.log(url);
     return fetch(url, initCopy);
 }
 
@@ -71,4 +74,18 @@ function getUrlWithToken(baseUrl) {
 export function getExportMergeUrl(process, date) {
     const url = PREFIX_ORCHESTRATOR_QUERIES + '/v1/' + process + '/' + date + '/export/XIIDM';
     return getUrlWithToken(url);
+}
+
+export function fetchAppsAndUrls() {
+    console.info(`Fetching apps and urls...`);
+    let url;
+    if (REACT_APP_DEV_MODE) {
+        url = PREFIX_APPS_URLS_QUERIES + '/dev-urls.json';
+    } else {
+        url = PREFIX_APPS_URLS_QUERIES + '/prod-urls.json';
+    };
+
+    return backendFetch(url).then((response) => {
+        return response.json();
+    });
 }
