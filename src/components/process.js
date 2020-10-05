@@ -12,7 +12,11 @@ import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 
 import MergeMap, { IgmStatus } from './merge-map';
-import Timeline, { mergesForTimeline, currentDateFormat } from './timeline';
+import Timeline, {
+    mergesForTimeline,
+    currentDateFormat,
+    convertSearchDate,
+} from './timeline';
 import {
     connectNotificationsWebsocket,
     fetchMerges,
@@ -24,6 +28,7 @@ import {
     updateIgmStatus,
     updateMergeDate,
 } from '../redux/actions';
+import { getLocalStorageDateByProcess } from '../redux/local-storage';
 
 export function toIgmStatus(status) {
     switch (status) {
@@ -81,7 +86,6 @@ const Process = (props) => {
             case 'VALIDATION_FAILED':
                 updateIgm(message.headers.tso, status);
                 break;
-
             case 'BALANCE_ADJUSTMENT_SUCCEED':
             case 'LOADFLOW_SUCCEED':
             case 'BALANCE_ADJUSTMENT_FAILED':
@@ -100,16 +104,32 @@ const Process = (props) => {
         ws.onmessage = function (event) {
             const message = JSON.parse(event.data);
             update(message);
-            fetchMergesByProcessAndDate(
-                props,
-                currentDateFormat() + minHour,
-                currentDateFormat() + maxHour
-            ).then((merges) => {
-                if (merges.length > 0) {
-                    mergesForTimeline(merges);
-                    dispatch(currentMergesList(merges));
+            let minDate = '';
+            let maxDate = '';
+            const getProcessFromLocalStorage = getLocalStorageDateByProcess();
+            if (getProcessFromLocalStorage) {
+                let currentProcessExist = JSON.parse(
+                    getProcessFromLocalStorage
+                ).find((item) => item.name === props.name);
+                if (currentProcessExist) {
+                    minDate =
+                        convertSearchDate(currentProcessExist.date) + minHour;
+                    maxDate =
+                        convertSearchDate(currentProcessExist.date) + maxHour;
                 }
-            });
+            } else {
+                minDate = currentDateFormat() + minHour;
+                maxDate = currentDateFormat() + maxHour;
+            }
+
+            fetchMergesByProcessAndDate(processName, minDate, maxDate).then(
+                (merges) => {
+                    if (merges.length > 0) {
+                        mergesForTimeline(merges);
+                        dispatch(currentMergesList(merges));
+                    }
+                }
+            );
         };
         ws.onclose = function (event) {
             if (!websocketExpectedCloseRef.current) {
@@ -127,12 +147,6 @@ const Process = (props) => {
             if (merges.length > 0) {
                 const lastMerge = merges[merges.length - 1];
                 dispatch(updateMergeDate(props.name, new Date(lastMerge.date)));
-                lastMerge.igms.forEach((igm) => {
-                    const status = lastMerge.status
-                        ? lastMerge.status
-                        : igm.status;
-                    updateIgm(igm.tso, toIgmStatus(status));
-                });
             } else {
                 // eslint-disable-next-line react-hooks/exhaustive-deps
                 dispatch(updateMergeDate(props.name, null));
@@ -140,12 +154,9 @@ const Process = (props) => {
         });
 
         websocketExpectedCloseRef.current = false;
-
-        const ws = connectNotifications(props.name);
-
+        connectNotifications(props.name);
         return function () {
             websocketExpectedCloseRef.current = true;
-            ws.close();
         };
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
