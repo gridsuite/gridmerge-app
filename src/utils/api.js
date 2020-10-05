@@ -31,7 +31,6 @@ function backendFetch(url, init) {
     const initCopy = Object.assign({}, init);
     initCopy.headers = new Headers(initCopy.headers || {});
     initCopy.headers.append('Authorization', 'Bearer ' + getToken());
-    console.log(url);
     return fetch(url, initCopy);
 }
 
