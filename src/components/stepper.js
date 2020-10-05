@@ -50,7 +50,7 @@ const DownloadButton = (props) => {
 
     const handleClickExport = () => {
         console.info("Downloading merge " + merge.process + "...");
-        window.open(getExportMergeUrl(merge.process, merge.date.toISOString()), DownloadIframe);
+        window.open(getExportMergeUrl(merge.process, merge.date.toISOString(), -new Date().getTimezoneOffset()), DownloadIframe);
     };
 
     return (
