@@ -7,7 +7,11 @@
 
 import { createReducer } from '@reduxjs/toolkit';
 
-import { getLocalStorageTheme, saveLocalStorageTheme } from './local-storage';
+import {
+    getLocalStorageTheme,
+    saveLocalStorageTheme,
+    saveLocalStorageDateByProcess,
+} from './local-storage';
 
 import {
     INIT_PROCESSES,
@@ -15,7 +19,8 @@ import {
     UPDATE_ALL_IGMS_STATUS,
     UPDATE_IGM_STATUS,
     UPDATE_MERGE_DATE,
-    CURRENT_MERGES_LIST
+    CURRENT_MERGES_LIST,
+    CURRENT_SEARCH_DATE_BY_PROCESS,
 } from './actions';
 
 import { SIGNIN_CALLBACK_ERROR, USER } from '@gridsuite/commons-ui';
@@ -87,5 +92,11 @@ export const reducer = createReducer(initialState, {
 
     [CURRENT_MERGES_LIST]: (state, action) => {
         state.merges = action.merges;
+    },
+
+    [CURRENT_SEARCH_DATE_BY_PROCESS]: (state, action) => {
+        state.date = action.date;
+        state.process = action.process;
+        saveLocalStorageDateByProcess(state.date, state.process);
     },
 });
