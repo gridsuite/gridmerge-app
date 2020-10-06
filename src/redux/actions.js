@@ -47,3 +47,13 @@ export const CURRENT_MERGES_LIST = 'CURRENT_MERGES_LIST';
 export function currentMergesList(merges) {
     return { type: CURRENT_MERGES_LIST, merges: merges };
 }
+
+export const CURRENT_SEARCH_DATE_BY_PROCESS = 'CURRENT_SEARCH_DATE_BY_PROCESS';
+
+export function currentSearchDateByProcess(date, process) {
+    return {
+        type: CURRENT_SEARCH_DATE_BY_PROCESS,
+        date: date,
+        process: process,
+    };
+}

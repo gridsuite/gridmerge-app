@@ -14,13 +14,16 @@ import Slider from '@material-ui/core/Slider';
 import ClockIcon from '../images/icons/clock.svg';
 import TextField from '@material-ui/core/TextField';
 
+import moment from 'moment';
 import { FormattedMessage } from 'react-intl';
 import { fetchMergesByProcessAndDate } from '../utils/api';
 import {
     currentMergesList,
     updateIgmStatus,
     updateMergeDate,
+    currentSearchDateByProcess,
 } from '../redux/actions';
+import { getLocalStorageDateByProcess } from '../redux/local-storage';
 import { toIgmStatus } from './process';
 
 // eslint-disable-next-line
@@ -38,7 +41,6 @@ const useStyles = makeStyles((theme) => ({
         position: 'absolute',
         top: 70,
         width: '100%',
-        background: '#303030',
     },
     emptyMerge: {
         position: 'absolute',
@@ -115,6 +117,7 @@ const CustomSlider = withStyles((theme) => ({
 }))(Slider);
 
 let mergeListByHours = [];
+let firstStep = 0;
 
 /**
  * Return array with hours convert to minutes
@@ -144,22 +147,41 @@ export function currentDateFormat() {
     return date.toISOString().substr(0, 19).split('T')[0];
 }
 
+/**
+ * Get date from timestamp format with momentjs
+ * @param selectedDate
+ * @returns {*|string}
+ */
+export function convertSearchDate(selectedDate) {
+    return moment(selectedDate).format('YYYY-MM-DD');
+}
+
 const Timeline = (props) => {
     const merges = useSelector((state) => state.merges);
-
+    const configs = useSelector((state) => state.configs);
     const [showMessage, setShowMessage] = useState(false);
-
     const dispatch = useDispatch();
-
     const classes = useStyles();
-
     const minHour = 'T00:00:00Z';
-
     const maxHour = 'T23:59:59Z';
 
     function updateIgm(tso, status) {
         dispatch(updateIgmStatus(props.name, tso.toLowerCase(), status));
     }
+
+    /**
+     * Get TSO by merge
+     */
+    /*eslint array-callback-return: */
+    const getTsoByMerge = () => {
+        configs.map((item) => {
+            if (item.process === props.name) {
+                item.tsos.map((status) => {
+                    return updateIgm(status, 'LOADFLOW_FAILED');
+                });
+            }
+        });
+    };
 
     /**
      * Fetch merges by process name, min date and max date
@@ -172,9 +194,9 @@ const Timeline = (props) => {
                     setShowMessage(false);
                     dispatch(currentMergesList(merges));
                     mergesForTimeline(merges);
+                    firstStep = convertHoursToMinutes(merges[0]);
 
                     const lastMerge = merges[merges.length - 1];
-
                     dispatch(
                         updateMergeDate(props.name, new Date(lastMerge.date))
                     );
@@ -187,6 +209,7 @@ const Timeline = (props) => {
                 } else {
                     setShowMessage(true);
                     dispatch(updateMergeDate(props.name, null));
+                    getTsoByMerge();
                 }
             }
         );
@@ -199,23 +222,40 @@ const Timeline = (props) => {
     const fetchMergesOnChangeDate = (e) => {
         const minDate = e.target.value + minHour;
         const maxDate = e.target.value + maxHour;
-        dispatch(currentMergesList(''));
         getMergesByProcessAndDate(minDate, maxDate);
+        dispatch(
+            currentSearchDateByProcess(e.target.value + minHour, props.name)
+        );
     };
 
     /**
      * Send the current date to fetch merges
      */
     const fetchMergesByCurrentDay = () => {
-        const minDate = currentDateFormat() + minHour;
-        const maxDate = currentDateFormat() + maxHour;
-        getMergesByProcessAndDate(minDate, maxDate);
+        const getProcessFromLocalStorage = getLocalStorageDateByProcess();
+        if (getProcessFromLocalStorage) {
+            let currentProcessExist = JSON.parse(
+                getProcessFromLocalStorage
+            ).find((item) => item.name === props.name);
+            if (currentProcessExist) {
+                const minDate =
+                    convertSearchDate(currentProcessExist.date) + minHour;
+                const maxDate =
+                    convertSearchDate(currentProcessExist.date) + maxHour;
+                getMergesByProcessAndDate(minDate, maxDate);
+            }
+        } else {
+            const minDate = currentDateFormat() + minHour;
+            const maxDate = currentDateFormat() + maxHour;
+            getMergesByProcessAndDate(minDate, maxDate);
+        }
     };
 
     /**
      * Handler click when change slider position
      */
     const handleChangeSlider = (e, val) => {
+        firstStep = val;
         merges.forEach((merge) => {
             const convertHour = convertHoursToMinutes(merge);
             if (convertHour === val) {
@@ -254,6 +294,24 @@ const Timeline = (props) => {
         return convertHour;
     };
 
+    /**
+     * Set date to datepicker from localstorage if not empty else set current date
+     * @returns {string|*}
+     */
+    const setDateToDatePicker = () => {
+        const getProcessFromLocalStorage = getLocalStorageDateByProcess();
+        if (getProcessFromLocalStorage) {
+            const processExist = JSON.parse(getProcessFromLocalStorage).find(
+                (item) => item.name === props.name
+            );
+            if (processExist) {
+                return convertSearchDate(processExist.date);
+            }
+        } else {
+            return currentDateFormat();
+        }
+    };
+
     useEffect(() => {
         fetchMergesByCurrentDay();
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -266,7 +324,7 @@ const Timeline = (props) => {
                     id="date"
                     type="date"
                     onChange={fetchMergesOnChangeDate}
-                    defaultValue={currentDateFormat()}
+                    value={setDateToDatePicker()}
                     InputLabelProps={{
                         shrink: true,
                     }}
@@ -279,7 +337,7 @@ const Timeline = (props) => {
             ) : (
                 <div className={classes.customSlider}>
                     <CustomSlider
-                        defaultValue={0}
+                        value={firstStep}
                         marks={mergeListByHours}
                         onChangeCommitted={handleChangeSlider}
                         min={0}
