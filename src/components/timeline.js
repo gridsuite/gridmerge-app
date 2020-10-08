@@ -209,15 +209,18 @@ const Timeline = (props) => {
                     mergesForTimeline(merges);
                     firstStep = convertHoursToMinutes(merges[0]);
                     const firstMerge = merges[0];
-                    dispatch(
-                        updateMergeDate(props.name, new Date(merges[0].date))
-                    );
-                    firstMerge.igms.forEach((igm) => {
-                        const status = firstMerge.status
-                            ? firstMerge.status
-                            : igm.status;
-                        updateIgm(igm.tso, toIgmStatus(status));
-                    });
+                    setTimeout(function(){
+                        dispatch(
+                            updateMergeDate(props.name, new Date(merges[0].date))
+                        );
+                        firstMerge.igms.forEach((igm) => {
+                            const status = firstMerge.status
+                                ? firstMerge.status
+                                : igm.status;
+                            updateIgm(igm.tso, toIgmStatus(status));
+                        });
+                    }, 200);
+
                 } else {
                     firstStep = 0;
                     dispatch(updateMergeDate(props.name, new Date(minDate)));

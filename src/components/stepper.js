@@ -55,7 +55,9 @@ const DownloadButton = (props) => {
         // On service side, the opposite behaviour is expected (offset is expected to be negative if the local timezone is behind UTC and positive if it is ahead)
         // This explains the "-" sign to get the expected offset value for the service
         window.open(
-            getExportMergeUrl(merge.process, merge.date.toISOString(),
+            getExportMergeUrl(
+                merge.process,
+                merge.date.toISOString(),
                 -new Date().getTimezoneOffset()
             ),
             DownloadIframe
