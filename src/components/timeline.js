@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -15,7 +15,6 @@ import ClockIcon from '../images/icons/clock.svg';
 import TextField from '@material-ui/core/TextField';
 
 import moment from 'moment';
-import { FormattedMessage } from 'react-intl';
 import { fetchMergesByProcessAndDate } from '../utils/api';
 import {
     currentMergesList,
@@ -30,7 +29,7 @@ import { toIgmStatus } from './process';
 const useStyles = makeStyles((theme) => ({
     datePicker: {
         textAlign: 'center',
-        marginBottom: 20,
+        margin: '15px 0',
         position: 'absolute',
         top: 75,
         width: '100%',
@@ -39,7 +38,7 @@ const useStyles = makeStyles((theme) => ({
     customSlider: {
         padding: '50px 25px 20px 15px',
         position: 'absolute',
-        top: 70,
+        top: 85,
         width: '100%',
     },
     emptyMerge: {
@@ -65,7 +64,7 @@ const CustomSlider = withStyles((theme) => ({
         backgroundImage: `url(${ClockIcon})`,
         backgroundSize: 'contain',
         marginTop: -12,
-        marginLeft: -12,
+        marginLeft: -16,
         '&:focus,&:hover,&$active': {
             boxShadow: 'inherit',
         },
@@ -97,7 +96,6 @@ const CustomSlider = withStyles((theme) => ({
         whiteSpace: 'normal',
         lineHeight: 1,
         textAlign: 'center',
-        marginLeft: 4,
     },
     valueLabel: {
         left: 0,
@@ -126,13 +124,17 @@ export function mergesForTimeline(merges) {
     if (merges) {
         merges.forEach((merge) => {
             const date = new Date(merge.date.toLocaleString());
-            const hour = date.getHours();
+            let hour = date.getHours();
             const min = date.getMinutes();
+            if (0 < hour && hour < 10) {
+                hour = '0' + hour;
+            }
             const marks = {
                 value: hour * 60 + parseInt(min),
-                label: hour + 'h' + min,
+                label: hour === 0 ? '0' + hour + 'h' : hour + 'h' + min,
             };
             mergeListByHours.push(marks);
+            firstStep = mergeListByHours[0].value;
         });
         return mergeListByHours;
     }
@@ -156,10 +158,22 @@ export function convertSearchDate(selectedDate) {
     return moment(selectedDate).format('YYYY-MM-DD');
 }
 
+/**
+ * Convert simple hour to total minutes
+ * @param merge
+ * @returns {number}
+ */
+export function convertHoursToMinutes(merge) {
+    const date = new Date(merge.date.toLocaleString());
+    const hour = date.getHours();
+    const min = date.getMinutes();
+    const convertHour = hour * 60 + parseInt(min);
+    return convertHour;
+}
+
 const Timeline = (props) => {
     const merges = useSelector((state) => state.merges);
     const configs = useSelector((state) => state.configs);
-    const [showMessage, setShowMessage] = useState(false);
     const dispatch = useDispatch();
     const classes = useStyles();
     const minHour = 'T00:00:00Z';
@@ -191,40 +205,25 @@ const Timeline = (props) => {
         fetchMergesByProcessAndDate(props.name, minDate, maxDate).then(
             (merges) => {
                 if (merges.length > 0) {
-                    setShowMessage(false);
                     dispatch(currentMergesList(merges));
                     mergesForTimeline(merges);
                     firstStep = convertHoursToMinutes(merges[0]);
-
-                    const lastMerge = merges[merges.length - 1];
+                    const firstMerge = merges[0];
                     dispatch(
-                        updateMergeDate(props.name, new Date(lastMerge.date))
+                        updateMergeDate(props.name, new Date(merges[0].date))
                     );
-                    lastMerge.igms.forEach((igm) => {
-                        const status = lastMerge.status
-                            ? lastMerge.status
+                    firstMerge.igms.forEach((igm) => {
+                        const status = firstMerge.status
+                            ? firstMerge.status
                             : igm.status;
                         updateIgm(igm.tso, toIgmStatus(status));
                     });
                 } else {
-                    setShowMessage(true);
-                    dispatch(updateMergeDate(props.name, null));
+                    firstStep = 0;
+                    dispatch(updateMergeDate(props.name, new Date(minDate)));
                     getTsoByMerge();
                 }
             }
-        );
-    };
-
-    /**
-     * Send the new selected date in datepicker to fetch merges
-     * @param e
-     */
-    const fetchMergesOnChangeDate = (e) => {
-        const minDate = e.target.value + minHour;
-        const maxDate = e.target.value + maxHour;
-        getMergesByProcessAndDate(minDate, maxDate);
-        dispatch(
-            currentSearchDateByProcess(e.target.value + minHour, props.name)
         );
     };
 
@@ -282,16 +281,16 @@ const Timeline = (props) => {
     };
 
     /**
-     * Convert simple hour to total minutes
-     * @param merge
-     * @returns {number}
+     * Send the new selected date in datepicker to fetch merges
+     * @param e
      */
-    const convertHoursToMinutes = (merge) => {
-        const date = new Date(merge.date.toLocaleString());
-        const hour = date.getHours();
-        const min = date.getMinutes();
-        const convertHour = hour * 60 + parseInt(min);
-        return convertHour;
+    const fetchMergesOnChangeDate = (e) => {
+        const minDate = e.target.value + minHour;
+        const maxDate = e.target.value + maxHour;
+        getMergesByProcessAndDate(minDate, maxDate);
+        dispatch(
+            currentSearchDateByProcess(e.target.value + minHour, props.name)
+        );
     };
 
     /**
@@ -330,23 +329,17 @@ const Timeline = (props) => {
                     }}
                 />
             </div>
-            {showMessage ? (
-                <div className={classes.emptyMerge}>
-                    <FormattedMessage id="MergesByDateIsEmpty"></FormattedMessage>
-                </div>
-            ) : (
-                <div className={classes.customSlider}>
-                    <CustomSlider
-                        value={firstStep}
-                        marks={mergeListByHours}
-                        onChangeCommitted={handleChangeSlider}
-                        min={0}
-                        step={null}
-                        max={1439}
-                        valueLabelFormat={valueLabelFormat}
-                    />
-                </div>
-            )}
+            <div className={classes.customSlider}>
+                <CustomSlider
+                    value={firstStep}
+                    marks={mergeListByHours}
+                    onChangeCommitted={handleChangeSlider}
+                    min={0}
+                    step={null}
+                    max={1439}
+                    valueLabelFormat={valueLabelFormat}
+                />
+            </div>
         </>
     );
 };

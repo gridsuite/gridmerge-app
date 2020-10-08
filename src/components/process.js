@@ -63,6 +63,8 @@ const Process = (props) => {
 
     const maxHour = 'T23:59:59Z';
 
+    let datePickerCurrentDate = '';
+
     function updateIgm(tso, status) {
         dispatch(updateIgmStatus(props.name, tso.toLowerCase(), status));
     }
@@ -73,27 +75,27 @@ const Process = (props) => {
 
     function update(message) {
         const date = message.headers.date;
-
-        dispatch(updateMergeDate(props.name, new Date(date)));
-
+        const dateFromDatePicker = convertSearchDate(datePickerCurrentDate);
         // message.headers.status could be a server side IGM status or a merge status
         // here we convert to front IGM status for individual TSO map coloration
         const status = toIgmStatus(message.headers.status);
-
-        switch (message.headers.status) {
-            case 'AVAILABLE':
-            case 'VALIDATION_SUCCEED':
-            case 'VALIDATION_FAILED':
-                updateIgm(message.headers.tso, status);
-                break;
-            case 'BALANCE_ADJUSTMENT_SUCCEED':
-            case 'LOADFLOW_SUCCEED':
-            case 'BALANCE_ADJUSTMENT_FAILED':
-            case 'LOADFLOW_FAILED':
-                updateAllIgms(status);
-                break;
-            default:
-                break;
+        if (convertSearchDate(date) === dateFromDatePicker) {
+            dispatch(updateMergeDate(props.name, new Date(date)));
+            switch (message.headers.status) {
+                case 'AVAILABLE':
+                case 'VALIDATION_SUCCEED':
+                case 'VALIDATION_FAILED':
+                    updateIgm(message.headers.tso, status);
+                    break;
+                case 'BALANCE_ADJUSTMENT_SUCCEED':
+                case 'LOADFLOW_SUCCEED':
+                case 'BALANCE_ADJUSTMENT_FAILED':
+                case 'LOADFLOW_FAILED':
+                    updateAllIgms(status);
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
@@ -117,6 +119,7 @@ const Process = (props) => {
                     maxDate =
                         convertSearchDate(currentProcessExist.date) + maxHour;
                 }
+                datePickerCurrentDate = minDate;
             } else {
                 minDate = currentDateFormat() + minHour;
                 maxDate = currentDateFormat() + maxHour;

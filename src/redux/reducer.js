@@ -58,7 +58,9 @@ export const reducer = createReducer(initialState, {
 
     [UPDATE_IGM_STATUS]: (state, action) => {
         const igm = state.merge.igms.find((igm) => igm.tso === action.tso);
-        igm.status = action.status;
+        if (igm) {
+            igm.status = action.status;
+        }
     },
 
     [UPDATE_ALL_IGMS_STATUS]: (state, action) => {
