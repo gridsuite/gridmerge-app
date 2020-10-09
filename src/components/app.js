@@ -169,7 +169,13 @@ const App = () => {
                 <TopBar
                     appName="Merge"
                     appColor="#2D9BF0"
-                    appLogo={(theme===LIGHT_THEME)?(<GridMergeLogoLight />):(<GridMergeLogoDark />)}
+                    appLogo={
+                        theme === LIGHT_THEME ? (
+                            <GridMergeLogoLight />
+                        ) : (
+                            <GridMergeLogoDark />
+                        )
+                    }
                     onParametersClick={() => showParametersClicked()}
                     onLogoutClick={() => logout(dispatch, userManager.instance)}
                     onLogoClick={() => onLogoClicked()}
@@ -184,9 +190,10 @@ const App = () => {
                         aria-label="parameters"
                         className={classes.process}
                     >
-                        {Array.isArray(configs) && configs.map((config) => (
-                            <Tab label={config.process} />
-                        ))}
+                        {Array.isArray(configs) &&
+                            configs.map((config) => (
+                                <Tab label={config.process} />
+                            ))}
                     </Tabs>
                 </TopBar>
                 <Parameters
