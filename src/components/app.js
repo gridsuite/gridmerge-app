@@ -172,7 +172,7 @@ const App = () => {
                 <CssBaseline />
                 <TopBar
                     appName="Merge"
-                    appColor="#0CA789"
+                    appColor="#2D9BF0"
                     onParametersClick={() => showParametersClicked()}
                     onLogoutClick={() => logout(dispatch, userManager.instance)}
                     onLogoClick={() => onLogoClicked()}
