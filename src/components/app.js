@@ -43,6 +43,9 @@ import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import {fetchAppsAndUrls, fetchMergeConfigs} from '../utils/api';
 
+import { ReactComponent as GridMergeLogoDark } from '../images/GridMerge_logo_dark.svg';
+import { ReactComponent as GridMergeLogoLight } from '../images/GridMerge_logo_light.svg';
+
 const lightTheme = createMuiTheme({
     palette: {
         type: 'light',
@@ -173,6 +176,13 @@ const App = () => {
                 <TopBar
                     appName="Merge"
                     appColor="#2D9BF0"
+                    appLogo={
+                        theme === LIGHT_THEME ? (
+                            <GridMergeLogoLight />
+                        ) : (
+                            <GridMergeLogoDark />
+                        )
+                    }
                     onParametersClick={() => showParametersClicked()}
                     onLogoutClick={() => logout(dispatch, userManager.instance)}
                     onLogoClick={() => onLogoClicked()}
@@ -188,9 +198,10 @@ const App = () => {
                         aria-label="parameters"
                         className={classes.process}
                     >
-                        {Array.isArray(configs) && configs.map((config) => (
-                            <Tab label={config.process} />
-                        ))}
+                        {Array.isArray(configs) &&
+                            configs.map((config) => (
+                                <Tab label={config.process} />
+                            ))}
                     </Tabs>
                 </TopBar>
                 <Parameters
