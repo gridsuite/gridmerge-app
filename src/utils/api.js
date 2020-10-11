@@ -68,7 +68,7 @@ function getUrlWithToken(baseUrl) {
     return baseUrl + '?access_token=' + getToken();
 }
 
-export function getExportMergeUrl(process, date) {
+export function getExportMergeUrl(process, date, timeZoneoffset) {
     const url =
         PREFIX_ORCHESTRATOR_QUERIES +
         '/v1/' +
@@ -76,5 +76,6 @@ export function getExportMergeUrl(process, date) {
         '/' +
         date +
         '/export/XIIDM';
-    return getUrlWithToken(url);
+
+    return getUrlWithToken(url) + '&timeZoneOffset=' + timeZoneoffset;
 }
