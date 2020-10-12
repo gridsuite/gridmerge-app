@@ -11,8 +11,8 @@ import { makeStyles } from '@material-ui/core/styles';
 import IconButton from '@material-ui/core/IconButton';
 import { FormattedMessage } from 'react-intl';
 import GetAppIcon from '@material-ui/icons/GetApp';
-import {getExportMergeUrl} from "../utils/api";
-import {IgmStatus} from "./merge-map";
+import { getExportMergeUrl } from '../utils/api';
+import { IgmStatus } from './merge-map';
 
 const useStyles = makeStyles(() => ({
     download: {
@@ -34,27 +34,34 @@ const DownloadButton = (props) => {
 
     const classes = useStyles();
 
-    const merge = useSelector(state => state.merge);
+    const merge = useSelector((state) => state.merge);
 
     const [isDisabled, setDisabled] = useState(true);
 
     useEffect(() => {
         let disabled = !(merge.date && merge.process);
-        merge.igms.forEach( igm => {
+        merge.igms.forEach((igm) => {
             if (igm.status !== IgmStatus.MERGED) {
                 disabled = true;
             }
-        })
+        });
         setDisabled(disabled);
     }, [merge]);
 
     const handleClickExport = () => {
-        console.info("Downloading merge " + merge.process + "...");
+        console.info('Downloading merge ' + merge.process + '...');
         // The getTimezoneOffset() method returns the difference, in minutes, between UTC and local time.
         // The offset is positive if the local timezone is behind UTC and negative if it is ahead
         // On service side, the opposite behaviour is expected (offset is expected to be negative if the local timezone is behind UTC and positive if it is ahead)
         // This explains the "-" sign to get the expected offset value for the service
-        window.open(getExportMergeUrl(merge.process, merge.date.toISOString(), -new Date().getTimezoneOffset()), DownloadIframe);
+        window.open(
+            getExportMergeUrl(
+                merge.process,
+                merge.date.toISOString(),
+                -new Date().getTimezoneOffset()
+            ),
+            DownloadIframe
+        );
     };
 
     return (
@@ -62,11 +69,12 @@ const DownloadButton = (props) => {
             <IconButton
                 aria-label="download"
                 onClick={handleClickExport}
-                disabled={isDisabled}>
-                <GetAppIcon fontSize="large"/>
+                disabled={isDisabled}
+            >
+                <GetAppIcon fontSize="large" />
             </IconButton>
             <span className={isDisabled ? classes.downloadLabelDisabled : ''}>
-                <FormattedMessage id="download"/>
+                <FormattedMessage id="download" />
                 <span> CGM</span>
             </span>
             <iframe

@@ -69,8 +69,13 @@ function getUrlWithToken(baseUrl) {
 }
 
 export function getExportMergeUrl(process, date, timeZoneoffset) {
-    const url = PREFIX_ORCHESTRATOR_QUERIES + '/v1/' + process + '/' + date + '/export/XIIDM'
+    const url =
+        PREFIX_ORCHESTRATOR_QUERIES +
+        '/v1/' +
+        process +
+        '/' +
+        date +
+        '/export/XIIDM';
 
-    return getUrlWithToken(url) + '&timeZoneOffset=' +
-        timeZoneoffset;
+    return getUrlWithToken(url) + '&timeZoneOffset=' + timeZoneoffset;
 }
