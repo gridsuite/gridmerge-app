@@ -5,13 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 import React from 'react';
-import {
-    Box,
-    Grid,
-    Typography,
-    ExpansionPanelSummary,
-    Divider,
-} from '@material-ui/core';
+import { Box, Grid, Typography, Divider } from '@material-ui/core';
 import DoneIcon from '@material-ui/icons/DoneOutlined';
 import LoopIcon from '@material-ui/icons/LoopOutlined';
 import HourglassEmptyIcon from '@material-ui/icons/HourglassEmptyOutlined';
@@ -44,7 +38,6 @@ import flagTR from '../images/flags/flags-iso/flat/svg/TR.svg';
 import flagUA from '../images/flags/flags-iso/flat/svg/UA.svg';
 import flagUnknown from '../images/flags/flags-iso/flat/svg/EU.svg';
 import PropTypes from 'prop-types';
-import './country-state-item.css';
 import { withStyles } from '@material-ui/core/styles';
 
 const styles = (theme) => ({
@@ -81,10 +74,16 @@ const styles = (theme) => ({
         backgroundColor: theme.palette.background.paper,
     },
     loading: {
-        '-webkit-animation': 'spin 1s linear infinite',
-        '-moz-animation': 'spin 1s linear infinite',
-        animation: `spin 1s linear infinite`,
+        animation: '$spin 1000ms infinite',
         color: '#009CD8',
+    },
+    '@keyframes spin': {
+        '0%': {
+            transform: 'rotate(0deg)',
+        },
+        '100%': {
+            transform: 'rotate(-360deg)',
+        },
     },
     waiting: {
         color: '#02538B',
