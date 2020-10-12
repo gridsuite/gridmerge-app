@@ -18,7 +18,7 @@ import {
     updateIgmStatus,
     updateMergeDate,
 } from '../redux/actions';
-import CountryStatesList from "./country-state-list";
+import CountryStatesList from './country-state-list';
 
 const Process = (props) => {
     const merge = useSelector((state) => state.merge);
@@ -132,7 +132,17 @@ const Process = (props) => {
             <div style={{ position: 'absolute', left: 8, top: 50, zIndex: 1 }}>
                 <h2>{merge.date ? merge.date.toLocaleString() : ''}</h2>
             </div>
-            <div style={{ position: 'absolute', right: 8, top: 66, zIndex: 1, width: 250, height: 'calc( 100% - 66px )', overflow: 'auto'}}>
+            <div
+                style={{
+                    position: 'absolute',
+                    right: 8,
+                    top: 66,
+                    zIndex: 1,
+                    width: 250,
+                    height: 'calc( 100% - 66px )',
+                    overflow: 'auto',
+                }}
+            >
                 <CountryStatesList igms={merge.igms} />
             </div>
         </MergeMap>

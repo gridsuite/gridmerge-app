@@ -7,13 +7,13 @@
 import React, { Component } from 'react';
 import { List } from '@material-ui/core';
 import PropTypes from 'prop-types';
-import CountryStateItem from "./country-state-item";
+import CountryStateItem from './country-state-item';
 
 class CountryStatesList extends Component {
     render() {
         return (
             <List className={this.props.className}>
-                {this.props.igms.map(igm => (
+                {this.props.igms.map((igm) => (
                     <CountryStateItem igm={igm} />
                 ))}
             </List>
