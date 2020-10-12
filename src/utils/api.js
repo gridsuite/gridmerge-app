@@ -79,7 +79,6 @@ export function getExportMergeUrl(process, date, timeZoneoffset) {
         '/' +
         date +
         '/export/XIIDM';
-
     return getUrlWithToken(url) + '&timeZoneOffset=' + timeZoneoffset;
 }
 

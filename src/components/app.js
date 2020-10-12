@@ -46,6 +46,9 @@ import {fetchAppsAndUrls, fetchMergeConfigs} from '../utils/api';
 import { ReactComponent as GridMergeLogoDark } from '../images/GridMerge_logo_dark.svg';
 import { ReactComponent as GridMergeLogoLight } from '../images/GridMerge_logo_light.svg';
 
+import { ReactComponent as GridMergeLogoDark } from '../images/GridMerge_logo_dark.svg';
+import { ReactComponent as GridMergeLogoLight } from '../images/GridMerge_logo_light.svg';
+
 const lightTheme = createMuiTheme({
     palette: {
         type: 'light',
