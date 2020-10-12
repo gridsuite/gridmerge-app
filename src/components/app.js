@@ -41,10 +41,7 @@ import DownloadButton from './stepper';
 import Parameters from './parameters';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
-import {fetchAppsAndUrls, fetchMergeConfigs} from '../utils/api';
-
-import { ReactComponent as GridMergeLogoDark } from '../images/GridMerge_logo_dark.svg';
-import { ReactComponent as GridMergeLogoLight } from '../images/GridMerge_logo_light.svg';
+import { fetchAppsAndUrls, fetchMergeConfigs } from '../utils/api';
 
 import { ReactComponent as GridMergeLogoDark } from '../images/GridMerge_logo_dark.svg';
 import { ReactComponent as GridMergeLogoLight } from '../images/GridMerge_logo_light.svg';
@@ -105,7 +102,6 @@ const App = () => {
     const [tabIndex, setTabIndex] = React.useState(0);
 
     const [appsAndUrls, setAppsAndUrls] = React.useState([]);
-
 
     let matchSilentRenewCallbackUrl = useRouteMatch({
         path: '/silent-renew-callback',
