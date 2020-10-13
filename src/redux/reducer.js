@@ -17,6 +17,7 @@ import {
 } from './actions';
 
 import { SIGNIN_CALLBACK_ERROR, USER } from '@gridsuite/commons-ui';
+import {removeTime} from "../utils/api";
 
 const initialState = {
     theme: getLocalStorageTheme(),
@@ -47,7 +48,7 @@ export const reducer = createReducer(initialState, {
         state.processes = state.configs.map((config) => {
             return {
                 name: config.process,
-                date: new Date(new Date().toDateString()),
+                date: removeTime(new Date()),
                 merges: [],
             };
         });

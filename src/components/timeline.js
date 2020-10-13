@@ -9,7 +9,7 @@ import React, { useEffect, useState } from 'react';
 
 import { makeStyles, withStyles } from '@material-ui/styles';
 import Slider from '@material-ui/core/Slider';
-import ClockIcon from '../images/icons/clock.svg';
+import ClockIcon from '../images/clock.svg';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 
