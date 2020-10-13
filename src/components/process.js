@@ -23,6 +23,7 @@ import TextField from '@material-ui/core/TextField';
 import { makeStyles } from '@material-ui/styles';
 import moment from 'moment';
 import DownloadButton from './stepper';
+import CountryStatesList from './country-state-list';
 
 const useStyles = makeStyles((theme) => ({
     datePicker: {
@@ -132,7 +133,21 @@ const Process = (props) => {
                     setMergeIndex(newMergeIndex)
                 }
             />
-            <MergeMap tsos={config.tsos} merge={merge} />
+            <MergeMap tsos={config.tsos} merge={merge} >
+                <div
+                    style={{
+                        position: 'absolute',
+                        right: 8,
+                        top: 66,
+                        zIndex: 1,
+                        width: 250,
+                        height: 'calc( 100% - 66px )',
+                        overflow: 'auto',
+                    }}
+                >
+                    <CountryStatesList igms={merge.igms} />
+                </div>
+            </MergeMap>
             <DownloadButton merge={merge} />
         </>
     );
