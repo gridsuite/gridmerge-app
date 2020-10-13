@@ -97,3 +97,23 @@ export function fetchAppsAndUrls() {
         });
     });
 }
+
+/**
+ * Function return list of merges by process name, date min and date max
+ */
+export function fetchMergesByProcessAndDate(process, minDate, maxDate) {
+    console.info('Fetching merge configs...');
+    const fetchConfigsUrl =
+        PREFIX_ORCHESTRATOR_QUERIES +
+        '/v1/' +
+        encodeURIComponent(process) +
+        '/merges?minDate=' +
+        minDate.toISOString() +
+        '&maxDate=' +
+        maxDate.toISOString();
+    return backendFetch(fetchConfigsUrl).then((response) => response.json());
+}
+
+export function removeTime(date) {
+    return new Date(date.toDateString());
+}

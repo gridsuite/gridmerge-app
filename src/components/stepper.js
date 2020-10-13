@@ -34,34 +34,34 @@ const DownloadButton = (props) => {
 
     const classes = useStyles();
 
-    const merge = useSelector((state) => state.merge);
+    const merges = useSelector((state) => state.merges);
 
     const [isDisabled, setDisabled] = useState(true);
 
     useEffect(() => {
-        let disabled = !(merge.date && merge.process);
-        merge.igms.forEach((igm) => {
-            if (igm.status !== IgmStatus.MERGED) {
-                disabled = true;
-            }
-        });
-        setDisabled(disabled);
-    }, [merge]);
+        // let disabled = !(merge.date && merge.process);
+        // merge.igms.forEach((igm) => {
+        //     if (igm.status !== IgmStatus.MERGED) {
+        //         disabled = true;
+        //     }
+        // });
+        // setDisabled(disabled);
+    }, [merges]);
 
     const handleClickExport = () => {
-        console.info('Downloading merge ' + merge.process + '...');
+ //       console.info('Downloading merge ' + merge.process + '...');
         // The getTimezoneOffset() method returns the difference, in minutes, between UTC and local time.
         // The offset is positive if the local timezone is behind UTC and negative if it is ahead
         // On service side, the opposite behaviour is expected (offset is expected to be negative if the local timezone is behind UTC and positive if it is ahead)
         // This explains the "-" sign to get the expected offset value for the service
-        window.open(
-            getExportMergeUrl(
-                merge.process,
-                merge.date.toISOString(),
-                -new Date().getTimezoneOffset()
-            ),
-            DownloadIframe
-        );
+        // window.open(
+        //     getExportMergeUrl(
+        //         merge.process,
+        //         merge.date.toISOString(),
+        //         -new Date().getTimezoneOffset()
+        //     ),
+        //     DownloadIframe
+        // );
     };
 
     return (

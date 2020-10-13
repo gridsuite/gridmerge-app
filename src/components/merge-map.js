@@ -5,16 +5,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
-import {
-    ComposableMap,
-    Geographies,
-    Geography,
-    ZoomableGroup,
-} from 'react-simple-maps';
+import {ComposableMap, Geographies, Geography, ZoomableGroup,} from 'react-simple-maps';
 
-import { makeStyles } from '@material-ui/core/styles';
+import {makeStyles} from '@material-ui/core/styles';
 import bbox from 'geojson-bbox';
 
 const TSO_STROKE_COLOR = 'white';
@@ -92,10 +87,10 @@ const MergeMap = (props) => {
     }
 
     useEffect(() => {
-        if (props.igms.length > 0) {
+        if (props.tsos.length > 0) {
             Promise.all(
-                props.igms.map((igm) => {
-                    const url = igm.tso + '.json';
+                props.tsos.map((tso) => {
+                    const url = tso.toLowerCase() + '.json';
                     return fetch(url).then((resp) => resp.json());
                 })
             ).then((jsons) => {
@@ -110,7 +105,35 @@ const MergeMap = (props) => {
             setScale(DEFAULT_SCALE);
             setGeographies([]);
         }
-    }, [props.igms]);
+    }, [props.tsos]);
+
+    function getIgmStatus(merge, igm) {
+        if (!igm) {
+            return IgmStatus.ABSENT;
+        }
+        if (merge.status) {
+            switch (merge.status) {
+                case 'BALANCE_ADJUSTMENT_SUCCEED':
+                case 'LOADFLOW_SUCCEED':
+                    return IgmStatus.MERGED;
+
+                case 'BALANCE_ADJUSTMENT_FAILED':
+                case 'LOADFLOW_FAILED':
+                    throw Error('TODO');
+            }
+        } else {
+            switch (igm.status) {
+                case 'AVAILABLE':
+                    return IgmStatus.AVAILABLE;
+
+                case 'VALIDATION_SUCCEED':
+                    return IgmStatus.VALID;
+
+                case 'VALIDATION_FAILED':
+                    return IgmStatus.INVALID;
+            }
+        }
+    }
 
     const projectionConfig = { center: center, scale: scale };
 
@@ -131,10 +154,9 @@ const MergeMap = (props) => {
                     <Geographies geography={geographies}>
                         {({ geographies }) =>
                             geographies.map((geo, index) => {
-                                const igm = props.igms[index];
-                                const status = igm
-                                    ? igm.status
-                                    : IgmStatus.ABSENT;
+                                const tso = props.tsos[index];
+                                const igm = props.merge !== null ? props.merge.igms.find(igm => igm.tso === tso) : null;
+                                const status = getIgmStatus(props.merge, igm);
                                 const color = tsoColor(status);
                                 return (
                                     <Geography
@@ -159,6 +181,7 @@ MergeMap.defaultProps = {
 };
 
 MergeMap.propTypes = {
+    merge: PropTypes.object.isRequired,
     igms: PropTypes.arrayOf(
         PropTypes.shape({
             tso: PropTypes.string.isRequired,

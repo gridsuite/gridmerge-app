@@ -5,31 +5,20 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import { createReducer } from '@reduxjs/toolkit';
+import {createReducer} from '@reduxjs/toolkit';
 
-import { getLocalStorageTheme, saveLocalStorageTheme } from './local-storage';
+import {getLocalStorageTheme, saveLocalStorageTheme} from './local-storage';
 
-import {
-    INIT_PROCESSES,
-    SELECT_THEME,
-    UPDATE_ALL_IGMS_STATUS,
-    UPDATE_IGM_STATUS,
-    UPDATE_MERGE_DATE,
-} from './actions';
+import {INIT_PROCESSES, SELECT_THEME, UPDATE_MERGES, UPDATE_PROCESS_DATE,} from './actions';
 
-import { SIGNIN_CALLBACK_ERROR, USER } from '@gridsuite/commons-ui';
-import { IgmStatus } from '../components/merge-map';
+import {SIGNIN_CALLBACK_ERROR, USER} from '@gridsuite/commons-ui';
 
 const initialState = {
     theme: getLocalStorageTheme(),
     user: null,
     signInCallbackError: null,
     configs: [],
-    merge: {
-        process: null,
-        date: null,
-        igms: [],
-    },
+    processes: [],
 };
 
 export const reducer = createReducer(initialState, {
@@ -47,40 +36,25 @@ export const reducer = createReducer(initialState, {
     },
 
     [INIT_PROCESSES]: (state, action) => {
+        console.info(action.configs);
         state.configs = action.configs;
-    },
-
-    [UPDATE_IGM_STATUS]: (state, action) => {
-        const igm = state.merge.igms.find((igm) => igm.tso === action.tso);
-        igm.status = action.status;
-    },
-
-    [UPDATE_ALL_IGMS_STATUS]: (state, action) => {
-        state.merge.igms.forEach((igm) => {
-            igm.status = action.status;
+        // by default set date to current day
+        state.processes = state.configs.map((config) => {
+           return {
+               name: config.process,
+               date: new Date(new Date().toDateString()),
+               merges: [],
+           };
         });
     },
 
-    [UPDATE_MERGE_DATE]: (state, action) => {
-        if (
-            state.merge.date == null ||
-            (action.date !== null &&
-                action.date.getTime() !== state.merge.date.getTime()) ||
-            action.process !== state.merge.process
-        ) {
-            const config = state.configs.find(
-                (config) => config.process === action.process
-            );
-            state.merge = {
-                process: action.process,
-                date: action.date,
-                igms: config.tsos.map((tso) => {
-                    return {
-                        tso: tso.toLowerCase(),
-                        status: IgmStatus.ABSENT,
-                    };
-                }),
-            };
-        }
+    [UPDATE_MERGES]: (state, action) => {
+        const process = state.processes[action.processIndex];
+        process.merges = action.merges;
+    },
+
+    [UPDATE_PROCESS_DATE]: (state, action) => {
+        const process = state.processes[action.processIndex];
+        process.date = action.date;
     },
 });
