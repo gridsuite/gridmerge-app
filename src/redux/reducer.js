@@ -45,9 +45,8 @@ export const reducer = createReducer(initialState, {
         console.info(action.configs);
         state.configs = action.configs;
         // by default set date to current day
-        state.processes = state.configs.map((config) => {
+        state.processes = state.configs.map(() => {
             return {
-                name: config.process,
                 date: removeTime(new Date()),
                 merges: [],
             };
