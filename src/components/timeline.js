@@ -209,9 +209,12 @@ const Timeline = (props) => {
                     mergesForTimeline(merges);
                     firstStep = convertHoursToMinutes(merges[0]);
                     const firstMerge = merges[0];
-                    setTimeout(function(){
+                    setTimeout(function () {
                         dispatch(
-                            updateMergeDate(props.name, new Date(merges[0].date))
+                            updateMergeDate(
+                                props.name,
+                                new Date(merges[0].date)
+                            )
                         );
                         firstMerge.igms.forEach((igm) => {
                             const status = firstMerge.status
@@ -220,7 +223,6 @@ const Timeline = (props) => {
                             updateIgm(igm.tso, toIgmStatus(status));
                         });
                     }, 200);
-
                 } else {
                     firstStep = 0;
                     dispatch(updateMergeDate(props.name, new Date(minDate)));
