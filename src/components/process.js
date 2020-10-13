@@ -22,6 +22,7 @@ import Timeline from './timeline';
 import TextField from '@material-ui/core/TextField';
 import { makeStyles } from '@material-ui/styles';
 import moment from 'moment';
+import DownloadButton from './stepper';
 
 const useStyles = makeStyles((theme) => ({
     datePicker: {
@@ -132,6 +133,7 @@ const Process = (props) => {
                 }
             />
             <MergeMap tsos={config.tsos} merge={merge} />
+            <DownloadButton merge={merge} />
         </>
     );
 };

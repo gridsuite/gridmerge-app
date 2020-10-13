@@ -36,7 +36,6 @@ import {
 import { FormattedMessage } from 'react-intl';
 
 import Process from './process';
-import DownloadButton from './stepper';
 
 import Parameters from './parameters';
 import Tabs from '@material-ui/core/Tabs';
@@ -228,7 +227,6 @@ const App = () => {
                                 </h1>
                             </Route>
                         </Switch>
-                        <DownloadButton />
                     </>
                 ) : (
                     <AuthenticationRouter
