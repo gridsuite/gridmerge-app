@@ -24,13 +24,12 @@ import { makeStyles } from '@material-ui/styles';
 import moment from 'moment';
 import DownloadButton from './stepper';
 import CountryStatesList from './country-state-list';
+import Grid from '@material-ui/core/Grid';
 
 const useStyles = makeStyles((theme) => ({
     datePicker: {
         textAlign: 'center',
-        margin: '15px 0',
-        position: 'absolute',
-        top: 75,
+        padding: '20px 0px 10px 0px',
         width: '100%',
         zIndex: 99,
     },
@@ -114,42 +113,33 @@ const Process = (props) => {
     const merge = merges.length > 0 ? merges[mergeIndex] : null;
 
     return (
-        <>
-            <div className={classes.datePicker}>
-                <TextField
-                    id="date"
-                    type="date"
-                    onChange={onDateChange}
-                    value={formatDate(date)}
-                    InputLabelProps={{
-                        shrink: true,
-                    }}
-                />
-            </div>
-            <Timeline
-                merges={merges}
-                mergeIndex={mergeIndex}
-                onMergeIndexChange={(newMergeIndex) =>
-                    setMergeIndex(newMergeIndex)
-                }
-            />
-            <MergeMap tsos={config.tsos} merge={merge} >
-                <div
-                    style={{
-                        position: 'absolute',
-                        right: 8,
-                        top: 66,
-                        zIndex: 1,
-                        width: 250,
-                        height: 'calc( 100% - 66px )',
-                        overflow: 'auto',
-                    }}
-                >
-                    <CountryStatesList igms={merge.igms} />
+        <Grid container direction="row" className={classes.main}>
+            <Grid item xs={12} md={10} key="map">
+                <div className={classes.datePicker}>
+                    <TextField
+                        id="date"
+                        type="date"
+                        onChange={onDateChange}
+                        value={formatDate(date)}
+                        InputLabelProps={{
+                            shrink: true,
+                        }}
+                    />
                 </div>
-            </MergeMap>
-            <DownloadButton merge={merge} />
-        </>
+                <Timeline
+                    merges={merges}
+                    mergeIndex={mergeIndex}
+                    onMergeIndexChange={(newMergeIndex) =>
+                        setMergeIndex(newMergeIndex)
+                    }
+                />
+                <MergeMap tsos={config.tsos} merge={merge} />
+                <DownloadButton merge={merge} />
+            </Grid>
+            <Grid item xs={12} md={2} key="list">
+                <CountryStatesList tsos={config.tsos} merge={merge} />
+            </Grid>
+        </Grid>
     );
 };
 

@@ -16,9 +16,7 @@ import moment from 'moment';
 // eslint-disable-next-line
 const useStyles = makeStyles((theme) => ({
     customSlider: {
-        padding: '50px 25px 20px 15px',
-        position: 'absolute',
-        top: 85,
+        padding: '10px 20px 10px 20px',
         width: '100%',
     },
 }));

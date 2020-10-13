@@ -16,6 +16,7 @@ import {
 
 import { makeStyles } from '@material-ui/core/styles';
 import bbox from 'geojson-bbox';
+import { IgmStatus, getIgmStatus, MergeType } from '../utils/api';
 
 const TSO_STROKE_COLOR = 'white';
 const DEFAULT_CENTER = [0, 0];
@@ -31,14 +32,6 @@ const useStyles = makeStyles((theme) => ({
         vectorEffect: 'non-scaling-stroke',
     },
 }));
-
-export const IgmStatus = {
-    ABSENT: 'absent',
-    AVAILABLE: 'available',
-    VALID: 'valid',
-    INVALID: 'invalid',
-    MERGED: 'merged',
-};
 
 const MergeMap = (props) => {
     const [geographies, setGeographies] = useState([]);
@@ -112,38 +105,6 @@ const MergeMap = (props) => {
         }
     }, [props.tsos]);
 
-    function getIgmStatus(merge, igm) {
-        if (!igm) {
-            return IgmStatus.ABSENT;
-        }
-        if (merge.status) {
-            switch (merge.status) {
-                case 'BALANCE_ADJUSTMENT_SUCCEED':
-                case 'LOADFLOW_SUCCEED':
-                    return IgmStatus.MERGED;
-
-                case 'BALANCE_ADJUSTMENT_FAILED':
-                case 'LOADFLOW_FAILED':
-                default:
-                    throw Error('Status not supported');
-            }
-        } else {
-            switch (igm.status) {
-                case 'AVAILABLE':
-                    return IgmStatus.AVAILABLE;
-
-                case 'VALIDATION_SUCCEED':
-                    return IgmStatus.VALID;
-
-                case 'VALIDATION_FAILED':
-                    return IgmStatus.INVALID;
-
-                default:
-                    throw Error('Status not supported');
-            }
-        }
-    }
-
     const projectionConfig = { center: center, scale: scale };
 
     return (
@@ -164,13 +125,7 @@ const MergeMap = (props) => {
                         {({ geographies }) =>
                             geographies.map((geo, index) => {
                                 const tso = props.tsos[index];
-                                const igm =
-                                    props.merge !== null
-                                        ? props.merge.igms.find(
-                                              (igm) => igm.tso === tso
-                                          )
-                                        : null;
-                                const status = getIgmStatus(props.merge, igm);
+                                const status = getIgmStatus(tso, props.merge);
                                 const color = tsoColor(status);
                                 return (
                                     <Geography
@@ -196,15 +151,7 @@ MergeMap.defaultProps = {
 
 MergeMap.propTypes = {
     tsos: PropTypes.arrayOf(PropTypes.string).isRequired,
-    merge: PropTypes.shape({
-        status: PropTypes.string.isRequired,
-        igms: PropTypes.arrayOf(
-            PropTypes.shape({
-                status: PropTypes.string.isRequired,
-                tso: PropTypes.string.isRequired,
-            })
-        ),
-    }),
+    merge: MergeType,
 };
 
 export default MergeMap;
