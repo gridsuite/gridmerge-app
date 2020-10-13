@@ -45,8 +45,6 @@ const Process = (props) => {
 
     const [mergeIndex, setMergeIndex] = useState(0);
 
-    const websocketExpectedCloseRef = useRef();
-
     const dispatch = useDispatch();
 
     function update(message, processDate) {
@@ -67,9 +65,7 @@ const Process = (props) => {
             update(message, processDate);
         };
         ws.onclose = function (event) {
-            if (!websocketExpectedCloseRef.current) {
-                console.error('Unexpected Notification WebSocket closed');
-            }
+            console.info(`Disconnecting from notifications '${processName}'...`);
         };
         ws.onerror = function (event) {
             console.error('Unexpected Notification WebSocket error', event);
@@ -94,12 +90,9 @@ const Process = (props) => {
     useEffect(() => {
         loadMerges();
 
-        websocketExpectedCloseRef.current = false;
-
         const ws = connectNotifications(config.process, date);
 
         return function () {
-            websocketExpectedCloseRef.current = true;
             ws.close();
         };
     }, [props.index, date]);
