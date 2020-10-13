@@ -48,6 +48,9 @@ const EmptySlider = withStyles((theme) => ({
         backgroundColor: '#b5b5b5',
         zIndex: 2,
     },
+    thumb: {
+        backgroundColor: theme.palette.background.default,
+    },
     markLabel: {
         top: 40,
         width: 40,
@@ -144,7 +147,8 @@ const Timeline = (props) => {
         );
     }, [marks, props.mergeIndex]);
 
-    const TheSlider = props.merges.length > 0 ? ClockSlider : EmptySlider;
+    const empty = props.merges.length === 0;
+    const TheSlider = empty ? EmptySlider : ClockSlider;
 
     return (
         <>
@@ -157,7 +161,7 @@ const Timeline = (props) => {
                     step={null}
                     max={24 * 60 - 1}
                     valueLabelFormat={getValueLabelFormat}
-                    className={'bar'}
+                    disabled={empty}
                 />
             </div>
         </>
