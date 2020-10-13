@@ -27,6 +27,17 @@ import CountryStatesList from './country-state-list';
 import Grid from '@material-ui/core/Grid';
 
 const useStyles = makeStyles((theme) => ({
+    main: {
+        position: 'absolute',
+        width: '100%',
+        height: 'calc(100vh - 56px)',
+        [`${theme.breakpoints.up('xs')} and (orientation: landscape)`]: {
+            height: 'calc(100vh - 48px)',
+        },
+        [theme.breakpoints.up('sm')]: {
+            height: 'calc(100vh - 64px)',
+        },
+    },
     datePicker: {
         textAlign: 'center',
         padding: '20px 0px 10px 0px',
@@ -113,33 +124,35 @@ const Process = (props) => {
     const merge = merges.length > 0 ? merges[mergeIndex] : null;
 
     return (
-        <Grid container direction="row" className={classes.main}>
-            <Grid item xs={12} md={10} key="map">
-                <div className={classes.datePicker}>
-                    <TextField
-                        id="date"
-                        type="date"
-                        onChange={onDateChange}
-                        value={formatDate(date)}
-                        InputLabelProps={{
-                            shrink: true,
-                        }}
+        <div className={classes.main}>
+            <Grid container direction="row" className={classes.main}>
+                <Grid item xs={12} md={10} key="map">
+                    <div className={classes.datePicker}>
+                        <TextField
+                            id="date"
+                            type="date"
+                            onChange={onDateChange}
+                            value={formatDate(date)}
+                            InputLabelProps={{
+                                shrink: true,
+                            }}
+                        />
+                    </div>
+                    <Timeline
+                        merges={merges}
+                        mergeIndex={mergeIndex}
+                        onMergeIndexChange={(newMergeIndex) =>
+                            setMergeIndex(newMergeIndex)
+                        }
                     />
-                </div>
-                <Timeline
-                    merges={merges}
-                    mergeIndex={mergeIndex}
-                    onMergeIndexChange={(newMergeIndex) =>
-                        setMergeIndex(newMergeIndex)
-                    }
-                />
-                <MergeMap tsos={config.tsos} merge={merge} />
-                <DownloadButton merge={merge} />
+                    <MergeMap tsos={config.tsos} merge={merge} />
+                    <DownloadButton merge={merge} />
+                </Grid>
+                <Grid item xs={12} md={2} key="list">
+                    <CountryStatesList tsos={config.tsos} merge={merge} />
+                </Grid>
             </Grid>
-            <Grid item xs={12} md={2} key="list">
-                <CountryStatesList tsos={config.tsos} merge={merge} />
-            </Grid>
-        </Grid>
+        </div>
     );
 };
 
