@@ -21,7 +21,7 @@ import { IgmStatus, getIgmStatus, MergeType } from '../utils/api';
 
 const TSO_STROKE_COLOR = 'white';
 const DEFAULT_CENTER = [0, 0];
-const DEFAULT_SCALE = 30000;
+const DEFAULT_SCALE = 35000;
 
 const useStyles = makeStyles((theme) => ({
     tso: {
@@ -32,9 +32,11 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const MergeMap = (props) => {
-    const [geographies, setGeographies] = useState([]);
-    const [center, setCenter] = useState(DEFAULT_CENTER);
-    const [scale, setScale] = useState(DEFAULT_SCALE);
+    const [data, setData] = useState({
+        geographies: [],
+        center: DEFAULT_CENTER,
+        scale: DEFAULT_SCALE,
+    });
 
     const classes = useStyles();
 
@@ -92,18 +94,22 @@ const MergeMap = (props) => {
             ).then((jsons) => {
                 // compute geometries bounding box
                 const bb = computeBoundingBox(jsons);
-                setCenter(computeCenter(bb));
-                setScale(computeScale(bb));
-                setGeographies(jsons);
+                setData({
+                    geographies: jsons,
+                    center: computeCenter(bb),
+                    scale: computeScale(bb),
+                });
             });
         } else {
-            setCenter(DEFAULT_CENTER);
-            setScale(DEFAULT_SCALE);
-            setGeographies([]);
+            setData({
+                geographies: [],
+                center: DEFAULT_CENTER,
+                scale: DEFAULT_SCALE,
+            });
         }
     }, [props.tsos]);
 
-    const projectionConfig = { center: center, scale: scale };
+    const projectionConfig = { center: data.center, scale: data.scale };
 
     return (
         <AutoSizer>
@@ -117,7 +123,7 @@ const MergeMap = (props) => {
                 >
                     <ComposableMap projectionConfig={projectionConfig}>
                         <ZoomableGroup minZoom={1} maxZoom={1}>
-                            <Geographies geography={geographies}>
+                            <Geographies geography={data.geographies}>
                                 {({ geographies }) =>
                                     geographies.map((geo, index) => {
                                         const tso = props.tsos[index];
@@ -155,4 +161,4 @@ MergeMap.propTypes = {
     merge: MergeType,
 };
 
-export default MergeMap;
+export default React.memo(MergeMap);
