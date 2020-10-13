@@ -21,7 +21,7 @@ import { IgmStatus, getIgmStatus, MergeType } from '../utils/api';
 
 const TSO_STROKE_COLOR = 'white';
 const DEFAULT_CENTER = [0, 0];
-const DEFAULT_SCALE = 35000;
+const DEFAULT_SCALE = 30000;
 
 const useStyles = makeStyles((theme) => ({
     tso: {
@@ -112,43 +112,40 @@ const MergeMap = (props) => {
     const projectionConfig = { center: data.center, scale: data.scale };
 
     return (
-        <AutoSizer>
-            {({ width, height }) => (
-                <div
-                    style={{
-                        marginLeft: (width - height) / 2 + 'px',
-                        width: Math.min(width, height),
-                        height: Math.min(width, height),
-                    }}
-                >
-                    <ComposableMap projectionConfig={projectionConfig}>
-                        <ZoomableGroup minZoom={1} maxZoom={1}>
-                            <Geographies geography={data.geographies}>
-                                {({ geographies }) =>
-                                    geographies.map((geo, index) => {
-                                        const tso = props.tsos[index];
-                                        const status = getIgmStatus(
-                                            tso,
-                                            props.merge
-                                        );
-                                        const color = tsoColor(status);
-                                        return (
-                                            <Geography
-                                                key={geo.rsmKey}
-                                                geography={geo}
-                                                className={classes.tso}
-                                                fill={color}
-                                            />
-                                        );
-                                    })
-                                }
-                            </Geographies>
-                        </ZoomableGroup>
-                    </ComposableMap>
-                    {props.children}
-                </div>
-            )}
-        </AutoSizer>
+        <div>
+            <ComposableMap
+                style={{
+                    position: 'absolute',
+                    top: '70px',
+                    left: '-200px',
+                    height: '100%',
+                    width: '100%',
+                    zIndex: '-1',
+                }}
+                projectionConfig={projectionConfig}
+            >
+                <ZoomableGroup minZoom={1} maxZoom={1}>
+                    <Geographies geography={data.geographies}>
+                        {({ geographies }) =>
+                            geographies.map((geo, index) => {
+                                const tso = props.tsos[index];
+                                const status = getIgmStatus(tso, props.merge);
+                                const color = tsoColor(status);
+                                return (
+                                    <Geography
+                                        key={geo.rsmKey}
+                                        geography={geo}
+                                        className={classes.tso}
+                                        fill={color}
+                                    />
+                                );
+                            })
+                        }
+                    </Geographies>
+                </ZoomableGroup>
+            </ComposableMap>
+            {props.children}
+        </div>
     );
 };
 
