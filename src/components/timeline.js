@@ -169,7 +169,12 @@ const Timeline = (props) => {
 };
 
 Timeline.propTypes = {
-    merges: PropTypes.array.isRequired,
+    merges: PropTypes.arrayOf(
+        PropTypes.shape({
+            date: PropTypes.string,
+        })
+    ),
+    mergeIndex: PropTypes.number.isRequired,
     onMergeIndexChange: PropTypes.func.isRequired,
 };
 

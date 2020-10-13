@@ -17,7 +17,7 @@ import {
 } from './actions';
 
 import { SIGNIN_CALLBACK_ERROR, USER } from '@gridsuite/commons-ui';
-import {removeTime} from "../utils/api";
+import { removeTime } from '../utils/api';
 
 const initialState = {
     theme: getLocalStorageTheme(),
@@ -42,7 +42,6 @@ export const reducer = createReducer(initialState, {
     },
 
     [INIT_PROCESSES]: (state, action) => {
-        console.info(action.configs);
         state.configs = action.configs;
         // by default set date to current day
         state.processes = state.configs.map(() => {

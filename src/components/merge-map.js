@@ -124,7 +124,8 @@ const MergeMap = (props) => {
 
                 case 'BALANCE_ADJUSTMENT_FAILED':
                 case 'LOADFLOW_FAILED':
-                    throw Error('TODO');
+                default:
+                    throw Error('Status not supported');
             }
         } else {
             switch (igm.status) {
@@ -136,6 +137,9 @@ const MergeMap = (props) => {
 
                 case 'VALIDATION_FAILED':
                     return IgmStatus.INVALID;
+
+                default:
+                    throw Error('Status not supported');
             }
         }
     }
@@ -191,13 +195,16 @@ MergeMap.defaultProps = {
 };
 
 MergeMap.propTypes = {
-    merge: PropTypes.object.isRequired,
-    igms: PropTypes.arrayOf(
-        PropTypes.shape({
-            tso: PropTypes.string.isRequired,
-            status: PropTypes.string.isRequired,
-        })
-    ),
+    tsos: PropTypes.arrayOf(PropTypes.string).isRequired,
+    merge: PropTypes.shape({
+        status: PropTypes.string.isRequired,
+        igms: PropTypes.arrayOf(
+            PropTypes.shape({
+                status: PropTypes.string.isRequired,
+                tso: PropTypes.string.isRequired,
+            })
+        ),
+    }),
 };
 
 export default MergeMap;

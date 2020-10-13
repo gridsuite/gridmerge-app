@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import PropTypes from 'prop-types';
 
@@ -65,7 +65,9 @@ const Process = (props) => {
             update(message, processDate);
         };
         ws.onclose = function (event) {
-            console.info(`Disconnecting from notifications '${processName}'...`);
+            console.info(
+                `Disconnecting from notifications '${processName}'...`
+            );
         };
         ws.onerror = function (event) {
             console.error('Unexpected Notification WebSocket error', event);
@@ -135,7 +137,7 @@ const Process = (props) => {
 };
 
 Process.propTypes = {
-    name: PropTypes.string.isRequired,
+    index: PropTypes.number.isRequired,
 };
 
 export default Process;
