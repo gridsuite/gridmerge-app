@@ -5,13 +5,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import {createReducer} from '@reduxjs/toolkit';
+import { createReducer } from '@reduxjs/toolkit';
 
-import {getLocalStorageTheme, saveLocalStorageTheme} from './local-storage';
+import { getLocalStorageTheme, saveLocalStorageTheme } from './local-storage';
 
-import {INIT_PROCESSES, SELECT_THEME, UPDATE_MERGES, UPDATE_PROCESS_DATE,} from './actions';
+import {
+    INIT_PROCESSES,
+    SELECT_THEME,
+    UPDATE_MERGES,
+    UPDATE_PROCESS_DATE,
+} from './actions';
 
-import {SIGNIN_CALLBACK_ERROR, USER} from '@gridsuite/commons-ui';
+import { SIGNIN_CALLBACK_ERROR, USER } from '@gridsuite/commons-ui';
 
 const initialState = {
     theme: getLocalStorageTheme(),
@@ -40,11 +45,11 @@ export const reducer = createReducer(initialState, {
         state.configs = action.configs;
         // by default set date to current day
         state.processes = state.configs.map((config) => {
-           return {
-               name: config.process,
-               date: new Date(new Date().toDateString()),
-               merges: [],
-           };
+            return {
+                name: config.process,
+                date: new Date(new Date().toDateString()),
+                merges: [],
+            };
         });
     },
 

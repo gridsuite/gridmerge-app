@@ -5,11 +5,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import {ComposableMap, Geographies, Geography, ZoomableGroup,} from 'react-simple-maps';
+import {
+    ComposableMap,
+    Geographies,
+    Geography,
+    ZoomableGroup,
+} from 'react-simple-maps';
 
-import {makeStyles} from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import bbox from 'geojson-bbox';
 
 const TSO_STROKE_COLOR = 'white';
@@ -155,7 +160,12 @@ const MergeMap = (props) => {
                         {({ geographies }) =>
                             geographies.map((geo, index) => {
                                 const tso = props.tsos[index];
-                                const igm = props.merge !== null ? props.merge.igms.find(igm => igm.tso === tso) : null;
+                                const igm =
+                                    props.merge !== null
+                                        ? props.merge.igms.find(
+                                              (igm) => igm.tso === tso
+                                          )
+                                        : null;
                                 const status = getIgmStatus(props.merge, igm);
                                 const color = tsoColor(status);
                                 return (

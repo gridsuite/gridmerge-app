@@ -49,7 +49,7 @@ const DownloadButton = (props) => {
     }, [merges]);
 
     const handleClickExport = () => {
- //       console.info('Downloading merge ' + merge.process + '...');
+        //       console.info('Downloading merge ' + merge.process + '...');
         // The getTimezoneOffset() method returns the difference, in minutes, between UTC and local time.
         // The offset is positive if the local timezone is behind UTC and negative if it is ahead
         // On service side, the opposite behaviour is expected (offset is expected to be negative if the local timezone is behind UTC and positive if it is ahead)

@@ -5,12 +5,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 
-import {makeStyles, withStyles} from '@material-ui/styles';
+import { makeStyles, withStyles } from '@material-ui/styles';
 import Slider from '@material-ui/core/Slider';
 import ClockIcon from '../images/icons/clock.svg';
-import PropTypes from "prop-types";
+import PropTypes from 'prop-types';
 import moment from 'moment';
 
 // eslint-disable-next-line
@@ -90,7 +90,6 @@ const ClockSlider = withStyles((theme) => ({
 }))(EmptySlider);
 
 const Timeline = (props) => {
-
     const classes = useStyles();
 
     const [marks, setMarks] = useState([]);
@@ -98,7 +97,7 @@ const Timeline = (props) => {
     const [value, setValue] = useState(null);
 
     function findMergeIndex(value) {
-        return marks.findIndex(mark => mark.value === value);
+        return marks.findIndex((mark) => mark.value === value);
     }
 
     function findMerge(value) {
@@ -138,7 +137,11 @@ const Timeline = (props) => {
     }, [props.merges]);
 
     useEffect(() => {
-        setValue(props.mergeIndex < marks.length ? marks[props.mergeIndex].value : null);
+        setValue(
+            props.mergeIndex < marks.length
+                ? marks[props.mergeIndex].value
+                : null
+        );
     }, [marks, props.mergeIndex]);
 
     const TheSlider = props.merges.length > 0 ? ClockSlider : EmptySlider;

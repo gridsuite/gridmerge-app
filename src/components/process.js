@@ -5,18 +5,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import React, {useEffect, useRef, useState} from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import PropTypes from 'prop-types';
 
-import {useDispatch, useSelector} from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import MergeMap from './merge-map';
-import {connectNotificationsWebsocket, fetchMergesByProcessAndDate, removeTime} from '../utils/api';
-import {updateMerges, updateProcessDate,} from '../redux/actions';
-import Timeline from "./timeline";
-import TextField from "@material-ui/core/TextField";
-import {makeStyles} from "@material-ui/styles";
+import {
+    connectNotificationsWebsocket,
+    fetchMergesByProcessAndDate,
+    removeTime,
+} from '../utils/api';
+import { updateMerges, updateProcessDate } from '../redux/actions';
+import Timeline from './timeline';
+import TextField from '@material-ui/core/TextField';
+import { makeStyles } from '@material-ui/styles';
 import moment from 'moment';
 
 const useStyles = makeStyles((theme) => ({
@@ -31,7 +35,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Process = (props) => {
-
     const classes = useStyles();
 
     const config = useSelector((state) => state.configs[props.index]);
@@ -62,7 +65,7 @@ const Process = (props) => {
         ws.onmessage = function (event) {
             const message = JSON.parse(event.data);
             update(message, processDate);
-        }
+        };
         ws.onclose = function (event) {
             if (!websocketExpectedCloseRef.current) {
                 console.error('Unexpected Notification WebSocket closed');
@@ -78,12 +81,14 @@ const Process = (props) => {
         // load merges for the whole day so from 00:00 to 23:59
         const maxDate = new Date(date);
         maxDate.setMinutes(maxDate.getMinutes() + 60 * 24 - 1);
-        fetchMergesByProcessAndDate(config.process, date, maxDate).then((newMerges) => {
-            if (mergeIndex >= newMerges.length) {
-                setMergeIndex(0);
+        fetchMergesByProcessAndDate(config.process, date, maxDate).then(
+            (newMerges) => {
+                if (mergeIndex >= newMerges.length) {
+                    setMergeIndex(0);
+                }
+                dispatch(updateMerges(props.index, newMerges));
             }
-            dispatch(updateMerges(props.index, newMerges));
-        });
+        );
     }
 
     useEffect(() => {
@@ -100,7 +105,9 @@ const Process = (props) => {
     }, [props.index, date]);
 
     const onDateChange = (e) => {
-        dispatch(updateProcessDate(props.index, removeTime(new Date(e.target.value))));
+        dispatch(
+            updateProcessDate(props.index, removeTime(new Date(e.target.value)))
+        );
     };
 
     const formatDate = (date) => {
@@ -122,7 +129,13 @@ const Process = (props) => {
                     }}
                 />
             </div>
-            <Timeline merges={merges} mergeIndex={mergeIndex} onMergeIndexChange={(newMergeIndex) => setMergeIndex(newMergeIndex)}/>
+            <Timeline
+                merges={merges}
+                mergeIndex={mergeIndex}
+                onMergeIndexChange={(newMergeIndex) =>
+                    setMergeIndex(newMergeIndex)
+                }
+            />
             <MergeMap tsos={config.tsos} merge={merge} />
         </>
     );

@@ -5,15 +5,26 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 
-import {useDispatch, useSelector} from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
-import {Redirect, Route, Switch, useHistory, useLocation, useRouteMatch,} from 'react-router-dom';
+import {
+    Redirect,
+    Route,
+    Switch,
+    useHistory,
+    useLocation,
+    useRouteMatch,
+} from 'react-router-dom';
 
-import {createMuiTheme, makeStyles, ThemeProvider,} from '@material-ui/core/styles';
+import {
+    createMuiTheme,
+    makeStyles,
+    ThemeProvider,
+} from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import {initProcesses, LIGHT_THEME} from '../redux/actions';
+import { initProcesses, LIGHT_THEME } from '../redux/actions';
 
 import {
     AuthenticationRouter,
@@ -22,7 +33,7 @@ import {
     logout,
     TopBar,
 } from '@gridsuite/commons-ui';
-import {FormattedMessage} from 'react-intl';
+import { FormattedMessage } from 'react-intl';
 
 import Process from './process';
 import DownloadButton from './stepper';
@@ -30,10 +41,10 @@ import DownloadButton from './stepper';
 import Parameters from './parameters';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
-import {fetchAppsAndUrls, fetchMergeConfigs} from '../utils/api';
+import { fetchAppsAndUrls, fetchMergeConfigs } from '../utils/api';
 
-import {ReactComponent as GridMergeLogoDark} from '../images/GridMerge_logo_dark.svg';
-import {ReactComponent as GridMergeLogoLight} from '../images/GridMerge_logo_light.svg';
+import { ReactComponent as GridMergeLogoDark } from '../images/GridMerge_logo_dark.svg';
+import { ReactComponent as GridMergeLogoLight } from '../images/GridMerge_logo_light.svg';
 
 const lightTheme = createMuiTheme({
     palette: {
