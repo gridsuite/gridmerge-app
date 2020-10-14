@@ -7,35 +7,25 @@
 
 import { createReducer } from '@reduxjs/toolkit';
 
-import {
-    getLocalStorageTheme,
-    saveLocalStorageTheme,
-    saveLocalStorageDateByProcess,
-} from './local-storage';
+import { getLocalStorageTheme, saveLocalStorageTheme } from './local-storage';
 
 import {
     INIT_PROCESSES,
     SELECT_THEME,
-    UPDATE_ALL_IGMS_STATUS,
-    UPDATE_IGM_STATUS,
-    UPDATE_MERGE_DATE,
-    CURRENT_MERGES_LIST,
-    CURRENT_SEARCH_DATE_BY_PROCESS,
+    UPDATE_MERGES,
+    UPDATE_PROCESS_DATE,
+    UPDATE_SELECTED_MERGE_DATE,
 } from './actions';
 
 import { SIGNIN_CALLBACK_ERROR, USER } from '@gridsuite/commons-ui';
-import { IgmStatus } from '../components/merge-map';
+import { removeTime } from '../utils/api';
 
 const initialState = {
     theme: getLocalStorageTheme(),
     user: null,
     signInCallbackError: null,
     configs: [],
-    merge: {
-        process: null,
-        date: null,
-        igms: [],
-    },
+    processes: [],
 };
 
 export const reducer = createReducer(initialState, {
@@ -54,51 +44,28 @@ export const reducer = createReducer(initialState, {
 
     [INIT_PROCESSES]: (state, action) => {
         state.configs = action.configs;
-    },
-
-    [UPDATE_IGM_STATUS]: (state, action) => {
-        const igm = state.merge.igms.find((igm) => igm.tso === action.tso);
-        if (igm) {
-            igm.status = action.status;
-        }
-    },
-
-    [UPDATE_ALL_IGMS_STATUS]: (state, action) => {
-        state.merge.igms.forEach((igm) => {
-            igm.status = action.status;
+        // by default set date to current day
+        state.processes = state.configs.map(() => {
+            return {
+                date: removeTime(new Date()),
+                merges: [],
+                selectedMergeDate: null,
+            };
         });
     },
 
-    [UPDATE_MERGE_DATE]: (state, action) => {
-        if (
-            state.merge.date == null ||
-            (action.date !== null &&
-                action.date.getTime() !== state.merge.date.getTime()) ||
-            action.process !== state.merge.process
-        ) {
-            const config = state.configs.find(
-                (config) => config.process === action.process
-            );
-            state.merge = {
-                process: action.process,
-                date: action.date,
-                igms: config.tsos.map((tso) => {
-                    return {
-                        tso: tso.toLowerCase(),
-                        status: IgmStatus.ABSENT,
-                    };
-                }),
-            };
-        }
+    [UPDATE_MERGES]: (state, action) => {
+        const process = state.processes[action.processIndex];
+        process.merges = action.merges;
     },
 
-    [CURRENT_MERGES_LIST]: (state, action) => {
-        state.merges = action.merges;
+    [UPDATE_PROCESS_DATE]: (state, action) => {
+        const process = state.processes[action.processIndex];
+        process.date = action.date;
     },
 
-    [CURRENT_SEARCH_DATE_BY_PROCESS]: (state, action) => {
-        state.date = action.date;
-        state.process = action.process;
-        saveLocalStorageDateByProcess(state.date, state.process);
+    [UPDATE_SELECTED_MERGE_DATE]: (state, action) => {
+        const process = state.processes[action.processIndex];
+        process.selectedMergeDate = action.selectedMergeDate;
     },
 });

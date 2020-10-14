@@ -5,139 +5,76 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import PropTypes from 'prop-types';
 
 import { useDispatch, useSelector } from 'react-redux';
 
-import MergeMap, { IgmStatus } from './merge-map';
-import Timeline, {
-    mergesForTimeline,
-    currentDateFormat,
-    convertSearchDate,
-} from './timeline';
+import MergeMap from './merge-map';
 import {
     connectNotificationsWebsocket,
-    fetchMerges,
     fetchMergesByProcessAndDate,
+    removeTime,
 } from '../utils/api';
 import {
-    currentMergesList,
-    updateAllIgmsStatus,
-    updateIgmStatus,
-    updateMergeDate,
+    updateMerges,
+    updateProcessDate,
+    updateSelectedMergeDate,
 } from '../redux/actions';
-import { getLocalStorageDateByProcess } from '../redux/local-storage';
+import Timeline from './timeline';
+import TextField from '@material-ui/core/TextField';
+import { makeStyles } from '@material-ui/styles';
+import moment from 'moment';
+import DownloadButton from './stepper';
+import CountryStatesList from './country-state-list';
+import Grid from '@material-ui/core/Grid';
 
-export function toIgmStatus(status) {
-    switch (status) {
-        case 'AVAILABLE':
-            return IgmStatus.AVAILABLE;
-
-        case 'VALIDATION_SUCCEED':
-            return IgmStatus.VALID;
-
-        case 'VALIDATION_FAILED':
-            return IgmStatus.INVALID;
-
-        case 'BALANCE_ADJUSTMENT_SUCCEED':
-        case 'LOADFLOW_SUCCEED':
-            return IgmStatus.MERGED;
-
-        case 'BALANCE_ADJUSTMENT_FAILED':
-        case 'LOADFLOW_FAILED':
-        default:
-            break;
-    }
-}
+const useStyles = makeStyles((theme) => ({
+    datePicker: {
+        textAlign: 'center',
+        padding: '20px 0px 10px 0px',
+        width: '100%',
+        zIndex: 99,
+    },
+}));
 
 const Process = (props) => {
-    const merge = useSelector((state) => state.merge);
+    const classes = useStyles();
 
-    const websocketExpectedCloseRef = useRef();
+    const config = useSelector((state) => state.configs[props.index]);
+
+    const date = useSelector((state) => state.processes[props.index].date);
+
+    const merges = useSelector((state) => state.processes[props.index].merges);
+
+    const selectedMergeDate = useSelector(
+        (state) => state.processes[props.index].selectedMergeDate
+    );
 
     const dispatch = useDispatch();
 
-    const minHour = 'T00:00:00Z';
-
-    const maxHour = 'T23:59:59Z';
-
-    let datePickerCurrentDate = '';
-
-    function updateIgm(tso, status) {
-        dispatch(updateIgmStatus(props.name, tso.toLowerCase(), status));
-    }
-
-    function updateAllIgms(status) {
-        dispatch(updateAllIgmsStatus(props.name, status));
-    }
-
-    function update(message) {
-        const date = message.headers.date;
-        const dateFromDatePicker = convertSearchDate(datePickerCurrentDate);
-        // message.headers.status could be a server side IGM status or a merge status
-        // here we convert to front IGM status for individual TSO map coloration
-        const status = toIgmStatus(message.headers.status);
-        if (convertSearchDate(date) === dateFromDatePicker) {
-            dispatch(updateMergeDate(props.name, new Date(date)));
-            switch (message.headers.status) {
-                case 'AVAILABLE':
-                case 'VALIDATION_SUCCEED':
-                case 'VALIDATION_FAILED':
-                    updateIgm(message.headers.tso, status);
-                    break;
-                case 'BALANCE_ADJUSTMENT_SUCCEED':
-                case 'LOADFLOW_SUCCEED':
-                case 'BALANCE_ADJUSTMENT_FAILED':
-                case 'LOADFLOW_FAILED':
-                    updateAllIgms(status);
-                    break;
-                default:
-                    break;
-            }
+    function update(message, processDate) {
+        const headers = message.headers;
+        const mergeDate = new Date(headers.date);
+        // if same day as selected, reload merges from server
+        if (removeTime(mergeDate).getTime() === processDate.getTime()) {
+            loadMerges();
         }
     }
 
-    function connectNotifications(processName) {
+    function connectNotifications(processName, processDate) {
         console.info(`Connecting to notifications '${processName}'...`);
 
         const ws = connectNotificationsWebsocket(processName);
         ws.onmessage = function (event) {
             const message = JSON.parse(event.data);
-            update(message);
-            let minDate = '';
-            let maxDate = '';
-            const getProcessFromLocalStorage = getLocalStorageDateByProcess();
-            if (getProcessFromLocalStorage) {
-                let currentProcessExist = JSON.parse(
-                    getProcessFromLocalStorage
-                ).find((item) => item.name === props.name);
-                if (currentProcessExist) {
-                    minDate =
-                        convertSearchDate(currentProcessExist.date) + minHour;
-                    maxDate =
-                        convertSearchDate(currentProcessExist.date) + maxHour;
-                }
-                datePickerCurrentDate = minDate;
-            } else {
-                minDate = currentDateFormat() + minHour;
-                maxDate = currentDateFormat() + maxHour;
-            }
-
-            fetchMergesByProcessAndDate(processName, minDate, maxDate).then(
-                (merges) => {
-                    if (merges.length > 0) {
-                        mergesForTimeline(merges);
-                        dispatch(currentMergesList(merges));
-                    }
-                }
-            );
+            update(message, processDate);
         };
         ws.onclose = function (event) {
-            if (!websocketExpectedCloseRef.current) {
-                console.error('Unexpected Notification WebSocket closed');
-            }
+            console.info(
+                `Disconnecting from notifications '${processName}'...`
+            );
         };
         ws.onerror = function (event) {
             console.error('Unexpected Notification WebSocket error', event);
@@ -145,36 +82,89 @@ const Process = (props) => {
         return ws;
     }
 
-    useEffect(() => {
-        fetchMerges(props.name).then((merges) => {
-            if (merges.length > 0) {
-                const lastMerge = merges[merges.length - 1];
-                dispatch(updateMergeDate(props.name, new Date(lastMerge.date)));
-            } else {
-                // eslint-disable-next-line react-hooks/exhaustive-deps
-                dispatch(updateMergeDate(props.name, null));
+    function loadMerges() {
+        // load merges for the whole day so from 00:00 to 23:59
+        const maxDate = new Date(date);
+        maxDate.setMinutes(maxDate.getMinutes() + 60 * 24 - 1);
+        fetchMergesByProcessAndDate(config.process, date, maxDate).then(
+            (newMerges) => {
+                dispatch(updateMerges(props.index, newMerges));
             }
-        });
+        );
+    }
 
-        websocketExpectedCloseRef.current = false;
-        connectNotifications(props.name);
+    useEffect(() => {
+        loadMerges();
+
+        const ws = connectNotifications(config.process, date);
+
         return function () {
-            websocketExpectedCloseRef.current = true;
+            ws.close();
         };
+    }, [props.index, date]);
 
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [props.name]);
+    const onDateChange = (e) => {
+        dispatch(
+            updateProcessDate(props.index, removeTime(new Date(e.target.value)))
+        );
+    };
+
+    const formatDate = (date) => {
+        return moment(date).format('YYYY-MM-DD');
+    };
+
+    const mergeIndexChangeHandler = (newMergeIndex) => {
+        dispatch(
+            updateSelectedMergeDate(
+                props.index,
+                new Date(merges[newMergeIndex].date)
+            )
+        );
+    };
+
+    let mergeIndex;
+    if (merges.length > 0 && selectedMergeDate) {
+        mergeIndex = merges.findIndex(
+            (merge) =>
+                new Date(merge.date).getTime() === selectedMergeDate.getTime()
+        );
+    }
+    if (!mergeIndex) {
+        mergeIndex = 0;
+    }
+    const merge = merges[mergeIndex];
 
     return (
-        <>
-            <Timeline name={props.name} />
-            <MergeMap igms={merge.igms}></MergeMap>
-        </>
+        <Grid container direction="row" className={classes.main}>
+            <Grid item xs={12} md={10} key="map">
+                <div className={classes.datePicker}>
+                    <TextField
+                        id="date"
+                        type="date"
+                        onChange={onDateChange}
+                        value={formatDate(date)}
+                        InputLabelProps={{
+                            shrink: true,
+                        }}
+                    />
+                </div>
+                <Timeline
+                    merges={merges}
+                    mergeIndex={mergeIndex}
+                    onMergeIndexChange={mergeIndexChangeHandler}
+                />
+                <MergeMap tsos={config.tsos} merge={merge} />
+                <DownloadButton merge={merge} />
+            </Grid>
+            <Grid item xs={12} md={2} key="list">
+                <CountryStatesList tsos={config.tsos} merge={merge} />
+            </Grid>
+        </Grid>
     );
 };
 
 Process.propTypes = {
-    name: PropTypes.string.isRequired,
+    index: PropTypes.number.isRequired,
 };
 
 export default Process;

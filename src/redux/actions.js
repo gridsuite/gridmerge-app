@@ -19,27 +19,26 @@ export function initProcesses(configs) {
     return { type: INIT_PROCESSES, configs: configs };
 }
 
-export const UPDATE_IGM_STATUS = 'UPDATE_IGM_STATUS';
+export const UPDATE_MERGES = 'UPDATE_MERGES';
 
-export function updateIgmStatus(process, tso, status) {
+export function updateMerges(processIndex, merges) {
+    return { type: UPDATE_MERGES, processIndex, merges };
+}
+
+export const UPDATE_PROCESS_DATE = 'UPDATE_PROCESS_DATE';
+
+export function updateProcessDate(processIndex, date) {
+    return { type: UPDATE_PROCESS_DATE, processIndex, date };
+}
+
+export const UPDATE_SELECTED_MERGE_DATE = 'UPDATE_SELECTED_MERGE_DATE';
+
+export function updateSelectedMergeDate(processIndex, selectedMergeDate) {
     return {
-        type: UPDATE_IGM_STATUS,
-        process: process,
-        tso: tso,
-        status: status,
+        type: UPDATE_SELECTED_MERGE_DATE,
+        processIndex,
+        selectedMergeDate,
     };
-}
-
-export const UPDATE_ALL_IGMS_STATUS = 'UPDATE_ALL_IGMS_STATUS';
-
-export function updateAllIgmsStatus(process, status) {
-    return { type: UPDATE_ALL_IGMS_STATUS, process: process, status: status };
-}
-
-export const UPDATE_MERGE_DATE = 'UPDATE_MERGE_DATE';
-
-export function updateMergeDate(process, date) {
-    return { type: UPDATE_MERGE_DATE, process: process, date: date };
 }
 
 export const CURRENT_MERGES_LIST = 'CURRENT_MERGES_LIST';

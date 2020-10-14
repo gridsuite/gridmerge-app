@@ -16,15 +16,13 @@ import {
 
 import { makeStyles } from '@material-ui/core/styles';
 import bbox from 'geojson-bbox';
+import { IgmStatus, getIgmStatus, MergeType } from '../utils/api';
 
 const TSO_STROKE_COLOR = 'white';
 const DEFAULT_CENTER = [0, 0];
 const DEFAULT_SCALE = 30000;
 
 const useStyles = makeStyles((theme) => ({
-    map: {
-        backgroundColor: theme.palette.background.paper,
-    },
     tso: {
         stroke: TSO_STROKE_COLOR,
         strokeWidth: '1px',
@@ -32,18 +30,12 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export const IgmStatus = {
-    ABSENT: 'absent',
-    AVAILABLE: 'available',
-    VALID: 'valid',
-    INVALID: 'invalid',
-    MERGED: 'merged',
-};
-
 const MergeMap = (props) => {
-    const [geographies, setGeographies] = useState([]);
-    const [center, setCenter] = useState(DEFAULT_CENTER);
-    const [scale, setScale] = useState(DEFAULT_SCALE);
+    const [data, setData] = useState({
+        geographies: [],
+        center: DEFAULT_CENTER,
+        scale: DEFAULT_SCALE,
+    });
 
     const classes = useStyles();
 
@@ -92,34 +84,39 @@ const MergeMap = (props) => {
     }
 
     useEffect(() => {
-        if (props.igms.length > 0) {
+        if (props.tsos.length > 0) {
             Promise.all(
-                props.igms.map((igm) => {
-                    const url = igm.tso + '.json';
+                props.tsos.map((tso) => {
+                    const url = tso.toLowerCase() + '.json';
                     return fetch(url).then((resp) => resp.json());
                 })
             ).then((jsons) => {
                 // compute geometries bounding box
                 const bb = computeBoundingBox(jsons);
-                setCenter(computeCenter(bb));
-                setScale(computeScale(bb));
-                setGeographies(jsons);
+                setData({
+                    geographies: jsons,
+                    center: computeCenter(bb),
+                    scale: computeScale(bb),
+                });
             });
         } else {
-            setCenter(DEFAULT_CENTER);
-            setScale(DEFAULT_SCALE);
-            setGeographies([]);
+            setData({
+                geographies: [],
+                center: DEFAULT_CENTER,
+                scale: DEFAULT_SCALE,
+            });
         }
-    }, [props.igms]);
+    }, [props.tsos]);
 
-    const projectionConfig = { center: center, scale: scale };
+    const projectionConfig = { center: data.center, scale: data.scale };
 
     return (
-        <div className={classes.map}>
+        <div>
             <ComposableMap
                 style={{
                     position: 'absolute',
-                    left: '0',
+                    top: '70px',
+                    left: '-200px',
                     height: '100%',
                     width: '100%',
                     zIndex: '-1',
@@ -127,13 +124,11 @@ const MergeMap = (props) => {
                 projectionConfig={projectionConfig}
             >
                 <ZoomableGroup minZoom={1} maxZoom={1}>
-                    <Geographies geography={geographies}>
+                    <Geographies geography={data.geographies}>
                         {({ geographies }) =>
                             geographies.map((geo, index) => {
-                                const igm = props.igms[index];
-                                const status = igm
-                                    ? igm.status
-                                    : IgmStatus.ABSENT;
+                                const tso = props.tsos[index];
+                                const status = getIgmStatus(tso, props.merge);
                                 const color = tsoColor(status);
                                 return (
                                     <Geography
@@ -158,12 +153,8 @@ MergeMap.defaultProps = {
 };
 
 MergeMap.propTypes = {
-    igms: PropTypes.arrayOf(
-        PropTypes.shape({
-            tso: PropTypes.string.isRequired,
-            status: PropTypes.string.isRequired,
-        })
-    ),
+    tsos: PropTypes.arrayOf(PropTypes.string).isRequired,
+    merge: MergeType,
 };
 
-export default MergeMap;
+export default React.memo(MergeMap);

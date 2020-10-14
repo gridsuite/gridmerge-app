@@ -36,7 +36,6 @@ import {
 import { FormattedMessage } from 'react-intl';
 
 import Process from './process';
-import DownloadButton from './stepper';
 
 import Parameters from './parameters';
 import Tabs from '@material-ui/core/Tabs';
@@ -213,7 +212,7 @@ const App = () => {
                     <>
                         <Switch>
                             <Route exact path="/">
-                                {config && <Process name={config.process} />}
+                                {config && <Process index={tabIndex} />}
                             </Route>
                             <Route exact path="/sign-in-callback">
                                 <Redirect to={getPreLoginPath() || '/'} />
@@ -230,7 +229,6 @@ const App = () => {
                                 </h1>
                             </Route>
                         </Switch>
-                        <DownloadButton />
                     </>
                 ) : (
                     <AuthenticationRouter
