@@ -7,12 +7,7 @@
 
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import {
-    ComposableMap,
-    Geographies,
-    Geography,
-    ZoomableGroup,
-} from 'react-simple-maps';
+import { ComposableMap, Geographies, Geography } from 'react-simple-maps';
 
 import { makeStyles } from '@material-ui/core/styles';
 import bbox from 'geojson-bbox';
@@ -120,25 +115,23 @@ const MergeMap = (props) => {
                 }}
                 projectionConfig={projectionConfig}
             >
-                <ZoomableGroup minZoom={1} maxZoom={1}>
-                    <Geographies geography={data.geographies}>
-                        {({ geographies }) =>
-                            geographies.map((geo, index) => {
-                                const tso = props.tsos[index];
-                                const status = getIgmStatus(tso, props.merge);
-                                const color = tsoColor(status);
-                                return (
-                                    <Geography
-                                        key={geo.rsmKey}
-                                        geography={geo}
-                                        className={classes.tso}
-                                        fill={color}
-                                    />
-                                );
-                            })
-                        }
-                    </Geographies>
-                </ZoomableGroup>
+                <Geographies geography={data.geographies}>
+                    {({ geographies }) =>
+                        geographies.map((geo, index) => {
+                            const tso = props.tsos[index];
+                            const status = getIgmStatus(tso, props.merge);
+                            const color = tsoColor(status);
+                            return (
+                                <Geography
+                                    key={geo.rsmKey}
+                                    geography={geo}
+                                    className={classes.tso}
+                                    fill={color}
+                                />
+                            );
+                        })
+                    }
+                </Geographies>
             </ComposableMap>
             {props.children}
         </div>
