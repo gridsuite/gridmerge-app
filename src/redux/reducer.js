@@ -14,6 +14,7 @@ import {
     SELECT_THEME,
     UPDATE_MERGES,
     UPDATE_PROCESS_DATE,
+    UPDATE_SELECTED_MERGE_DATE,
 } from './actions';
 
 import { SIGNIN_CALLBACK_ERROR, USER } from '@gridsuite/commons-ui';
@@ -48,6 +49,7 @@ export const reducer = createReducer(initialState, {
             return {
                 date: removeTime(new Date()),
                 merges: [],
+                selectedMergeDate: null,
             };
         });
     },
@@ -60,5 +62,10 @@ export const reducer = createReducer(initialState, {
     [UPDATE_PROCESS_DATE]: (state, action) => {
         const process = state.processes[action.processIndex];
         process.date = action.date;
+    },
+
+    [UPDATE_SELECTED_MERGE_DATE]: (state, action) => {
+        const process = state.processes[action.processIndex];
+        process.selectedMergeDate = action.selectedMergeDate;
     },
 });

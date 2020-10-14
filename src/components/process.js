@@ -17,7 +17,11 @@ import {
     fetchMergesByProcessAndDate,
     removeTime,
 } from '../utils/api';
-import { updateMerges, updateProcessDate } from '../redux/actions';
+import {
+    updateMerges,
+    updateProcessDate,
+    updateSelectedMergeDate,
+} from '../redux/actions';
 import Timeline from './timeline';
 import TextField from '@material-ui/core/TextField';
 import { makeStyles } from '@material-ui/styles';
@@ -44,7 +48,9 @@ const Process = (props) => {
 
     const merges = useSelector((state) => state.processes[props.index].merges);
 
-    const [mergeIndex, setMergeIndex] = useState(0);
+    const selectedMergeDate = useSelector(
+        (state) => state.processes[props.index].selectedMergeDate
+    );
 
     const dispatch = useDispatch();
 
@@ -82,9 +88,6 @@ const Process = (props) => {
         maxDate.setMinutes(maxDate.getMinutes() + 60 * 24 - 1);
         fetchMergesByProcessAndDate(config.process, date, maxDate).then(
             (newMerges) => {
-                if (mergeIndex >= newMerges.length) {
-                    setMergeIndex(0);
-                }
                 dispatch(updateMerges(props.index, newMerges));
             }
         );
@@ -110,7 +113,26 @@ const Process = (props) => {
         return moment(date).format('YYYY-MM-DD');
     };
 
-    const merge = merges.length > 0 ? merges[mergeIndex] : null;
+    const mergeIndexChangeHandler = (newMergeIndex) => {
+        dispatch(
+            updateSelectedMergeDate(
+                props.index,
+                new Date(merges[newMergeIndex].date)
+            )
+        );
+    };
+
+    let mergeIndex;
+    if (merges.length > 0 && selectedMergeDate) {
+        mergeIndex = merges.findIndex(
+            (merge) =>
+                new Date(merge.date).getTime() === selectedMergeDate.getTime()
+        );
+    }
+    if (!mergeIndex) {
+        mergeIndex = 0;
+    }
+    const merge = merges[mergeIndex];
 
     return (
         <Grid container direction="row" className={classes.main}>
@@ -129,9 +151,7 @@ const Process = (props) => {
                 <Timeline
                     merges={merges}
                     mergeIndex={mergeIndex}
-                    onMergeIndexChange={(newMergeIndex) =>
-                        setMergeIndex(newMergeIndex)
-                    }
+                    onMergeIndexChange={mergeIndexChangeHandler}
                 />
                 <MergeMap tsos={config.tsos} merge={merge} />
                 <DownloadButton merge={merge} />

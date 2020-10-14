@@ -30,3 +30,13 @@ export const UPDATE_PROCESS_DATE = 'UPDATE_PROCESS_DATE';
 export function updateProcessDate(processIndex, date) {
     return { type: UPDATE_PROCESS_DATE, processIndex, date };
 }
+
+export const UPDATE_SELECTED_MERGE_DATE = 'UPDATE_SELECTED_MERGE_DATE';
+
+export function updateSelectedMergeDate(processIndex, selectedMergeDate) {
+    return {
+        type: UPDATE_SELECTED_MERGE_DATE,
+        processIndex,
+        selectedMergeDate,
+    };
+}

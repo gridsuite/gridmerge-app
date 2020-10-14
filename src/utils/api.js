@@ -128,8 +128,7 @@ export const IgmStatus = {
 };
 
 export function getIgmStatus(tso, merge) {
-    const igm =
-        merge !== null ? merge.igms.find((igm) => igm.tso === tso) : null;
+    const igm = merge ? merge.igms.find((igm) => igm.tso === tso) : null;
     if (!igm) {
         return IgmStatus.ABSENT;
     }

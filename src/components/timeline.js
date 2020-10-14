@@ -139,7 +139,7 @@ const Timeline = (props) => {
 
     useEffect(() => {
         setValue(
-            props.mergeIndex < marks.length
+            props.merges.length > 0 && props.mergeIndex < marks.length
                 ? marks[props.mergeIndex].value
                 : null
         );
