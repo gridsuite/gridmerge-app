@@ -20,7 +20,7 @@ import { IgmStatus, getIgmStatus, MergeType } from '../utils/api';
 
 const TSO_STROKE_COLOR = 'white';
 const DEFAULT_CENTER = [0, 0];
-const DEFAULT_SCALE = 30000;
+const DEFAULT_SCALE = 35000;
 
 const useStyles = makeStyles((theme) => ({
     tso: {
@@ -114,10 +114,7 @@ const MergeMap = (props) => {
         <div>
             <ComposableMap
                 style={{
-                    position: 'absolute',
-                    top: '70px',
-                    left: '-200px',
-                    height: '100%',
+                    height: 'calc(100vh - 200px)',
                     width: '100%',
                     zIndex: '-1',
                 }}
