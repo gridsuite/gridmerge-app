@@ -13,12 +13,14 @@ import GetAppIcon from '@material-ui/icons/GetApp';
 import { getExportMergeUrl } from '../utils/api';
 import PropTypes from 'prop-types';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
     download: {
         display: 'grid',
         float: 'right',
         position: 'absolute',
         bottom: '0',
+        padding: '10px 10px 10px 10px',
+        backgroundColor: theme.palette.background.paper,
     },
     downloadLabel: {
         fontSize: '15px',
