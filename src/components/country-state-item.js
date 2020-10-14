@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 import React from 'react';
-import { Box, Grid, Typography, Divider } from '@material-ui/core';
+import { Box, Divider, Grid, Typography } from '@material-ui/core';
 import DoneIcon from '@material-ui/icons/DoneOutlined';
 import LoopIcon from '@material-ui/icons/LoopOutlined';
 import HourglassEmptyIcon from '@material-ui/icons/HourglassEmptyOutlined';
@@ -38,9 +38,10 @@ import flagTR from '../images/flags/flags-iso/flat/svg/TR.svg';
 import flagUA from '../images/flags/flags-iso/flat/svg/UA.svg';
 import flagUnknown from '../images/flags/flags-iso/flat/svg/EU.svg';
 import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core/styles';
+import { makeStyles, withStyles } from '@material-ui/core/styles';
+import { getIgmStatus, IgmStatus, MergeType } from '../utils/api';
 
-const styles = (theme) => ({
+const useStyles = makeStyles((theme) => ({
     textColumn: {
         flexGrow: 1,
         width: 80,
@@ -92,18 +93,12 @@ const styles = (theme) => ({
         marginTop: 4,
         color: '#ECF5FD',
     },
-});
+}));
 
-export const IgmStatus = {
-    ABSENT: 'absent',
-    AVAILABLE: 'available',
-    VALID: 'valid',
-    INVALID: 'invalid',
-    MERGED: 'merged',
-};
+const CountryStateItem = (props) => {
+    const classes = useStyles();
 
-class CountryStateItem extends React.Component {
-    detailsByCountry = (countryCode) => {
+    const getDetailsByCountry = (countryCode) => {
         switch (countryCode) {
             case 'AL':
                 return { countryName: 'Albania', flagSrc: flagAL };
@@ -163,73 +158,66 @@ class CountryStateItem extends React.Component {
         }
     };
 
-    render() {
-        const { classes } = this.props;
-        return (
-            <Box className={classes.listItem}>
-                <Grid container>
-                    <Grid
-                        item
-                        xs={12}
-                        style={{ display: 'flex', width: '100%', padding: 8 }}
-                    >
-                        {this.props.igm.status === IgmStatus.ABSENT ? (
-                            <HourglassEmptyIcon
-                                className={`${classes.stateIcon} ${classes.waiting}`}
-                            />
-                        ) : this.props.igm.status === IgmStatus.AVAILABLE ? (
-                            <LoopIcon
-                                className={`${classes.stateIcon} ${classes.loading}`}
-                            />
-                        ) : this.props.igm.status === IgmStatus.INVALID ? (
-                            <WarningIcon
-                                className={`${classes.stateIcon} ${classes.error}`}
-                            />
-                        ) : this.props.igm.status === IgmStatus.VALID ? (
-                            <MergeIcon
-                                className={`${classes.stateIcon} ${classes.success}`}
-                            />
-                        ) : this.props.igm.status === IgmStatus.MERGED ? (
-                            <DoneIcon
-                                color="secondary"
-                                className={`${classes.stateIcon} ${classes.success}`}
-                            />
-                        ) : (
-                            ''
-                        )}
-                        <Box className={classes.textColumn}>
-                            <Typography variant="body1">
-                                {
-                                    this.detailsByCountry(
-                                        this.props.igm.tso.toUpperCase()
-                                    ).countryName
-                                }
-                            </Typography>
-                        </Box>
-                        <img
-                            className={classes.flagIcon}
-                            alt="flag for country"
-                            height="23"
-                            width="32"
-                            src={
-                                this.detailsByCountry(
-                                    this.props.igm.tso.toUpperCase()
-                                ).flagSrc
-                            }
-                        />
-                    </Grid>
-                    <Grid item xs={12}>
-                        <Divider className={classes.divider} />
-                    </Grid>
-                </Grid>
-            </Box>
-        );
-    }
-}
+    const detail = getDetailsByCountry(props.tso.toUpperCase());
 
-CountryStateItem.propTypes = {
-    classes: PropTypes.object.isRequired,
+    const status = getIgmStatus(props.tso, props.merge);
+
+    return (
+        <Box className={classes.listItem}>
+            <Grid container>
+                <Grid
+                    item
+                    xs={12}
+                    style={{ display: 'flex', width: '100%', padding: 8 }}
+                >
+                    {status === IgmStatus.ABSENT ? (
+                        <HourglassEmptyIcon
+                            className={`${classes.stateIcon} ${classes.waiting}`}
+                        />
+                    ) : status === IgmStatus.AVAILABLE ? (
+                        <LoopIcon
+                            className={`${classes.stateIcon} ${classes.loading}`}
+                        />
+                    ) : status === IgmStatus.INVALID ? (
+                        <WarningIcon
+                            className={`${classes.stateIcon} ${classes.error}`}
+                        />
+                    ) : status === IgmStatus.VALID ? (
+                        <MergeIcon
+                            className={`${classes.stateIcon} ${classes.success}`}
+                        />
+                    ) : status === IgmStatus.MERGED ? (
+                        <DoneIcon
+                            color="secondary"
+                            className={`${classes.stateIcon} ${classes.success}`}
+                        />
+                    ) : (
+                        ''
+                    )}
+                    <Box className={classes.textColumn}>
+                        <Typography variant="body1">
+                            {detail.countryName}
+                        </Typography>
+                    </Box>
+                    <img
+                        className={classes.flagIcon}
+                        alt="flag for country"
+                        height="23"
+                        width="32"
+                        src={detail.flagSrc}
+                    />
+                </Grid>
+                <Grid item xs={12}>
+                    <Divider className={classes.divider} />
+                </Grid>
+            </Grid>
+        </Box>
+    );
 };
 
-//eslint-disable-next-line
-export default withStyles(styles)(CountryStateItem);
+CountryStateItem.propTypes = {
+    tso: PropTypes.string.isRequired,
+    merge: MergeType,
+};
+
+export default CountryStateItem;

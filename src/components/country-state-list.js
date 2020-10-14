@@ -4,36 +4,25 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-import React, { Component } from 'react';
+import React from 'react';
 import { List } from '@material-ui/core';
 import PropTypes from 'prop-types';
 import CountryStateItem from './country-state-item';
+import { MergeType } from '../utils/api';
 
-class CountryStatesList extends Component {
-    render() {
-        return (
-            <List className={this.props.className}>
-                {this.props.igms.map((igm) => (
-                    <CountryStateItem igm={igm} />
-                ))}
-            </List>
-        );
-    }
-}
-
-CountryStatesList.defaultProps = {
-    igms: [],
+const CountryStatesList = (props) => {
+    return (
+        <List>
+            {props.tsos.map((tso) => (
+                <CountryStateItem tso={tso} merge={props.merge} />
+            ))}
+        </List>
+    );
 };
 
 CountryStatesList.propTypes = {
-    classes: PropTypes.object.isRequired,
-    igms: PropTypes.arrayOf(
-        PropTypes.shape({
-            tso: PropTypes.string.isRequired,
-            status: PropTypes.string.isRequired,
-        })
-    ),
+    tsos: PropTypes.arrayOf(PropTypes.string).isRequired,
+    merge: MergeType,
 };
 
-//eslint-disable-next-line
 export default CountryStatesList;

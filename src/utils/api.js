@@ -8,6 +8,7 @@
 import ReconnectingWebSocket from 'reconnecting-websocket';
 
 import { store } from '../redux/store';
+import PropTypes from 'prop-types';
 
 const PREFIX_NOTIFICATION_WS =
     process.env.REACT_APP_WS_GATEWAY + '/merge-notification';
@@ -97,3 +98,74 @@ export function fetchAppsAndUrls() {
         });
     });
 }
+
+/**
+ * Function return list of merges by process name, date min and date max
+ */
+export function fetchMergesByProcessAndDate(process, minDate, maxDate) {
+    console.info('Fetching merge configs...');
+    const fetchConfigsUrl =
+        PREFIX_ORCHESTRATOR_QUERIES +
+        '/v1/' +
+        encodeURIComponent(process) +
+        '/merges?minDate=' +
+        minDate.toISOString() +
+        '&maxDate=' +
+        maxDate.toISOString();
+    return backendFetch(fetchConfigsUrl).then((response) => response.json());
+}
+
+export function removeTime(date) {
+    return new Date(date.toDateString());
+}
+
+export const IgmStatus = {
+    ABSENT: 'absent',
+    AVAILABLE: 'available',
+    VALID: 'valid',
+    INVALID: 'invalid',
+    MERGED: 'merged',
+};
+
+export function getIgmStatus(tso, merge) {
+    const igm = merge ? merge.igms.find((igm) => igm.tso === tso) : null;
+    if (!igm) {
+        return IgmStatus.ABSENT;
+    }
+    if (merge.status) {
+        switch (merge.status) {
+            case 'BALANCE_ADJUSTMENT_SUCCEED':
+            case 'LOADFLOW_SUCCEED':
+                return IgmStatus.MERGED;
+
+            case 'BALANCE_ADJUSTMENT_FAILED':
+            case 'LOADFLOW_FAILED':
+            default:
+                throw Error('Status not supported');
+        }
+    } else {
+        switch (igm.status) {
+            case 'AVAILABLE':
+                return IgmStatus.AVAILABLE;
+
+            case 'VALIDATION_SUCCEED':
+                return IgmStatus.VALID;
+
+            case 'VALIDATION_FAILED':
+                return IgmStatus.INVALID;
+
+            default:
+                throw Error('Status not supported');
+        }
+    }
+}
+
+export const MergeType = PropTypes.shape({
+    status: PropTypes.string.isRequired,
+    igms: PropTypes.arrayOf(
+        PropTypes.shape({
+            status: PropTypes.string.isRequired,
+            tso: PropTypes.string.isRequired,
+        })
+    ),
+});
