@@ -15,7 +15,6 @@ import {
 } from 'react-simple-maps';
 
 import { makeStyles } from '@material-ui/core/styles';
-import AutoSizer from 'react-virtualized/dist/commonjs/AutoSizer';
 import bbox from 'geojson-bbox';
 import { IgmStatus, getIgmStatus, MergeType } from '../utils/api';
 
