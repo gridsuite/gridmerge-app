@@ -18,6 +18,7 @@ const useStyles = makeStyles((theme) => ({
     customSlider: {
         padding: '10px 20px 10px 20px',
         width: '100%',
+        height: '60px',
     },
 }));
 

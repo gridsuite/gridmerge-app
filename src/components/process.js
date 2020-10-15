@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 
 import PropTypes from 'prop-types';
 
@@ -23,25 +23,18 @@ import {
     updateSelectedMergeDate,
 } from '../redux/actions';
 import Timeline from './timeline';
-import TextField from '@material-ui/core/TextField';
-import { makeStyles } from '@material-ui/styles';
 import moment from 'moment';
 import DownloadButton from './stepper';
 import CountryStatesList from './country-state-list';
 import Grid from '@material-ui/core/Grid';
-
-const useStyles = makeStyles((theme) => ({
-    datePicker: {
-        textAlign: 'center',
-        padding: '20px 0px 10px 0px',
-        width: '100%',
-        zIndex: 99,
-    },
-}));
+import {
+    KeyboardDatePicker,
+    MuiPickersUtilsProvider,
+} from '@material-ui/pickers';
+import 'date-fns';
+import DateFnsUtils from '@date-io/date-fns';
 
 const Process = (props) => {
-    const classes = useStyles();
-
     const config = useSelector((state) => state.configs[props.index]);
 
     const date = useSelector((state) => state.processes[props.index].date);
@@ -103,10 +96,8 @@ const Process = (props) => {
         };
     }, [props.index, date]);
 
-    const onDateChange = (e) => {
-        dispatch(
-            updateProcessDate(props.index, removeTime(new Date(e.target.value)))
-        );
+    const handleDateChange = (date) => {
+        dispatch(updateProcessDate(props.index, removeTime(date)));
     };
 
     const formatDate = (date) => {
@@ -135,19 +126,24 @@ const Process = (props) => {
     const merge = merges[mergeIndex];
 
     return (
-        <Grid container direction="row" className={classes.main}>
+        <Grid container direction="row" justify="space-around">
             <Grid item xs={12} md={10} key="map">
-                <div className={classes.datePicker}>
-                    <TextField
-                        id="date"
-                        type="date"
-                        onChange={onDateChange}
-                        value={formatDate(date)}
-                        InputLabelProps={{
-                            shrink: true,
-                        }}
-                    />
-                </div>
+                <Grid container justify="space-around">
+                    <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                        <KeyboardDatePicker
+                            disableToolbar
+                            variant="inline"
+                            format="MM/dd/yyyy"
+                            margin="normal"
+                            value={date}
+                            onChange={handleDateChange}
+                            KeyboardButtonProps={{
+                                'aria-label': 'change date',
+                            }}
+                            inputProps={{ readOnly: true }}
+                        />
+                    </MuiPickersUtilsProvider>
+                </Grid>
                 <Timeline
                     merges={merges}
                     mergeIndex={mergeIndex}

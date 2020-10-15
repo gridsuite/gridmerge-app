@@ -7,12 +7,7 @@
 
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import {
-    ComposableMap,
-    Geographies,
-    Geography,
-    ZoomableGroup,
-} from 'react-simple-maps';
+import { ComposableMap, Geographies, Geography } from 'react-simple-maps';
 
 import { makeStyles } from '@material-ui/core/styles';
 import bbox from 'geojson-bbox';
@@ -20,7 +15,7 @@ import { IgmStatus, getIgmStatus, MergeType } from '../utils/api';
 
 const TSO_STROKE_COLOR = 'white';
 const DEFAULT_CENTER = [0, 0];
-const DEFAULT_SCALE = 30000;
+const DEFAULT_SCALE = 35000;
 
 const useStyles = makeStyles((theme) => ({
     tso: {
@@ -114,34 +109,29 @@ const MergeMap = (props) => {
         <div>
             <ComposableMap
                 style={{
-                    position: 'absolute',
-                    top: '70px',
-                    left: '-200px',
-                    height: '100%',
+                    height: 'calc(100vh - 200px)',
                     width: '100%',
                     zIndex: '-1',
                 }}
                 projectionConfig={projectionConfig}
             >
-                <ZoomableGroup minZoom={1} maxZoom={1}>
-                    <Geographies geography={data.geographies}>
-                        {({ geographies }) =>
-                            geographies.map((geo, index) => {
-                                const tso = props.tsos[index];
-                                const status = getIgmStatus(tso, props.merge);
-                                const color = tsoColor(status);
-                                return (
-                                    <Geography
-                                        key={geo.rsmKey}
-                                        geography={geo}
-                                        className={classes.tso}
-                                        fill={color}
-                                    />
-                                );
-                            })
-                        }
-                    </Geographies>
-                </ZoomableGroup>
+                <Geographies geography={data.geographies}>
+                    {({ geographies }) =>
+                        geographies.map((geo, index) => {
+                            const tso = props.tsos[index];
+                            const status = getIgmStatus(tso, props.merge);
+                            const color = tsoColor(status);
+                            return (
+                                <Geography
+                                    key={geo.rsmKey}
+                                    geography={geo}
+                                    className={classes.tso}
+                                    fill={color}
+                                />
+                            );
+                        })
+                    }
+                </Geographies>
             </ComposableMap>
             {props.children}
         </div>
