@@ -3,5 +3,8 @@
     "General": "General",
     "theme": "Theme",
     "close": "Close",
-    "download": "Download"
+    "download": "Download",
+    "emptyMergeForDate": "This date does not contain a merge",
+    "noProcessFound": "No process found",
+    "applicationsUrlEmpty": "Applications url is empty"
 }

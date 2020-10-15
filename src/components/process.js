@@ -5,11 +5,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import React, { useEffect } from 'react';
-
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 
 import { useDispatch, useSelector } from 'react-redux';
+import { FormattedMessage } from 'react-intl';
+import CustomNotificationSnackBar from './notificationSnackBar/snackBar';
 
 import MergeMap from './merge-map';
 import {
@@ -23,7 +24,6 @@ import {
     updateSelectedMergeDate,
 } from '../redux/actions';
 import Timeline from './timeline';
-import moment from 'moment';
 import DownloadButton from './stepper';
 import CountryStatesList from './country-state-list';
 import Grid from '@material-ui/core/Grid';
@@ -46,6 +46,7 @@ const Process = (props) => {
     );
 
     const dispatch = useDispatch();
+    const [notificationSnackBar, setNotificationSnackBar] = useState();
 
     function update(message, processDate) {
         const headers = message.headers;
@@ -79,11 +80,18 @@ const Process = (props) => {
         // load merges for the whole day so from 00:00 to 23:59
         const maxDate = new Date(date);
         maxDate.setMinutes(maxDate.getMinutes() + 60 * 24 - 1);
-        fetchMergesByProcessAndDate(config.process, date, maxDate).then(
-            (newMerges) => {
+        fetchMergesByProcessAndDate(config.process, date, maxDate)
+            .then((newMerges) => {
                 dispatch(updateMerges(props.index, newMerges));
-            }
-        );
+                if (newMerges.length === 0) {
+                    setNotificationSnackBar(
+                        <FormattedMessage id="emptyMergeForDate" />
+                    );
+                }
+            })
+            .catch(function (error) {
+                setNotificationSnackBar(error.message);
+            });
     }
 
     useEffect(() => {
@@ -94,14 +102,11 @@ const Process = (props) => {
         return function () {
             ws.close();
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.index, date]);
 
     const handleDateChange = (date) => {
         dispatch(updateProcessDate(props.index, removeTime(date)));
-    };
-
-    const formatDate = (date) => {
-        return moment(date).format('YYYY-MM-DD');
     };
 
     const mergeIndexChangeHandler = (newMergeIndex) => {
@@ -149,6 +154,7 @@ const Process = (props) => {
                     mergeIndex={mergeIndex}
                     onMergeIndexChange={mergeIndexChangeHandler}
                 />
+                <CustomNotificationSnackBar message={notificationSnackBar} />
                 <MergeMap tsos={config.tsos} merge={merge} />
                 <DownloadButton merge={merge} />
             </Grid>

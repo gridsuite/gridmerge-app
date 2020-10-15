@@ -92,7 +92,6 @@ export function fetchAppsAndUrls() {
         } else {
             url = PREFIX_APPS_URLS_QUERIES + '/prod-urls.json';
         }
-        console.log(url);
         return backendFetch(url).then((response) => {
             return response.json();
         });

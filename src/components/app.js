@@ -34,7 +34,7 @@ import {
     TopBar,
 } from '@gridsuite/commons-ui';
 import { FormattedMessage } from 'react-intl';
-
+import CustomNotificationSnackBar from './notificationSnackBar/snackBar';
 import Process from './process';
 
 import Parameters from './parameters';
@@ -102,6 +102,8 @@ const App = () => {
 
     const [appsAndUrls, setAppsAndUrls] = React.useState([]);
 
+    const [notificationSnackBar, setNotificationSnackBar] = useState();
+
     let matchSilentRenewCallbackUrl = useRouteMatch({
         path: '/silent-renew-callback',
         exact: true,
@@ -144,13 +146,31 @@ const App = () => {
 
     useEffect(() => {
         if (user !== null) {
-            fetchMergeConfigs().then((configs) => {
-                dispatch(initProcesses(configs));
-            });
+            fetchMergeConfigs()
+                .then((configs) => {
+                    dispatch(initProcesses(configs));
+                    if (configs.length === 0) {
+                        setNotificationSnackBar(
+                            <FormattedMessage id="noProcessFound" />
+                        );
+                    }
+                })
+                .catch(function (error) {
+                    setNotificationSnackBar(error.message);
+                });
 
-            fetchAppsAndUrls().then((res) => {
-                setAppsAndUrls(res);
-            });
+            fetchAppsAndUrls()
+                .then((res) => {
+                    setAppsAndUrls(res);
+                    if (res.length === 0) {
+                        setNotificationSnackBar(
+                            <FormattedMessage id="applicationsUrlEmpty" />
+                        );
+                    }
+                })
+                .catch(function (error) {
+                    setNotificationSnackBar(error.message);
+                });
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user]);
@@ -204,6 +224,7 @@ const App = () => {
                             ))}
                     </Tabs>
                 </TopBar>
+                <CustomNotificationSnackBar message={notificationSnackBar} />
                 <Parameters
                     showParameters={showParameters}
                     hideParameters={hideParameters}
