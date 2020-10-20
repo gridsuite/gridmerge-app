@@ -12,11 +12,7 @@ import { FormattedMessage } from 'react-intl';
 import { useDispatch, useSelector } from 'react-redux';
 
 import Box from '@material-ui/core/Box';
-import Button from '@material-ui/core/Button';
 import Container from '@material-ui/core/Container';
-import Dialog from '@material-ui/core/Dialog';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogTitle from '@material-ui/core/DialogTitle';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Grid from '@material-ui/core/Grid';
 import { makeStyles } from '@material-ui/core/styles';
@@ -28,12 +24,11 @@ import Typography from '@material-ui/core/Typography';
 
 import { DARK_THEME, LIGHT_THEME, selectTheme } from '../redux/actions';
 
+import { Popup } from '@gridsuite/commons-ui';
+
 const useStyles = makeStyles((theme) => ({
     controlItem: {
         justifyContent: 'flex-end',
-    },
-    button: {
-        marginBottom: '30px',
     },
 }));
 
@@ -96,53 +91,42 @@ const Parameters = ({ showParameters, hideParameters }) => {
         );
     }
 
+    function PopupContent() {
+        return (
+            <Container maxWidth="md">
+                <Tabs
+                    value={tabIndex}
+                    indicatorColor="primary"
+                    variant="scrollable"
+                    scrollButtons="auto"
+                    onChange={(event, newValue) => setTabIndex(newValue)}
+                    aria-label="parameters"
+                >
+                    <Tab label={<FormattedMessage id="General" />} />
+                </Tabs>
+
+                <TabPanel value={tabIndex} index={0}>
+                    <GeneralTab />
+                </TabPanel>
+            </Container>
+        );
+    }
+
     return (
-        <Dialog
+        <Popup
             open={showParameters}
+            setOpen={hideParameters}
             onClose={hideParameters}
-            aria-labelledby="form-dialog-title"
             maxWidth={'md'}
             fullWidth={true}
-        >
-            <DialogTitle id="form-dialog-title">
-                <Typography
-                    component="span"
-                    variant="h5"
-                    className={classes.title}
-                >
-                    <FormattedMessage id="parameters" />
-                </Typography>
-            </DialogTitle>
-            <DialogContent>
-                <Container maxWidth="md">
-                    <Tabs
-                        value={tabIndex}
-                        indicatorColor="primary"
-                        variant="scrollable"
-                        scrollButtons="auto"
-                        onChange={(event, newValue) => setTabIndex(newValue)}
-                        aria-label="parameters"
-                    >
-                        <Tab label={<FormattedMessage id="General" />} />
-                    </Tabs>
-
-                    <TabPanel value={tabIndex} index={0}>
-                        <GeneralTab />
-                    </TabPanel>
-
-                    <Grid item xs={12}>
-                        <Button
-                            onClick={hideParameters}
-                            variant="contained"
-                            color="primary"
-                            className={classes.button}
-                        >
-                            <FormattedMessage id="close" />
-                        </Button>
-                    </Grid>
-                </Container>
-            </DialogContent>
-        </Dialog>
+            popupTitle={<FormattedMessage id="parameters" />}
+            popupContent={<PopupContent />}
+            showPopupTitle={true}
+            showPopupActions={true}
+            showSingleBtn={true}
+            showSingleBtnInLeft={true}
+            customTextCancelBtn={<FormattedMessage id="close" />}
+        ></Popup>
     );
 };
 

@@ -23,7 +23,6 @@ import {
     updateSelectedMergeDate,
 } from '../redux/actions';
 import Timeline from './timeline';
-import moment from 'moment';
 import DownloadButton from './stepper';
 import CountryStatesList from './country-state-list';
 import Grid from '@material-ui/core/Grid';
@@ -94,14 +93,11 @@ const Process = (props) => {
         return function () {
             ws.close();
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.index, date]);
 
     const handleDateChange = (date) => {
         dispatch(updateProcessDate(props.index, removeTime(date)));
-    };
-
-    const formatDate = (date) => {
-        return moment(date).format('YYYY-MM-DD');
     };
 
     const mergeIndexChangeHandler = (newMergeIndex) => {

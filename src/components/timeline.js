@@ -144,6 +144,7 @@ const Timeline = (props) => {
                 ? marks[props.mergeIndex].value
                 : null
         );
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [marks, props.mergeIndex]);
 
     const empty = props.merges.length === 0;
