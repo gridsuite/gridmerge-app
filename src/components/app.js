@@ -167,7 +167,14 @@ const App = () => {
         setShowParameters(false);
     }
 
+    function toggleTab(newTabIndex) {
+        setTabIndex(newTabIndex);
+        history.push("/" + configs[newTabIndex].process);
+    }
+
     const config = configs.length > 0 ? configs[tabIndex] : null;
+
+    const mapProcessToIndex = new Map(configs.map((config, index) => [config.process, index]));
 
     return (
         <ThemeProvider theme={getMuiTheme(theme)}>
@@ -194,7 +201,7 @@ const App = () => {
                         indicatorColor="primary"
                         variant="scrollable"
                         scrollButtons="auto"
-                        onChange={(event, newValue) => setTabIndex(newValue)}
+                        onChange={(event, newValue) => toggleTab(newValue)}
                         aria-label="parameters"
                         className={classes.process}
                     >
@@ -211,9 +218,12 @@ const App = () => {
                 {user !== null ? (
                     <>
                         <Switch>
-                            <Route exact path="/">
-                                {config && <Process index={tabIndex} />}
-                            </Route>
+                            {Array.isArray(configs) &&
+                                configs.map((config) => (
+                                    <Route path={"/" + config.process}>
+                                        {<Process index={mapProcessToIndex.get(config.process)} />}
+                                    </Route>
+                            ))}
                             <Route exact path="/sign-in-callback">
                                 <Redirect to={getPreLoginPath() || '/'} />
                             </Route>
