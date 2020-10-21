@@ -169,12 +169,14 @@ const App = () => {
 
     function toggleTab(newTabIndex) {
         setTabIndex(newTabIndex);
-        history.push("/" + configs[newTabIndex].process);
+        history.push('/' + configs[newTabIndex].process);
     }
 
     const config = configs.length > 0 ? configs[tabIndex] : null;
 
-    const mapProcessToIndex = new Map(configs.map((config, index) => [config.process, index]));
+    const mapProcessToIndex = new Map(
+        configs.map((config, index) => [config.process, index])
+    );
 
     return (
         <ThemeProvider theme={getMuiTheme(theme)}>
@@ -220,10 +222,16 @@ const App = () => {
                         <Switch>
                             {Array.isArray(configs) &&
                                 configs.map((config) => (
-                                    <Route path={"/" + config.process}>
-                                        {<Process index={mapProcessToIndex.get(config.process)} />}
+                                    <Route path={'/' + config.process}>
+                                        {
+                                            <Process
+                                                index={mapProcessToIndex.get(
+                                                    config.process
+                                                )}
+                                            />
+                                        }
                                     </Route>
-                            ))}
+                                ))}
                             <Route exact path="/sign-in-callback">
                                 <Redirect to={getPreLoginPath() || '/'} />
                             </Route>
