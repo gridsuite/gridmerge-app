@@ -24,7 +24,11 @@ import {
     ThemeProvider,
 } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import { initProcesses, LIGHT_THEME } from '../redux/actions';
+import {
+    initProcesses,
+    changeSelectedTab,
+    LIGHT_THEME,
+} from '../redux/actions';
 
 import {
     AuthenticationRouter,
@@ -98,8 +102,6 @@ const App = () => {
 
     const classes = useStyles();
 
-    const [tabIndex, setTabIndex] = React.useState(0);
-
     const [appsAndUrls, setAppsAndUrls] = React.useState([]);
 
     let matchSilentRenewCallbackUrl = useRouteMatch({
@@ -167,16 +169,9 @@ const App = () => {
         setShowParameters(false);
     }
 
-    function toggleTab(newTabIndex) {
-        setTabIndex(newTabIndex);
-        history.push('/' + configs[newTabIndex].process);
+    function toggleTab(newTabValue) {
+        history.push(newTabValue);
     }
-
-    const config = configs.length > 0 ? configs[tabIndex] : null;
-
-    const mapProcessToIndex = new Map(
-        configs.map((config, index) => [config.process, index])
-    );
 
     return (
         <ThemeProvider theme={getMuiTheme(theme)}>
@@ -199,7 +194,7 @@ const App = () => {
                     appsAndUrls={appsAndUrls}
                 >
                     <Tabs
-                        value={tabIndex}
+                        value={location.pathname}
                         indicatorColor="primary"
                         variant="scrollable"
                         scrollButtons="auto"
@@ -207,10 +202,12 @@ const App = () => {
                         aria-label="parameters"
                         className={classes.process}
                     >
-                        {Array.isArray(configs) &&
-                            configs.map((config) => (
-                                <Tab label={config.process} />
-                            ))}
+                        {configs.map((config) => (
+                            <Tab
+                                label={config.process}
+                                value={'/' + config.process}
+                            />
+                        ))}
                     </Tabs>
                 </TopBar>
                 <Parameters
@@ -220,18 +217,18 @@ const App = () => {
                 {user !== null ? (
                     <>
                         <Switch>
-                            {Array.isArray(configs) &&
-                                configs.map((config) => (
-                                    <Route path={'/' + config.process}>
-                                        {
-                                            <Process
-                                                index={mapProcessToIndex.get(
-                                                    config.process
-                                                )}
-                                            />
-                                        }
-                                    </Route>
-                                ))}
+                            <Route exact path={'/'}>
+                                {configs.length > 0 && (
+                                    <Redirect to={'/' + configs[0].process} />
+                                )}
+                            </Route>
+                            {configs.map((config, index) => (
+                                <Route exact path={'/' + config.process}>
+                                    {configs[index] && (
+                                        <Process index={index} />
+                                    )}
+                                </Route>
+                            ))}
                             <Route exact path="/sign-in-callback">
                                 <Redirect to={getPreLoginPath() || '/'} />
                             </Route>
