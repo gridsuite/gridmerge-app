@@ -173,6 +173,10 @@ const App = () => {
         history.push(newTabValue);
     }
 
+    const mapProcessToIndex = new Map(
+        configs.map((config, index) => ['/' + config.process, index])
+    );
+
     return (
         <ThemeProvider theme={getMuiTheme(theme)}>
             <React.Fragment>
@@ -222,13 +226,6 @@ const App = () => {
                                     <Redirect to={'/' + configs[0].process} />
                                 )}
                             </Route>
-                            {configs.map((config, index) => (
-                                <Route exact path={'/' + config.process}>
-                                    {configs[index] && (
-                                        <Process index={index} />
-                                    )}
-                                </Route>
-                            ))}
                             <Route exact path="/sign-in-callback">
                                 <Redirect to={getPreLoginPath() || '/'} />
                             </Route>
@@ -238,6 +235,16 @@ const App = () => {
                                     in.
                                 </h1>
                             </Route>
+                            <Route path={'/'}>
+                                {mapProcessToIndex.has(location.pathname) && (
+                                    <Process
+                                        index={mapProcessToIndex.get(
+                                            location.pathname
+                                        )}
+                                    />
+                                )}
+                            </Route>
+                            ))}
                             <Route>
                                 <h1>
                                     <FormattedMessage id="PageNotFound" />{' '}
