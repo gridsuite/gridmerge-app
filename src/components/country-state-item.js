@@ -38,7 +38,7 @@ import flagTR from '../images/flags/flags-iso/flat/svg/TR.svg';
 import flagUA from '../images/flags/flags-iso/flat/svg/UA.svg';
 import flagUnknown from '../images/flags/flags-iso/flat/svg/EU.svg';
 import PropTypes from 'prop-types';
-import { makeStyles, withStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import { getIgmStatus, IgmStatus, MergeType } from '../utils/api';
 
 const useStyles = makeStyles((theme) => ({
