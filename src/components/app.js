@@ -116,7 +116,7 @@ const App = () => {
             .then((userManager) => {
                 setUserManager({ instance: userManager, error: null });
                 userManager.getUser().then((user) => {
-                    if (user == null) {
+                    if (user == null && matchSilentRenewCallbackUrl == null) {
                         userManager.signinSilent().catch((error) => {
                             const oidcHackReloaded =
                                 'gridsuite-oidc-hack-reloaded';
