@@ -5,6 +5,7 @@
     "close": "Fermer",
     "download": "Télécharger",
     "available": "Disponible",
-    "valid": "Valide",
+    "validationSucceed": "Validation réussie",
+    "validationFailed": "Validation échoué",
     "merged": "Fusionné"
 }

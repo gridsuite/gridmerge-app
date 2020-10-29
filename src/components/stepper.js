@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import Stepper from '@material-ui/core/Stepper';
@@ -38,17 +38,13 @@ const CustomStepper = withStyles({
     },
 })(Stepper);
 
-const CustomStepLabel = withStyles({
-    label: {
-        color: 'red',
-    },
-})(StepLabel);
-
 const StepperWithStatus = (props) => {
     const DownloadIframe = 'downloadIframe';
-
     const classes = useStyles();
-    const [steps, setSteps] = useState([]);
+    const [availableStep, setAvailableStep] = useState(false);
+    const [validStep, setValidStep] = useState(false);
+    const [mergedStep, setMergedStep] = useState(false);
+    const [invalidStep, setInvalidStep] = useState(false);
 
     const handleClickExport = () => {
         console.info('Downloading merge ' + props.merge.process + '...');
@@ -66,106 +62,73 @@ const StepperWithStatus = (props) => {
         );
     };
 
-    /**
-     * Check if all countries status is equal
-     * @param arr
-     * @returns {boolean}
-     */
-    const allEqual = (arr) => arr.every((v) => v === arr[0]);
-
-    /**
-     * Get status if all countries status is equal
-     * @returns {string}
-     */
-    const getStatus = () => {
-        if (allEqual(steps)) {
-            switch (steps[0]) {
-                case IgmStatus.ABSENT:
-                    return IgmStatus.ABSENT;
-
-                case IgmStatus.AVAILABLE:
-                    return IgmStatus.AVAILABLE;
-
-                case IgmStatus.INVALID:
-                    return IgmStatus.INVALID;
-
-                case IgmStatus.VALID:
-                    return IgmStatus.VALID;
-
-                case IgmStatus.MERGED:
-                    return IgmStatus.MERGED;
-
-                default:
-                    return IgmStatus.ABSENT;
-            }
-        }
+    const enableDisabledAllSteps = (value) => {
+        setAvailableStep(value);
+        setValidStep(value);
+        setMergedStep(value);
+        setInvalidStep(false);
     };
 
-    /**
-     * Check if the available step is active
-     * @returns {boolean}
-     */
-    const isAvailableStep = () => {
-        if (allEqual(steps)) {
-            return getStatus() === IgmStatus.AVAILABLE ||
-                getStatus() === IgmStatus.VALID ||
-                getStatus() === IgmStatus.MERGED
-                ? true
-                : false;
-        }
+    const getStepsStatus = (available, valid, merge) => {
+        setAvailableStep(available);
+        setValidStep(valid);
+        setMergedStep(merge);
     };
 
-    /**
-     * Check if the valid step is active
-     * @returns {boolean}
-     */
-    const isValidStep = () => {
-        if (allEqual(steps)) {
-            return getStatus() === IgmStatus.VALID ||
-                getStatus() === IgmStatus.MERGED
-                ? true
-                : false;
+    const stepper = useCallback(() => {
+        if (props.merge) {
+            props.tsos.map((tso) => {
+                const status = getIgmStatus(tso, props.merge);
+                setInvalidStep(false);
+                if (status === IgmStatus.MERGED) {
+                    enableDisabledAllSteps(true);
+                } else {
+                    if (status === IgmStatus.AVAILABLE) {
+                        getStepsStatus(true, false, false);
+                    } else if (status === IgmStatus.VALID) {
+                        getStepsStatus(true, true, false);
+                    } else if (status === IgmStatus.INVALID) {
+                        setAvailableStep(true);
+                        setInvalidStep(true);
+                        setMergedStep(false);
+                    }
+                }
+                return status;
+            });
+        } else {
+            enableDisabledAllSteps(false);
         }
-    };
-
-    /**
-     * Check if merged step is active
-     * @returns {boolean}
-     */
-    const isMergedStep = () => {
-        if (allEqual(steps)) {
-            return getStatus() === IgmStatus.MERGED ? true : false;
-        }
-    };
+    }, [props.merge, props.tsos]);
 
     useEffect(() => {
-        const allEqual = (arr) => arr.every((v) => v === arr[0]);
-        const steps = props.tsos.map((tso) => {
-            if (tso) {
-                const status = getIgmStatus(tso, props.merge);
-                if (status) {
-                    return status;
-                }
-            }
-        });
-        setSteps(steps);
-    }, [props.merge]);
+        stepper();
+    }, [props.merge, stepper]);
 
     return (
         <Grid container direction="row" className={classes.stepperContainer}>
             <Grid item xs={12} md={10}>
-                <CustomStepper activeStep={isAvailableStep ? 0 : -1}>
-                    <Step active={isAvailableStep()}>
+                <CustomStepper>
+                    <Step active={availableStep}>
                         <StepLabel>
                             <FormattedMessage id="available" />
                         </StepLabel>
                     </Step>
-                    <Step active={isValidStep()}>
-                        <StepLabel>
-                            <FormattedMessage id="valid" />
-                        </StepLabel>
+                    <Step active={validStep}>
+                        {!invalidStep && (
+                            <StepLabel>
+                                <FormattedMessage id="validationSucceed" />
+                            </StepLabel>
+                        )}
+                        {invalidStep && (
+                            <StepLabel
+                                StepIconComponent={WarningOutlinedIcon}
+                                style={{ color: 'red' }}
+                            >
+                                <FormattedMessage id="validationFailed" />
+                            </StepLabel>
+                        )}
                     </Step>
-                    <Step active={isMergedStep() === true}>
+                    <Step active={mergedStep}>
                         <StepLabel>
                             <FormattedMessage id="merged" />
                         </StepLabel>
@@ -177,14 +140,12 @@ const StepperWithStatus = (props) => {
                     aria-label="download"
                     style={{ width: '50px' }}
                     onClick={handleClickExport}
-                    disabled={!isMergedStep()}
+                    disabled={!mergedStep}
                 >
                     <GetAppIcon fontSize="large" />
                 </IconButton>
                 <span
-                    className={
-                        !isMergedStep() ? classes.downloadLabelDisabled : ''
-                    }
+                    className={!mergedStep ? classes.downloadLabelDisabled : ''}
                     style={{ display: 'block' }}
                 >
                     <FormattedMessage id="download" />

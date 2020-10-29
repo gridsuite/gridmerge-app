@@ -5,6 +5,8 @@
     "close": "Close",
     "download": "Download",
     "available": "Available",
+    "validationSucceed": "Validation succeed",
+    "validationFailed": "Validation failed",
     "valid": "Valid",
     "merged": "Merged"
 }
