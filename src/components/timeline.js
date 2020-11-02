@@ -144,7 +144,7 @@ const Timeline = (props) => {
                 ? marks[props.mergeIndex].value
                 : null
         );
-    }, [marks, props.mergeIndex]);
+    }, [marks, props.mergeIndex, props.merges.length]);
 
     const empty = props.merges.length === 0;
     const TheSlider = empty ? EmptySlider : ClockSlider;
