@@ -108,6 +108,12 @@ const App = () => {
     });
 
     useEffect(() => {
+        document.addEventListener('contextmenu', (event) => {
+            event.preventDefault();
+        });
+    });
+
+    useEffect(() => {
         initializeAuthenticationProd(
             dispatch,
             matchSilentRenewCallbackUrl != null,
