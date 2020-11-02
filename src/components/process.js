@@ -22,6 +22,7 @@ import {
     updateProcessDate,
     updateSelectedMergeDate,
 } from '../redux/actions';
+import { store } from '../redux/store';
 import Timeline from './timeline';
 import DownloadButton from './stepper';
 import CountryStatesList from './country-state-list';
@@ -46,37 +47,46 @@ const Process = (props) => {
 
     const dispatch = useDispatch();
 
-    const loadMerges = useCallback(() => {
-        // load merges for the whole day so from 00:00 to 23:59
-        const maxDate = new Date(date);
-        maxDate.setMinutes(maxDate.getMinutes() + 60 * 24 - 1);
-        fetchMergesByProcessAndDate(config.process, date, maxDate).then(
-            (newMerges) => {
-                dispatch(updateMerges(props.index, newMerges));
-            }
-        );
-    }, [dispatch, config.process, date, props.index]);
+    const loadMerges = useCallback(
+        (date) => {
+            // load merges for the whole day so from 00:00 to 23:59
+            const maxDate = new Date(date);
+            maxDate.setMinutes(maxDate.getMinutes() + 60 * 24 - 1);
+            fetchMergesByProcessAndDate(config.process, date, maxDate).then(
+                (newMerges) => {
+                    dispatch(updateMerges(props.index, newMerges));
+                }
+            );
+        },
+        [dispatch, config.process, props.index]
+    );
 
     const update = useCallback(
-        (message, processDate) => {
+        (message) => {
             const headers = message.headers;
             const mergeDate = new Date(headers.date);
+
+            // we need to directly access the store to get current process date as the wensocket message handler cannot
+            // use react hooks
+            const state = store.getState();
+            const processDate = state.processes[props.index].date;
+
             // if same day as selected, reload merges from server
             if (removeTime(mergeDate).getTime() === processDate.getTime()) {
-                loadMerges();
+                loadMerges(processDate);
             }
         },
-        [loadMerges]
+        [props.index, loadMerges]
     );
 
     const connectNotifications = useCallback(
-        (processName, processDate) => {
+        (processName) => {
             console.info(`Connecting to notifications '${processName}'...`);
 
             const ws = connectNotificationsWebsocket(processName);
             ws.onmessage = function (event) {
                 const message = JSON.parse(event.data);
-                update(message, processDate);
+                update(message);
             };
             ws.onclose = function (event) {
                 console.info(
@@ -92,14 +102,17 @@ const Process = (props) => {
     );
 
     useEffect(() => {
-        loadMerges();
+        loadMerges(date);
+    }, [config.process, date, loadMerges]);
 
-        const ws = connectNotifications(config.process, date);
+    useEffect(() => {
+        const ws = connectNotifications(config.process);
 
         return function () {
             ws.close();
         };
-    }, [props.index, date, config.process, loadMerges, connectNotifications]);
+    }, [config.process, connectNotifications]);
+
     const handleDateChange = (date) => {
         dispatch(updateProcessDate(props.index, removeTime(date)));
     };
@@ -120,7 +133,7 @@ const Process = (props) => {
                 new Date(merge.date).getTime() === selectedMergeDate.getTime()
         );
     }
-    if (!mergeIndex) {
+    if (!mergeIndex || mergeIndex === -1) {
         mergeIndex = 0;
     }
     const merge = merges[mergeIndex];
