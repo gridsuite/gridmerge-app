@@ -24,11 +24,7 @@ import {
     ThemeProvider,
 } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import {
-    initProcesses,
-    changeSelectedTab,
-    LIGHT_THEME,
-} from '../redux/actions';
+import { initProcesses, LIGHT_THEME } from '../redux/actions';
 
 import {
     AuthenticationRouter,
