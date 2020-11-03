@@ -171,9 +171,9 @@ const App = () => {
         history.push(newTabValue);
     }
 
-    const mapProcessToIndex = new Map(
-        configs.map((config, index) => [config.process, index])
-    );
+    function getProcessIndex(processName) {
+        return configs.findIndex((c) => c.process === processName);
+    }
 
     return (
         <ThemeProvider theme={getMuiTheme(theme)}>
@@ -245,11 +245,11 @@ const App = () => {
                                 exact
                                 path={PREFIX_URL_PROCESSES + '/:processName'}
                                 render={({ match }) =>
-                                    mapProcessToIndex.has(
+                                    getProcessIndex(
                                         match.params.processName
-                                    ) && (
+                                    ) !== -1 && (
                                         <Process
-                                            index={mapProcessToIndex.get(
+                                            index={getProcessIndex(
                                                 match.params.processName
                                             )}
                                         />
