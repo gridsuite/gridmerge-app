@@ -45,6 +45,8 @@ import { fetchAppsAndUrls, fetchMergeConfigs } from '../utils/api';
 import { ReactComponent as GridMergeLogoDark } from '../images/GridMerge_logo_dark.svg';
 import { ReactComponent as GridMergeLogoLight } from '../images/GridMerge_logo_light.svg';
 
+const PREFIX_URL_PROCESSES = '/processes';
+
 const lightTheme = createMuiTheme({
     palette: {
         type: 'light',
@@ -170,7 +172,7 @@ const App = () => {
     }
 
     const mapProcessToIndex = new Map(
-        configs.map((config, index) => ['/' + config.process, index])
+        configs.map((config, index) => [config.process, index])
     );
 
     return (
@@ -205,7 +207,9 @@ const App = () => {
                         {configs.map((config) => (
                             <Tab
                                 label={config.process}
-                                value={'/' + config.process}
+                                value={
+                                    PREFIX_URL_PROCESSES + '/' + config.process
+                                }
                             />
                         ))}
                     </Tabs>
@@ -219,7 +223,13 @@ const App = () => {
                         <Switch>
                             <Route exact path={'/'}>
                                 {configs.length > 0 && (
-                                    <Redirect to={'/' + configs[0].process} />
+                                    <Redirect
+                                        to={
+                                            PREFIX_URL_PROCESSES +
+                                            '/' +
+                                            configs[0].process
+                                        }
+                                    />
                                 )}
                             </Route>
                             <Route exact path="/sign-in-callback">
@@ -231,16 +241,21 @@ const App = () => {
                                     in.
                                 </h1>
                             </Route>
-                            <Route path={'/'}>
-                                {mapProcessToIndex.has(location.pathname) && (
-                                    <Process
-                                        index={mapProcessToIndex.get(
-                                            location.pathname
-                                        )}
-                                    />
-                                )}
-                            </Route>
-                            ))}
+                            <Route
+                                exact
+                                path={PREFIX_URL_PROCESSES + '/:processName'}
+                                render={({ match }) =>
+                                    mapProcessToIndex.has(
+                                        match.params.processName
+                                    ) && (
+                                        <Process
+                                            index={mapProcessToIndex.get(
+                                                match.params.processName
+                                            )}
+                                        />
+                                    )
+                                }
+                            />
                             <Route>
                                 <h1>
                                     <FormattedMessage id="PageNotFound" />{' '}
