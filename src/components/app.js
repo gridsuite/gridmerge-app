@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -102,17 +102,13 @@ const App = () => {
 
     const [appsAndUrls, setAppsAndUrls] = React.useState([]);
 
-    const matchSilentRenewCallbackUrl = useRouteMatch({
-        path: '/silent-renew-callback',
-        exact: true,
-    });
-
     // Get the routeMatch at page load, so we ignore the exhaustive deps check
-    const initialMatchSilentRenewCallbackUrl = useCallback(
-        () => matchSilentRenewCallbackUrl,
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        []
-    )();
+    const initialMatchSilentRenewCallbackUrl = useState(
+        useRouteMatch({
+            path: '/silent-renew-callback',
+            exact: true,
+        })
+    );
 
     useEffect(() => {
         initializeAuthenticationProd(
