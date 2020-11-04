@@ -92,6 +92,8 @@ const App = () => {
 
     const [showParameters, setShowParameters] = useState(false);
 
+    const [tabId, setTabId] = useState();
+
     const history = useHistory();
 
     const dispatch = useDispatch();
@@ -180,11 +182,25 @@ const App = () => {
     }
 
     function toggleTab(newTabValue) {
-        history.push(newTabValue);
+        history.push(PREFIX_URL_PROCESSES + '/' + newTabValue);
+    }
+
+    function getDefaultProcess() {
+        return configs.length > 0 && configs[0].process;
     }
 
     function getProcessIndex(processName) {
         return configs.findIndex((c) => c.process === processName);
+    }
+
+    function displayProcess(processName) {
+        let index = getProcessIndex(processName);
+        if (index !== -1) {
+            setTabId(processName);
+        } else {
+            setTabId(getDefaultProcess());
+        }
+        return index !== -1 && <Process index={index} />;
     }
 
     return (
@@ -208,7 +224,7 @@ const App = () => {
                     appsAndUrls={appsAndUrls}
                 >
                     <Tabs
-                        value={location.pathname}
+                        value={tabId}
                         indicatorColor="primary"
                         variant="scrollable"
                         scrollButtons="auto"
@@ -219,9 +235,7 @@ const App = () => {
                         {configs.map((config) => (
                             <Tab
                                 label={config.process}
-                                value={
-                                    PREFIX_URL_PROCESSES + '/' + config.process
-                                }
+                                value={config.process}
                             />
                         ))}
                     </Tabs>
@@ -257,15 +271,7 @@ const App = () => {
                                 exact
                                 path={PREFIX_URL_PROCESSES + '/:processName'}
                                 render={({ match }) =>
-                                    getProcessIndex(
-                                        match.params.processName
-                                    ) !== -1 && (
-                                        <Process
-                                            index={getProcessIndex(
-                                                match.params.processName
-                                            )}
-                                        />
-                                    )
+                                    displayProcess(match.params.processName)
                                 }
                             />
                             <Route>
