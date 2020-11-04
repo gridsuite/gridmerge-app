@@ -3,9 +3,8 @@
     "General": "Général",
     "theme": "Thème",
     "close": "Fermer",
-    "download": "Télécharger",
-    "available": "Disponible",
-    "validationSucceed": "Validation réussie",
-    "validationFailed": "Validation échoué",
-    "merged": "Fusionné"
+    "downloadCgm": "Télécharger CGM",
+    "igmReception": "Réception des IGM",
+    "imgMerged": "IGM mergés",
+    "cgmValid": "CGM validé"
 }

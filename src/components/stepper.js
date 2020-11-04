@@ -12,7 +12,6 @@ import Step from '@material-ui/core/Step';
 import StepLabel from '@material-ui/core/StepLabel';
 import IconButton from '@material-ui/core/IconButton';
 import Grid from '@material-ui/core/Grid';
-import WarningOutlinedIcon from '@material-ui/icons/WarningOutlined';
 import { FormattedMessage } from 'react-intl';
 import GetAppIcon from '@material-ui/icons/GetApp';
 import { getExportMergeUrl, getIgmStatus, IgmStatus } from '../utils/api';
@@ -21,22 +20,56 @@ import PropTypes from 'prop-types';
 const useStyles = makeStyles((theme) => ({
     stepperContainer: {
         position: 'absolute',
-        bottom: 0,
+        bottom: '15px',
     },
     downloadLabelDisabled: {
         color: '#b5b5b5',
+        display: 'block',
+        fontSize: '14px',
+        lineHeight: '1',
     },
-    downloadBtn: {
+    downloadLabelEnable: {
+        display: 'block',
+        fontSize: '14px',
+        lineHeight: '1',
+    },
+    downloadContainer: {
         textAlign: 'center',
+        marginLeft: '5px',
         backgroundColor: theme.palette.background.paper,
+    },
+    stepLabel: {
+        fontSize: '16px',
+    },
+    downloadIcon: {
+        fontSize: '50px',
+    },
+    downloadButton: {
+        padding: '3px',
+    },
+    iframe: {
+        visibility: 'hidden',
+        width: 0,
+        height: 0,
+    },
+    [theme.breakpoints.down('xs') && theme.breakpoints.down('sm')]: {
+        downloadContainer: {
+            minHeight: '120px',
+        },
     },
 }));
 
 const CustomStepper = withStyles({
     root: {
-        padding: '53px 25px 35px 25px;',
+        padding: '30px 15px 25px 15px',
     },
 })(Stepper);
+
+const CustomStepLabel = withStyles({
+    label: {
+        fontSize: '16px',
+    },
+})(StepLabel);
 
 const StepperWithStatus = (props) => {
     const DownloadIframe = 'downloadIframe';
@@ -44,7 +77,6 @@ const StepperWithStatus = (props) => {
     const [availableStep, setAvailableStep] = useState(false);
     const [validStep, setValidStep] = useState(false);
     const [mergedStep, setMergedStep] = useState(false);
-    const [invalidStep, setInvalidStep] = useState(false);
 
     const handleClickExport = () => {
         console.info('Downloading merge ' + props.merge.process + '...');
@@ -62,11 +94,12 @@ const StepperWithStatus = (props) => {
         );
     };
 
+    const allEqualValueArray = (arr) => arr.every((v) => v === arr[0]);
+
     const enableDisabledAllSteps = (value) => {
         setAvailableStep(value);
         setValidStep(value);
         setMergedStep(value);
-        setInvalidStep(false);
     };
 
     const getStepsStatus = (available, valid, merge) => {
@@ -77,24 +110,26 @@ const StepperWithStatus = (props) => {
 
     const stepper = useCallback(() => {
         if (props.merge) {
-            props.tsos.map((tso) => {
-                const status = getIgmStatus(tso, props.merge);
-                setInvalidStep(false);
-                if (status === IgmStatus.MERGED) {
-                    enableDisabledAllSteps(true);
-                } else {
-                    if (status === IgmStatus.AVAILABLE) {
-                        getStepsStatus(true, false, false);
-                    } else if (status === IgmStatus.VALID) {
-                        getStepsStatus(true, true, false);
-                    } else if (status === IgmStatus.INVALID) {
-                        setAvailableStep(true);
-                        setInvalidStep(true);
-                        setMergedStep(false);
-                    }
-                }
-                return status;
+            const allStatus = props.tsos.map((tso) => {
+                return getIgmStatus(tso, props.merge);
             });
+            if (allEqualValueArray(allStatus)) {
+                if (allStatus[allStatus.length - 1] === IgmStatus.MERGED) {
+                    enableDisabledAllSteps(true);
+                } else if (
+                    allStatus[allStatus.length - 1] === IgmStatus.VALID
+                ) {
+                    getStepsStatus(true, true, false);
+                }
+            } else if (
+                (allStatus.includes(IgmStatus.AVAILABLE) &&
+                    allStatus[allStatus.length - 1] === IgmStatus.AVAILABLE) ||
+                (allStatus.includes(IgmStatus.VALID) &&
+                    allStatus[allStatus.length - 1] === IgmStatus.VALID)
+            ) {
+                getStepsStatus(true, false, false);
+            }
+            // TODO : error cases
         } else {
             enableDisabledAllSteps(false);
         }
@@ -106,58 +141,55 @@ const StepperWithStatus = (props) => {
 
     return (
         <Grid container direction="row" className={classes.stepperContainer}>
-            <Grid item xs={12} md={10}>
+            <Grid item xs={12} md={2}></Grid>
+            <Grid item xs={12} md={7}>
                 <CustomStepper>
                     <Step active={availableStep}>
-                        <StepLabel>
-                            <FormattedMessage id="available" />
-                        </StepLabel>
+                        <CustomStepLabel className={classes.stepLabel}>
+                            <FormattedMessage id="igmReception" />
+                        </CustomStepLabel>
                     </Step>
                     <Step active={validStep}>
-                        {!invalidStep && (
-                            <StepLabel>
-                                <FormattedMessage id="validationSucceed" />
-                            </StepLabel>
-                        )}
-                        {invalidStep && (
-                            <StepLabel
-                                StepIconComponent={WarningOutlinedIcon}
-                                style={{ color: 'red' }}
-                            >
-                                <FormattedMessage id="validationFailed" />
-                            </StepLabel>
-                        )}
+                        <CustomStepLabel className={classes.stepLabel}>
+                            <FormattedMessage id="imgMerged" />
+                        </CustomStepLabel>
                     </Step>
                     <Step active={mergedStep}>
-                        <StepLabel>
-                            <FormattedMessage id="merged" />
-                        </StepLabel>
+                        <CustomStepLabel className={classes.stepLabel}>
+                            <FormattedMessage id="cgmValid" />
+                        </CustomStepLabel>
                     </Step>
                 </CustomStepper>
             </Grid>
-            <Grid item xs={12} md={2} className={classes.downloadBtn}>
+            <Grid item xs={12} md={1} className={classes.downloadContainer}>
                 <IconButton
                     aria-label="download"
-                    style={{ width: '50px' }}
+                    className={classes.downloadButton}
                     onClick={handleClickExport}
                     disabled={!mergedStep}
                 >
-                    <GetAppIcon fontSize="large" />
+                    <GetAppIcon
+                        fontSize="large"
+                        className={classes.downloadIcon}
+                    />
                 </IconButton>
-                <span
-                    className={!mergedStep ? classes.downloadLabelDisabled : ''}
-                    style={{ display: 'block' }}
-                >
-                    <FormattedMessage id="download" />
-                    <span> CGM</span>
-                </span>
                 <iframe
                     title="download"
                     id={DownloadIframe}
                     name={DownloadIframe}
-                    style={{ visibility: 'hidden', width: 0, height: 0 }}
+                    className={classes.iframe}
                 />
+                <span
+                    className={
+                        !mergedStep
+                            ? classes.downloadLabelDisabled
+                            : classes.downloadLabelEnable
+                    }
+                >
+                    <FormattedMessage id="downloadCgm" />
+                </span>
             </Grid>
+            <Grid item xs={12} md={2}></Grid>
         </Grid>
     );
 };

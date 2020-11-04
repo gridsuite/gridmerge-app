@@ -109,7 +109,7 @@ const MergeMap = (props) => {
         <div>
             <ComposableMap
                 style={{
-                    height: 'calc(100vh - 200px)',
+                    height: 'calc(100vh - 240px)',
                     width: '100%',
                     zIndex: '-1',
                 }}
