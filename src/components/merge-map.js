@@ -79,6 +79,11 @@ const MergeMap = (props) => {
     }
 
     useEffect(() => {
+        setData({
+            geographies: [],
+            center: DEFAULT_CENTER,
+            scale: DEFAULT_SCALE,
+        });
         if (props.tsos.length > 0) {
             Promise.all(
                 props.tsos.map((tso) => {
@@ -93,12 +98,6 @@ const MergeMap = (props) => {
                     center: computeCenter(bb),
                     scale: computeScale(bb),
                 });
-            });
-        } else {
-            setData({
-                geographies: [],
-                center: DEFAULT_CENTER,
-                scale: DEFAULT_SCALE,
             });
         }
     }, [props.tsos]);
