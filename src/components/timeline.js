@@ -13,7 +13,6 @@ import ClockIcon from '../images/clock.svg';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 
-// eslint-disable-next-line
 const useStyles = makeStyles((theme) => ({
     customSlider: {
         padding: '10px 20px 10px 20px',
@@ -144,7 +143,7 @@ const Timeline = (props) => {
                 ? marks[props.mergeIndex].value
                 : null
         );
-    }, [marks, props.mergeIndex]);
+    }, [marks, props.mergeIndex, props.merges.length]);
 
     const empty = props.merges.length === 0;
     const TheSlider = empty ? EmptySlider : ClockSlider;

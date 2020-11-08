@@ -96,7 +96,9 @@ export function fetchAppsAndUrls() {
  * Function return list of merges by process name, date min and date max
  */
 export function fetchMergesByProcessAndDate(process, minDate, maxDate) {
-    console.info('Fetching merge configs...');
+    console.info(
+        `Fetching merges from '${minDate.toISOString()}' to '${maxDate.toISOString()}'...`
+    );
     const fetchConfigsUrl =
         PREFIX_ORCHESTRATOR_QUERIES +
         '/v1/' +
@@ -154,7 +156,7 @@ export function getIgmStatus(tso, merge) {
 }
 
 export const MergeType = PropTypes.shape({
-    status: PropTypes.string.isRequired,
+    status: PropTypes.string,
     igms: PropTypes.arrayOf(
         PropTypes.shape({
             status: PropTypes.string.isRequired,

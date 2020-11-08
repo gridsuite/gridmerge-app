@@ -102,21 +102,33 @@ const App = () => {
 
     const [appsAndUrls, setAppsAndUrls] = React.useState([]);
 
-    let matchSilentRenewCallbackUrl = useRouteMatch({
-        path: '/silent-renew-callback',
-        exact: true,
+    // Can't use lazy initializer because useRouteMatch is a hook
+    const [initialMatchSilentRenewCallbackUrl] = useState(
+        useRouteMatch({
+            path: '/silent-renew-callback',
+            exact: true,
+        })
+    );
+
+    useEffect(() => {
+        document.addEventListener('contextmenu', (event) => {
+            event.preventDefault();
+        });
     });
 
     useEffect(() => {
         initializeAuthenticationProd(
             dispatch,
-            matchSilentRenewCallbackUrl != null,
+            initialMatchSilentRenewCallbackUrl != null,
             fetch('idpSettings.json')
         )
             .then((userManager) => {
                 setUserManager({ instance: userManager, error: null });
                 userManager.getUser().then((user) => {
-                    if (user == null) {
+                    if (
+                        user == null &&
+                        initialMatchSilentRenewCallbackUrl == null
+                    ) {
                         userManager.signinSilent().catch((error) => {
                             const oidcHackReloaded =
                                 'gridsuite-oidc-hack-reloaded';
@@ -139,8 +151,8 @@ const App = () => {
                 setUserManager({ instance: null, error: error.message });
                 console.debug('error when importing the idp settings');
             });
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+        // Note: initialMatchSilentRenewCallbackUrl and dispatch don't change
+    }, [initialMatchSilentRenewCallbackUrl, dispatch]);
 
     useEffect(() => {
         if (user !== null) {
@@ -152,8 +164,8 @@ const App = () => {
                 setAppsAndUrls(res);
             });
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [user]);
+        // Note: dispatch doesn't change
+    }, [dispatch, user]);
 
     function onLogoClicked() {
         history.replace('/');

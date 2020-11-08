@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 
 import PropTypes from 'prop-types';
 
@@ -22,8 +22,8 @@ import {
     updateProcessDate,
     updateSelectedMergeDate,
 } from '../redux/actions';
+import { store } from '../redux/store';
 import Timeline from './timeline';
-import moment from 'moment';
 import DownloadButton from './stepper';
 import CountryStatesList from './country-state-list';
 import Grid from '@material-ui/core/Grid';
@@ -47,61 +47,74 @@ const Process = (props) => {
 
     const dispatch = useDispatch();
 
-    function update(message, processDate) {
-        const headers = message.headers;
-        const mergeDate = new Date(headers.date);
-        // if same day as selected, reload merges from server
-        if (removeTime(mergeDate).getTime() === processDate.getTime()) {
-            loadMerges();
-        }
-    }
-
-    function connectNotifications(processName, processDate) {
-        console.info(`Connecting to notifications '${processName}'...`);
-
-        const ws = connectNotificationsWebsocket(processName);
-        ws.onmessage = function (event) {
-            const message = JSON.parse(event.data);
-            update(message, processDate);
-        };
-        ws.onclose = function (event) {
-            console.info(
-                `Disconnecting from notifications '${processName}'...`
+    const loadMerges = useCallback(
+        (date) => {
+            // load merges for the whole day so from 00:00 to 23:59
+            const maxDate = new Date(date);
+            maxDate.setMinutes(maxDate.getMinutes() + 60 * 24 - 1);
+            fetchMergesByProcessAndDate(config.process, date, maxDate).then(
+                (newMerges) => {
+                    dispatch(updateMerges(props.index, newMerges));
+                }
             );
-        };
-        ws.onerror = function (event) {
-            console.error('Unexpected Notification WebSocket error', event);
-        };
-        return ws;
-    }
+        },
+        [dispatch, config.process, props.index]
+    );
 
-    function loadMerges() {
-        // load merges for the whole day so from 00:00 to 23:59
-        const maxDate = new Date(date);
-        maxDate.setMinutes(maxDate.getMinutes() + 60 * 24 - 1);
-        fetchMergesByProcessAndDate(config.process, date, maxDate).then(
-            (newMerges) => {
-                dispatch(updateMerges(props.index, newMerges));
+    const update = useCallback(
+        (message) => {
+            const headers = message.headers;
+            const mergeDate = new Date(headers.date);
+
+            // we need to directly access the store to get current process date as the wensocket message handler cannot
+            // use react hooks
+            const state = store.getState();
+            const processDate = state.processes[props.index].date;
+
+            // if same day as selected, reload merges from server
+            if (removeTime(mergeDate).getTime() === processDate.getTime()) {
+                loadMerges(processDate);
             }
-        );
-    }
+        },
+        [props.index, loadMerges]
+    );
+
+    const connectNotifications = useCallback(
+        (processName) => {
+            console.info(`Connecting to notifications '${processName}'...`);
+
+            const ws = connectNotificationsWebsocket(processName);
+            ws.onmessage = function (event) {
+                const message = JSON.parse(event.data);
+                update(message);
+            };
+            ws.onclose = function (event) {
+                console.info(
+                    `Disconnecting from notifications '${processName}'...`
+                );
+            };
+            ws.onerror = function (event) {
+                console.error('Unexpected Notification WebSocket error', event);
+            };
+            return ws;
+        },
+        [update]
+    );
 
     useEffect(() => {
-        loadMerges();
+        loadMerges(date);
+    }, [config.process, date, loadMerges]);
 
-        const ws = connectNotifications(config.process, date);
+    useEffect(() => {
+        const ws = connectNotifications(config.process);
 
         return function () {
             ws.close();
         };
-    }, [props.index, date]);
+    }, [config.process, connectNotifications]);
 
     const handleDateChange = (date) => {
         dispatch(updateProcessDate(props.index, removeTime(date)));
-    };
-
-    const formatDate = (date) => {
-        return moment(date).format('YYYY-MM-DD');
     };
 
     const mergeIndexChangeHandler = (newMergeIndex) => {
@@ -120,7 +133,7 @@ const Process = (props) => {
                 new Date(merge.date).getTime() === selectedMergeDate.getTime()
         );
     }
-    if (!mergeIndex) {
+    if (!mergeIndex || mergeIndex === -1) {
         mergeIndex = 0;
     }
     const merge = merges[mergeIndex];
