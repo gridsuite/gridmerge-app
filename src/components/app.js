@@ -92,8 +92,6 @@ const App = () => {
 
     const [showParameters, setShowParameters] = useState(false);
 
-    const [tabId, setTabId] = useState();
-
     const history = useHistory();
 
     const dispatch = useDispatch();
@@ -103,6 +101,14 @@ const App = () => {
     const classes = useStyles();
 
     const [appsAndUrls, setAppsAndUrls] = React.useState([]);
+
+    const [selectedTabId, setSelectedTabId] = React.useState(false);
+
+    const matchProcess = useRouteMatch({
+        path: PREFIX_URL_PROCESSES + '/:processName',
+        exact: true,
+        sensitive: false,
+    });
 
     // Can't use lazy initializer because useRouteMatch is a hook
     const [initialMatchSilentRenewCallbackUrl] = useState(
@@ -169,6 +175,18 @@ const App = () => {
         // Note: dispatch doesn't change
     }, [dispatch, user]);
 
+    useEffect(() => {
+        let index =
+            matchProcess !== null
+                ? configs.findIndex(
+                      (c) => c.process === matchProcess.params.processName
+                  )
+                : -1;
+        index !== -1
+            ? setSelectedTabId(matchProcess.params.processName)
+            : setSelectedTabId(false);
+    }, [configs, matchProcess]);
+
     function onLogoClicked() {
         history.replace('/');
     }
@@ -185,22 +203,19 @@ const App = () => {
         history.push(PREFIX_URL_PROCESSES + '/' + newTabValue);
     }
 
-    function getDefaultProcess() {
-        return configs.length > 0 && configs[0].process;
-    }
-
     function getProcessIndex(processName) {
         return configs.findIndex((c) => c.process === processName);
     }
 
     function displayProcess(processName) {
         let index = getProcessIndex(processName);
-        if (index !== -1) {
-            setTabId(processName);
-        } else {
-            setTabId(getDefaultProcess());
-        }
-        return index !== -1 && <Process index={index} />;
+        return index !== -1 ? (
+            <Process index={index} />
+        ) : (
+            <h1>
+                <FormattedMessage id="PageNotFound" />{' '}
+            </h1>
+        );
     }
 
     return (
@@ -224,7 +239,7 @@ const App = () => {
                     appsAndUrls={appsAndUrls}
                 >
                     <Tabs
-                        value={tabId}
+                        value={selectedTabId}
                         indicatorColor="primary"
                         variant="scrollable"
                         scrollButtons="auto"
@@ -234,6 +249,7 @@ const App = () => {
                     >
                         {configs.map((config) => (
                             <Tab
+                                key={config.process}
                                 label={config.process}
                                 value={config.process}
                             />
