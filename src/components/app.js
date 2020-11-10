@@ -45,6 +45,8 @@ import { fetchAppsAndUrls, fetchMergeConfigs } from '../utils/api';
 import { ReactComponent as GridMergeLogoDark } from '../images/GridMerge_logo_dark.svg';
 import { ReactComponent as GridMergeLogoLight } from '../images/GridMerge_logo_light.svg';
 
+const PREFIX_URL_PROCESSES = '/processes';
+
 const lightTheme = createMuiTheme({
     palette: {
         type: 'light',
@@ -98,9 +100,15 @@ const App = () => {
 
     const classes = useStyles();
 
-    const [tabIndex, setTabIndex] = React.useState(0);
-
     const [appsAndUrls, setAppsAndUrls] = React.useState([]);
+
+    const [selectedTabId, setSelectedTabId] = React.useState(false);
+
+    const matchProcess = useRouteMatch({
+        path: PREFIX_URL_PROCESSES + '/:processName',
+        exact: true,
+        sensitive: false,
+    });
 
     // Can't use lazy initializer because useRouteMatch is a hook
     const [initialMatchSilentRenewCallbackUrl] = useState(
@@ -167,6 +175,18 @@ const App = () => {
         // Note: dispatch doesn't change
     }, [dispatch, user]);
 
+    useEffect(() => {
+        let index =
+            matchProcess !== null
+                ? configs.findIndex(
+                      (c) => c.process === matchProcess.params.processName
+                  )
+                : -1;
+        index !== -1
+            ? setSelectedTabId(matchProcess.params.processName)
+            : setSelectedTabId(false);
+    }, [configs, matchProcess]);
+
     function onLogoClicked() {
         history.replace('/');
     }
@@ -179,7 +199,24 @@ const App = () => {
         setShowParameters(false);
     }
 
-    const config = configs.length > 0 ? configs[tabIndex] : null;
+    function toggleTab(newTabValue) {
+        history.push(PREFIX_URL_PROCESSES + '/' + newTabValue);
+    }
+
+    function getProcessIndex(processName) {
+        return configs.findIndex((c) => c.process === processName);
+    }
+
+    function displayProcess(processName) {
+        let index = getProcessIndex(processName);
+        return index !== -1 ? (
+            <Process index={index} />
+        ) : (
+            <h1>
+                <FormattedMessage id="PageNotFound" />{' '}
+            </h1>
+        );
+    }
 
     return (
         <ThemeProvider theme={getMuiTheme(theme)}>
@@ -202,18 +239,21 @@ const App = () => {
                     appsAndUrls={appsAndUrls}
                 >
                     <Tabs
-                        value={tabIndex}
+                        value={selectedTabId}
                         indicatorColor="primary"
                         variant="scrollable"
                         scrollButtons="auto"
-                        onChange={(event, newValue) => setTabIndex(newValue)}
+                        onChange={(event, newValue) => toggleTab(newValue)}
                         aria-label="parameters"
                         className={classes.process}
                     >
-                        {Array.isArray(configs) &&
-                            configs.map((config) => (
-                                <Tab label={config.process} />
-                            ))}
+                        {configs.map((config) => (
+                            <Tab
+                                key={config.process}
+                                label={config.process}
+                                value={config.process}
+                            />
+                        ))}
                     </Tabs>
                 </TopBar>
                 <Parameters
@@ -223,8 +263,16 @@ const App = () => {
                 {user !== null ? (
                     <>
                         <Switch>
-                            <Route exact path="/">
-                                {config && <Process index={tabIndex} />}
+                            <Route exact path={'/'}>
+                                {configs.length > 0 && (
+                                    <Redirect
+                                        to={
+                                            PREFIX_URL_PROCESSES +
+                                            '/' +
+                                            configs[0].process
+                                        }
+                                    />
+                                )}
                             </Route>
                             <Route exact path="/sign-in-callback">
                                 <Redirect to={getPreLoginPath() || '/'} />
@@ -235,6 +283,13 @@ const App = () => {
                                     in.
                                 </h1>
                             </Route>
+                            <Route
+                                exact
+                                path={PREFIX_URL_PROCESSES + '/:processName'}
+                                render={({ match }) =>
+                                    displayProcess(match.params.processName)
+                                }
+                            />
                             <Route>
                                 <h1>
                                     <FormattedMessage id="PageNotFound" />{' '}
