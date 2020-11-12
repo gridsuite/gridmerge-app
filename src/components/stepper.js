@@ -135,7 +135,7 @@ const StepperWithStatus = (props) => {
 
     useEffect(() => {
         stepper();
-    }, [props, stepper]);
+    }, [stepper]);
 
     return (
         <Grid container direction="row" className={classes.stepperContainer}>
