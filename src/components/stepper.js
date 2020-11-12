@@ -122,10 +122,8 @@ const StepperWithStatus = (props) => {
                     getStepsStatus(true, true, false);
                 }
             } else if (
-                (allStatus.includes(IgmStatus.AVAILABLE) &&
-                    allStatus[allStatus.length - 1] === IgmStatus.AVAILABLE) ||
-                (allStatus.includes(IgmStatus.VALID) &&
-                    allStatus[allStatus.length - 1] === IgmStatus.VALID)
+                allStatus.includes(IgmStatus.AVAILABLE) ||
+                allStatus.includes(IgmStatus.VALID)
             ) {
                 getStepsStatus(true, false, false);
             }
@@ -137,7 +135,7 @@ const StepperWithStatus = (props) => {
 
     useEffect(() => {
         stepper();
-    }, [props.merge, stepper]);
+    }, [props, stepper]);
 
     return (
         <Grid container direction="row" className={classes.stepperContainer}>
