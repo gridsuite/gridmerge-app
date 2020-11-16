@@ -24,7 +24,7 @@ import {
 } from '../redux/actions';
 import { store } from '../redux/store';
 import Timeline from './timeline';
-import DownloadButton from './stepper';
+import StepperWithStatus from './stepper';
 import CountryStatesList from './country-state-list';
 import Grid from '@material-ui/core/Grid';
 import {
@@ -163,7 +163,7 @@ const Process = (props) => {
                     onMergeIndexChange={mergeIndexChangeHandler}
                 />
                 <MergeMap tsos={config.tsos} merge={merge} />
-                <DownloadButton merge={merge} />
+                <StepperWithStatus tsos={config.tsos} merge={merge} />
             </Grid>
             <Grid item xs={12} md={2} key="list">
                 <CountryStatesList tsos={config.tsos} merge={merge} />
