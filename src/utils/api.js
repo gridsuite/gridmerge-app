@@ -15,9 +15,7 @@ const PREFIX_NOTIFICATION_WS =
 const PREFIX_ORCHESTRATOR_QUERIES =
     process.env.REACT_APP_API_GATEWAY + '/merge';
 
-const PREFIX_APPS_URLS_QUERIES = process.env.REACT_APP_APPS_URLS;
-
-const ENV_VARIABLES = fetch('env.json');
+const APPS_METADATA_SERVER_URL = fetch('env.json');
 
 function getToken() {
     const state = store.getState();
@@ -85,15 +83,10 @@ export function getExportMergeUrl(process, date, timeZoneoffset) {
 
 export function fetchAppsAndUrls() {
     console.info(`Fetching apps and urls...`);
-    let url;
-    return ENV_VARIABLES.then((res) => res.json()).then((res) => {
-        if (res.isRunningInsideDockerCompose) {
-            url = PREFIX_APPS_URLS_QUERIES + '/dev-urls.json';
-        } else {
-            url = PREFIX_APPS_URLS_QUERIES + '/prod-urls.json';
-        }
-        console.log(url);
-        return backendFetch(url).then((response) => {
+    return APPS_METADATA_SERVER_URL.then((res) => res.json()).then((res) => {
+        return backendFetch(
+            res.appsMetadataServerUrl + '/apps-metadata.json'
+        ).then((response) => {
             return response.json();
         });
     });
