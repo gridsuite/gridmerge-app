@@ -3,5 +3,8 @@
     "General": "General",
     "theme": "Theme",
     "close": "Close",
-    "download": "Download"
+    "downloadCgm": "Download CGM",
+    "igmReception": "IGM uploading",
+    "imgMerged": "IGM merged",
+    "cgmValid": "CGM validated"
 }
