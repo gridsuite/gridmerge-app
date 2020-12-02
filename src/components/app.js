@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -24,7 +24,7 @@ import {
     ThemeProvider,
 } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import { initProcesses, LIGHT_THEME } from '../redux/actions';
+import { initProcesses, LIGHT_THEME, selectTheme } from '../redux/actions';
 
 import {
     AuthenticationRouter,
@@ -40,7 +40,12 @@ import Process from './process';
 import Parameters from './parameters';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
-import { fetchAppsAndUrls, fetchMergeConfigs } from '../utils/api';
+import {
+    connectNotificationsWsUpdateConfig,
+    fetchAppsAndUrls,
+    fetchConfigParameters,
+    fetchMergeConfigs,
+} from '../utils/api';
 
 import { ReactComponent as GridMergeLogoDark } from '../images/GridMerge_logo_dark.svg';
 import { ReactComponent as GridMergeLogoLight } from '../images/GridMerge_logo_light.svg';
@@ -174,6 +179,34 @@ const App = () => {
         }
         // Note: dispatch doesn't change
     }, [dispatch, user]);
+
+    const connectNotificationsUpdateConfig = useCallback(() => {
+        const ws = connectNotificationsWsUpdateConfig();
+
+        ws.onmessage = function (event) {
+            fetchConfigParameters().then((params) => {
+                dispatch(selectTheme(params.theme));
+            });
+        };
+        ws.onerror = function (event) {
+            console.error('Unexpected Notification WebSocket error', event);
+        };
+        return ws;
+    }, [dispatch]);
+
+    useEffect(() => {
+        if (user !== null) {
+            fetchConfigParameters().then((params) => {
+                console.debug('received UI parameters :');
+                console.debug(params);
+                dispatch(selectTheme(params.theme));
+            });
+            const ws = connectNotificationsUpdateConfig();
+            return function () {
+                ws.close();
+            };
+        }
+    }, [user, dispatch, connectNotificationsUpdateConfig]);
 
     useEffect(() => {
         let index =

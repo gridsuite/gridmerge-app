@@ -7,8 +7,6 @@
 
 import { createReducer } from '@reduxjs/toolkit';
 
-import { getLocalStorageTheme, saveLocalStorageTheme } from './local-storage';
-
 import {
     INIT_PROCESSES,
     SELECT_THEME,
@@ -21,7 +19,7 @@ import { SIGNIN_CALLBACK_ERROR, USER } from '@gridsuite/commons-ui';
 import { removeTime } from '../utils/api';
 
 const initialState = {
-    theme: getLocalStorageTheme(),
+    theme: 'Dark',
     user: null,
     signInCallbackError: null,
     configs: [],
@@ -31,7 +29,6 @@ const initialState = {
 export const reducer = createReducer(initialState, {
     [SELECT_THEME]: (state, action) => {
         state.theme = action.theme;
-        saveLocalStorageTheme(state.theme);
     },
 
     [USER]: (state, action) => {
