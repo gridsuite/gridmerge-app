@@ -17,9 +17,10 @@ import {
 
 import { SIGNIN_CALLBACK_ERROR, USER } from '@gridsuite/commons-ui';
 import { removeTime } from '../utils/api';
+import { getLocalStorageTheme, saveLocalStorageTheme } from './local-storage';
 
 const initialState = {
-    theme: 'Dark',
+    theme: getLocalStorageTheme(),
     user: null,
     signInCallbackError: null,
     configs: [],
@@ -29,6 +30,7 @@ const initialState = {
 export const reducer = createReducer(initialState, {
     [SELECT_THEME]: (state, action) => {
         state.theme = action.theme;
+        saveLocalStorageTheme(state.theme);
     },
 
     [USER]: (state, action) => {
