@@ -45,10 +45,12 @@ import {
     fetchAppsAndUrls,
     fetchConfigParameters,
     fetchMergeConfigs,
+    updateConfigParameter,
 } from '../utils/api';
 
 import { ReactComponent as GridMergeLogoDark } from '../images/GridMerge_logo_dark.svg';
 import { ReactComponent as GridMergeLogoLight } from '../images/GridMerge_logo_light.svg';
+import { PARAMS_THEME_KEY } from '../utils/config-params';
 
 const PREFIX_URL_PROCESSES = '/processes';
 
@@ -185,7 +187,11 @@ const App = () => {
 
         ws.onmessage = function (event) {
             fetchConfigParameters().then((params) => {
-                dispatch(selectTheme(params.theme));
+                params.forEach((param) => {
+                    if (param.key === PARAMS_THEME_KEY) {
+                        dispatch(selectTheme(param.value));
+                    }
+                });
             });
         };
         ws.onerror = function (event) {
@@ -199,7 +205,19 @@ const App = () => {
             fetchConfigParameters().then((params) => {
                 console.debug('received UI parameters :');
                 console.debug(params);
-                dispatch(selectTheme(params.theme));
+                //if it's the user first connexion we want to set the default parameters in the database
+                if (params.length === 0) {
+                    let configJson = JSON.stringify({
+                        key: PARAMS_THEME_KEY,
+                        value: 'Dark',
+                    });
+                    updateConfigParameter(configJson);
+                }
+                params.forEach((param) => {
+                    if (param.key === PARAMS_THEME_KEY) {
+                        dispatch(selectTheme(param.value));
+                    }
+                });
             });
             const ws = connectNotificationsUpdateConfig();
             return function () {
