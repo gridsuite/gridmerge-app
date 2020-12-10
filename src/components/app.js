@@ -45,7 +45,7 @@ import {
     fetchAppsAndUrls,
     fetchConfigParameters,
     fetchMergeConfigs,
-    updateConfigParameter,
+    updateConfigParameters,
 } from '../utils/api';
 
 import { ReactComponent as GridMergeLogoDark } from '../images/GridMerge_logo_dark.svg';
@@ -188,7 +188,7 @@ const App = () => {
         ws.onmessage = function (event) {
             fetchConfigParameters().then((params) => {
                 params.forEach((param) => {
-                    if (param.key === PARAMS_THEME_KEY) {
+                    if (param.name === PARAMS_THEME_KEY) {
                         dispatch(selectTheme(param.value));
                     }
                 });
@@ -207,14 +207,16 @@ const App = () => {
                 console.debug(params);
                 //if it's the user first connexion we want to set the default parameters in the database
                 if (params.length === 0) {
-                    let configJson = JSON.stringify({
-                        key: PARAMS_THEME_KEY,
-                        value: 'Dark',
-                    });
-                    updateConfigParameter(configJson);
+                    let configJson = JSON.stringify([
+                        {
+                            name: PARAMS_THEME_KEY,
+                            value: 'Dark',
+                        },
+                    ]);
+                    updateConfigParameters(configJson);
                 }
                 params.forEach((param) => {
-                    if (param.key === PARAMS_THEME_KEY) {
+                    if (param.name === PARAMS_THEME_KEY) {
                         dispatch(selectTheme(param.value));
                     }
                 });

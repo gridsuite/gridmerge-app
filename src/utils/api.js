@@ -86,7 +86,7 @@ export function fetchConfigParameters() {
     });
 }
 
-export function updateConfigParameter(json) {
+export function updateConfigParameters(json) {
     console.info('updating parameters : ' + json.toString());
     const updateParams = PREFIX_CONFIG_QUERIES + '/v1/parameters';
     backendFetch(updateParams, {
