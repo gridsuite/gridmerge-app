@@ -6,5 +6,13 @@
     "downloadCgm": "Télécharger CGM",
     "igmReception": "Réception des IGM",
     "imgMerged": "IGM mergés",
-    "cgmValid": "CGM validé"
+    "cgmValid": "CGM validé",
+
+    "exportNetwork": "Exporter le réseau",
+    "export": "Exporter",
+    "format": "Format",
+    "exportFormat": "Format de l'export",
+    "exportStudyErrorMsg": "Le format de l'export n'est pas spécifié",
+
+    "cancel": "Annuler"
 }

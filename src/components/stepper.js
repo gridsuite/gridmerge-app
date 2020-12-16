@@ -12,9 +12,10 @@ import Step from '@material-ui/core/Step';
 import StepLabel from '@material-ui/core/StepLabel';
 import IconButton from '@material-ui/core/IconButton';
 import Grid from '@material-ui/core/Grid';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import GetAppIcon from '@material-ui/icons/GetApp';
 import { getExportMergeUrl, getIgmStatus, IgmStatus } from '../utils/api';
+import { ExportDialog } from '../utils/dialogs';
 import PropTypes from 'prop-types';
 
 const useStyles = makeStyles((theme) => ({
@@ -78,20 +79,19 @@ const StepperWithStatus = (props) => {
     const [validStep, setValidStep] = useState(false);
     const [mergedStep, setMergedStep] = useState(false);
 
-    const handleClickExport = () => {
-        console.info('Downloading merge ' + props.merge.process + '...');
-        // The getTimezoneOffset() method returns the difference, in minutes, between UTC and local time.
-        // The offset is positive if the local timezone is behind UTC and negative if it is ahead
-        // On service side, the opposite behaviour is expected (offset is expected to be negative if the local timezone is behind UTC and positive if it is ahead)
-        // This explains the "-" sign to get the expected offset value for the service
-        window.open(
-            getExportMergeUrl(
-                props.merge.process,
-                new Date(props.merge.date).toISOString(),
-                -new Date().getTimezoneOffset()
-            ),
-            DownloadIframe
-        );
+    const [openExportDialog, setOpenExport] = React.useState(false);
+
+    const handleCloseExport = () => {
+        setOpenExport(false);
+    };
+
+    const handleClickExport = (url) => {
+        window.open(url, DownloadIframe);
+        handleCloseExport();
+    };
+
+    const handleOpenExport = () => {
+        setOpenExport(true);
     };
 
     const allEqualValueArray = (arr) => arr.every((v) => v === arr[0]);
@@ -163,7 +163,7 @@ const StepperWithStatus = (props) => {
                 <IconButton
                     aria-label="download"
                     className={classes.downloadButton}
-                    onClick={handleClickExport}
+                    onClick={handleOpenExport}
                     disabled={!mergedStep}
                 >
                     <GetAppIcon
@@ -188,6 +188,19 @@ const StepperWithStatus = (props) => {
                 </span>
             </Grid>
             <Grid item xs={12} md={2}></Grid>
+            <ExportDialog
+                open={openExportDialog}
+                onClose={handleCloseExport}
+                onClick={handleClickExport}
+                url={props.merge === undefined ? '' : getExportMergeUrl(
+                    props.merge.process,
+                    new Date(props.merge.date).toISOString(),
+                    -new Date().getTimezoneOffset()
+                )}
+                process={props.merge === undefined ? '' :props.merge.process}
+                date={props.merge === undefined ? '' :props.merge.date}
+                title={useIntl().formatMessage({ id: 'exportNetwork' })}
+            />
         </Grid>
     );
 };
