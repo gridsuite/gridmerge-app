@@ -6,5 +6,7 @@
     "downloadCgm": "Download CGM",
     "igmReception": "IGM uploading",
     "imgMerged": "IGM merged",
-    "cgmValid": "CGM validated"
+    "cgmValid": "CGM validated",
+    "timelineLabels": "Display labels diagonally",
+    "pageNotFound": "Page not found"
 }

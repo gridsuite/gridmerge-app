@@ -16,3 +16,17 @@ export const getLocalStorageTheme = () => {
 export const saveLocalStorageTheme = (theme) => {
     localStorage.setItem(LOCAL_STORAGE_THEME_KEY, theme);
 };
+
+export const getLocalStorageBoolean = (key, defValue) => {
+    const value = localStorage.getItem(key) || defValue;
+    return value === 'true';
+};
+
+const LOCAL_STORAGE_TIMELINE_LABELS_KEY = 'TIMELINE_LABELS';
+
+export const getLocalStorageTimelineLabels = () =>
+    getLocalStorageBoolean(LOCAL_STORAGE_TIMELINE_LABELS_KEY, 'true');
+
+export const saveLocalStorageTimelineLabels = (useName) => {
+    localStorage.setItem(LOCAL_STORAGE_TIMELINE_LABELS_KEY, useName);
+};

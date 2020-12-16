@@ -25,8 +25,14 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 import Typography from '@material-ui/core/Typography';
+import Switch from '@material-ui/core/Switch';
 
-import { DARK_THEME, LIGHT_THEME, selectTheme } from '../redux/actions';
+import {
+    DARK_THEME,
+    LIGHT_THEME,
+    selectTheme,
+    timelineLabels,
+} from '../redux/actions';
 
 const useStyles = makeStyles((theme) => ({
     controlItem: {
@@ -46,9 +52,15 @@ const Parameters = ({ showParameters, hideParameters }) => {
 
     const theme = useSelector((state) => state.theme);
 
+    const displayTimelineLabels = useSelector((state) => state.timelineLabels);
+
     const handleChangeTheme = (event) => {
         const theme = event.target.value;
         dispatch(selectTheme(theme));
+    };
+
+    const onChangeSwitchTimelineLabels = () => {
+        dispatch(timelineLabels());
     };
 
     function TabPanel(props) {
@@ -91,6 +103,22 @@ const Parameters = ({ showParameters, hideParameters }) => {
                             label={LIGHT_THEME}
                         />
                     </RadioGroup>
+                </Grid>
+                <Grid item xs={6}>
+                    <Typography component="span" variant="body1">
+                        <Box fontWeight="fontWeightBold" m={1}>
+                            <FormattedMessage id="timelineLabels" />:
+                        </Box>
+                    </Typography>
+                </Grid>
+                <Grid item container xs={6} className={classes.controlItem}>
+                    <Switch
+                        checked={displayTimelineLabels}
+                        onChange={onChangeSwitchTimelineLabels}
+                        value={displayTimelineLabels}
+                        color="primary"
+                        inputProps={{ 'aria-label': 'primary checkbox' }}
+                    />
                 </Grid>
             </Grid>
         );
