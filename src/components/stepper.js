@@ -86,6 +86,11 @@ const StepperWithStatus = (props) => {
     };
 
     const handleClickExport = (url) => {
+        console.info('Downloading merge ' + props.merge.process + '...');
+        // The getTimezoneOffset() method returns the difference, in minutes, between UTC and local time.
+        // The offset is positive if the local timezone is behind UTC and negative if it is ahead
+        // On service side, the opposite behaviour is expected (offset is expected to be negative if the local timezone is behind UTC and positive if it is ahead)
+        // This explains the "-" sign to get the expected offset value for the service
         window.open(url, DownloadIframe);
         handleCloseExport();
     };

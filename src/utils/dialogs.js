@@ -70,20 +70,15 @@ const ExportDialog = ({ open, onClose, onClick, process, date, title }) => {
     };
 
     const handleChange = (event) => {
-        console.log('BEGIN Download url =>', downloadUrl);
         let selected = event.target.value;
-        console.log('selected=>', selected);
         setSelectedFormat(selected);
-        console.log('selectedFormat=>', selectedFormat);
         const url = getExportMergeUrl(
             process,
             new Date(date).toISOString(),
             -new Date().getTimezoneOffset(),
             selected
         );
-        console.log('BUILD URL =>', url);
         setDownloadUrl(url);
-        console.log('END Download url =>', downloadUrl);
     };
 
     const classes = useStyles();
