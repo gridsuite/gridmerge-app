@@ -77,7 +77,8 @@ export function getExportMergeUrl(process, date, timeZoneoffset, format) {
         process +
         '/' +
         date +
-        '/export/' + format;
+        '/export/' +
+        format;
     return getUrlWithToken(url) + '&timeZoneOffset=' + timeZoneoffset;
 }
 

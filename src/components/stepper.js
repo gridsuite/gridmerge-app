@@ -197,13 +197,17 @@ const StepperWithStatus = (props) => {
                 open={openExportDialog}
                 onClose={handleCloseExport}
                 onClick={handleClickExport}
-                url={props.merge === undefined ? '' : getExportMergeUrl(
-                    props.merge.process,
-                    new Date(props.merge.date).toISOString(),
-                    -new Date().getTimezoneOffset()
-                )}
-                process={props.merge === undefined ? '' :props.merge.process}
-                date={props.merge === undefined ? '' :props.merge.date}
+                url={
+                    props.merge === undefined
+                        ? ''
+                        : getExportMergeUrl(
+                              props.merge.process,
+                              new Date(props.merge.date).toISOString(),
+                              -new Date().getTimezoneOffset()
+                          )
+                }
+                process={props.merge === undefined ? '' : props.merge.process}
+                date={props.merge === undefined ? '' : props.merge.date}
                 title={useIntl().formatMessage({ id: 'exportNetwork' })}
             />
         </Grid>

@@ -14,7 +14,7 @@ import Button from '@material-ui/core/Button';
 import FormControl from '@material-ui/core/FormControl';
 import MenuItem from '@material-ui/core/MenuItem';
 import PropTypes from 'prop-types';
-import React, { useEffect } from 'react';
+import React from 'react';
 import Select from '@material-ui/core/Select';
 import InputLabel from '@material-ui/core/InputLabel';
 import makeStyles from '@material-ui/core/styles/makeStyles';
@@ -33,7 +33,9 @@ import { getExportMergeUrl } from './api';
  */
 const ExportDialog = ({ open, onClose, onClick, process, date, title }) => {
     const availableFormats = ['CGMES', 'XIIDM'];
-    const [selectedFormat, setSelectedFormat] = React.useState(availableFormats);
+    const [selectedFormat, setSelectedFormat] = React.useState(
+        availableFormats
+    );
     const [loading, setLoading] = React.useState(false);
     const [downloadUrl, setDownloadUrl] = React.useState('');
     const [exportStudyErr, setExportStudyErr] = React.useState('');
