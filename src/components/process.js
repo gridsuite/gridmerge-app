@@ -33,6 +33,7 @@ import {
 } from '@material-ui/pickers';
 import 'date-fns';
 import DateFnsUtils from '@date-io/date-fns';
+import { useSnackbar } from 'notistack';
 
 const Process = (props) => {
     const config = useSelector((state) => state.configs[props.index]);
@@ -47,18 +48,24 @@ const Process = (props) => {
 
     const dispatch = useDispatch();
 
+    const { enqueueSnackbar } = useSnackbar();
+
     const loadMerges = useCallback(
         (date) => {
             // load merges for the whole day so from 00:00 to 23:59
             const maxDate = new Date(date);
             maxDate.setMinutes(maxDate.getMinutes() + 60 * 24 - 1);
-            fetchMergesByProcessAndDate(config.process, date, maxDate).then(
-                (newMerges) => {
+            fetchMergesByProcessAndDate(config.process, date, maxDate)
+                .then((newMerges) => {
                     dispatch(updateMerges(props.index, newMerges));
-                }
-            );
+                })
+                .catch((error) => {
+                    enqueueSnackbar(error.message, {
+                        variant: 'error',
+                    });
+                });
         },
-        [dispatch, config.process, props.index]
+        [dispatch, config.process, props.index, enqueueSnackbar]
     );
 
     const update = useCallback(
@@ -95,10 +102,11 @@ const Process = (props) => {
             };
             ws.onerror = function (event) {
                 console.error('Unexpected Notification WebSocket error', event);
+                enqueueSnackbar(event, { variant: 'error' });
             };
             return ws;
         },
-        [update]
+        [update, enqueueSnackbar]
     );
 
     useEffect(() => {

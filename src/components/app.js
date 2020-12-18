@@ -32,6 +32,7 @@ import {
     initializeAuthenticationProd,
     logout,
     TopBar,
+    SnackbarProvider,
 } from '@gridsuite/commons-ui';
 import { FormattedMessage } from 'react-intl';
 
@@ -220,93 +221,99 @@ const App = () => {
 
     return (
         <ThemeProvider theme={getMuiTheme(theme)}>
-            <React.Fragment>
-                <CssBaseline />
-                <TopBar
-                    appName="Merge"
-                    appColor="#2D9BF0"
-                    appLogo={
-                        theme === LIGHT_THEME ? (
-                            <GridMergeLogoLight />
-                        ) : (
-                            <GridMergeLogoDark />
-                        )
-                    }
-                    onParametersClick={() => showParametersClicked()}
-                    onLogoutClick={() => logout(dispatch, userManager.instance)}
-                    onLogoClick={() => onLogoClicked()}
-                    user={user}
-                    appsAndUrls={appsAndUrls}
-                >
-                    <Tabs
-                        value={selectedTabId}
-                        indicatorColor="primary"
-                        variant="scrollable"
-                        scrollButtons="auto"
-                        onChange={(event, newValue) => toggleTab(newValue)}
-                        aria-label="parameters"
-                        className={classes.process}
+            <SnackbarProvider hideIconVariant={false}>
+                <React.Fragment>
+                    <CssBaseline />
+                    <TopBar
+                        appName="Merge"
+                        appColor="#2D9BF0"
+                        appLogo={
+                            theme === LIGHT_THEME ? (
+                                <GridMergeLogoLight />
+                            ) : (
+                                <GridMergeLogoDark />
+                            )
+                        }
+                        onParametersClick={() => showParametersClicked()}
+                        onLogoutClick={() =>
+                            logout(dispatch, userManager.instance)
+                        }
+                        onLogoClick={() => onLogoClicked()}
+                        user={user}
+                        appsAndUrls={appsAndUrls}
                     >
-                        {configs.map((config) => (
-                            <Tab
-                                key={config.process}
-                                label={config.process}
-                                value={config.process}
-                            />
-                        ))}
-                    </Tabs>
-                </TopBar>
-                <Parameters
-                    showParameters={showParameters}
-                    hideParameters={hideParameters}
-                />
-                {user !== null ? (
-                    <>
-                        <Switch>
-                            <Route exact path={'/'}>
-                                {configs.length > 0 && (
-                                    <Redirect
-                                        to={
-                                            PREFIX_URL_PROCESSES +
-                                            '/' +
-                                            configs[0].process
-                                        }
-                                    />
-                                )}
-                            </Route>
-                            <Route exact path="/sign-in-callback">
-                                <Redirect to={getPreLoginPath() || '/'} />
-                            </Route>
-                            <Route exact path="/logout-callback">
-                                <h1>
-                                    Error: logout failed; you are still logged
-                                    in.
-                                </h1>
-                            </Route>
-                            <Route
-                                exact
-                                path={PREFIX_URL_PROCESSES + '/:processName'}
-                                render={({ match }) =>
-                                    displayProcess(match.params.processName)
-                                }
-                            />
-                            <Route>
-                                <h1>
-                                    <FormattedMessage id="PageNotFound" />{' '}
-                                </h1>
-                            </Route>
-                        </Switch>
-                    </>
-                ) : (
-                    <AuthenticationRouter
-                        userManager={userManager}
-                        signInCallbackError={signInCallbackError}
-                        dispatch={dispatch}
-                        history={history}
-                        location={location}
+                        <Tabs
+                            value={selectedTabId}
+                            indicatorColor="primary"
+                            variant="scrollable"
+                            scrollButtons="auto"
+                            onChange={(event, newValue) => toggleTab(newValue)}
+                            aria-label="parameters"
+                            className={classes.process}
+                        >
+                            {configs.map((config) => (
+                                <Tab
+                                    key={config.process}
+                                    label={config.process}
+                                    value={config.process}
+                                />
+                            ))}
+                        </Tabs>
+                    </TopBar>
+                    <Parameters
+                        showParameters={showParameters}
+                        hideParameters={hideParameters}
                     />
-                )}
-            </React.Fragment>
+                    {user !== null ? (
+                        <>
+                            <Switch>
+                                <Route exact path={'/'}>
+                                    {configs.length > 0 && (
+                                        <Redirect
+                                            to={
+                                                PREFIX_URL_PROCESSES +
+                                                '/' +
+                                                configs[0].process
+                                            }
+                                        />
+                                    )}
+                                </Route>
+                                <Route exact path="/sign-in-callback">
+                                    <Redirect to={getPreLoginPath() || '/'} />
+                                </Route>
+                                <Route exact path="/logout-callback">
+                                    <h1>
+                                        Error: logout failed; you are still
+                                        logged in.
+                                    </h1>
+                                </Route>
+                                <Route
+                                    exact
+                                    path={
+                                        PREFIX_URL_PROCESSES + '/:processName'
+                                    }
+                                    render={({ match }) =>
+                                        displayProcess(match.params.processName)
+                                    }
+                                />
+                                <Route>
+                                    <h1>
+                                        <FormattedMessage id="PageNotFound" />{' '}
+                                    </h1>
+                                </Route>
+                            </Switch>
+                        </>
+                    ) : (
+                        <AuthenticationRouter
+                            userManager={userManager}
+                            signInCallbackError={signInCallbackError}
+                            dispatch={dispatch}
+                            history={history}
+                            location={location}
+                        />
+                    )}
+                </React.Fragment>
+            </SnackbarProvider>
         </ThemeProvider>
     );
 };
