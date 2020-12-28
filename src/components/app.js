@@ -38,8 +38,10 @@ import { FormattedMessage } from 'react-intl';
 import Process from './process';
 
 import Parameters from './parameters';
+import ConfigurationWorkflows from './configuration-workflows';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
+import Button from '@material-ui/core/Button';
 import { fetchAppsAndUrls, fetchMergeConfigs } from '../utils/api';
 
 import { ReactComponent as GridMergeLogoDark } from '../images/GridMerge_logo_dark.svg';
@@ -73,6 +75,10 @@ const useStyles = makeStyles(() => ({
     process: {
         marginLeft: 18,
     },
+    btnConfigurationWorkflows: {
+        position: 'absolute',
+        right: '185px',
+    },
 }));
 
 const noUserManager = { instance: null, error: null };
@@ -91,6 +97,11 @@ const App = () => {
     const [userManager, setUserManager] = useState(noUserManager);
 
     const [showParameters, setShowParameters] = useState(false);
+
+    const [
+        showConfigurationWorkflows,
+        setShowConfigurationWorkflows,
+    ] = useState(false);
 
     const history = useHistory();
 
@@ -213,10 +224,14 @@ const App = () => {
             <Process index={index} />
         ) : (
             <h1>
-                <FormattedMessage id="PageNotFound" />{' '}
+                <FormattedMessage id="pageNotFound" />{' '}
             </h1>
         );
     }
+
+    const showPopupConfigurationWorkflows = () => {
+        setShowConfigurationWorkflows(true);
+    };
 
     return (
         <ThemeProvider theme={getMuiTheme(theme)}>
@@ -255,6 +270,19 @@ const App = () => {
                             />
                         ))}
                     </Tabs>
+                    {user && (
+                        <div className={classes.btnConfigurationWorkflows}>
+                            <Button onClick={showPopupConfigurationWorkflows}>
+                                <FormattedMessage id="configurationWorkflowsLink" />
+                            </Button>
+                            <ConfigurationWorkflows
+                                open={showConfigurationWorkflows}
+                                onClose={() =>
+                                    setShowConfigurationWorkflows(false)
+                                }
+                            />
+                        </div>
+                    )}
                 </TopBar>
                 <Parameters
                     showParameters={showParameters}
@@ -292,7 +320,7 @@ const App = () => {
                             />
                             <Route>
                                 <h1>
-                                    <FormattedMessage id="PageNotFound" />{' '}
+                                    <FormattedMessage id="pageNotFound" />{' '}
                                 </h1>
                             </Route>
                         </Switch>

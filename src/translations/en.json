@@ -6,5 +6,16 @@
     "downloadCgm": "Download CGM",
     "igmReception": "IGM uploading",
     "imgMerged": "IGM merged",
-    "cgmValid": "CGM validated"
+    "cgmValid": "CGM validated",
+    "pageNotFound": "Page not found",
+    "configurationWorkflowsLink": "Configure workflows",
+    "configurationWorkflowsTitle": "Configuration merging workflows",
+    "cancel": "Cancel",
+    "save": "Save",
+    "area": "Area",
+    "addNewTso": "Add new TSO",
+    "addNewArea": "Add new area",
+    "tso": "TSOs",
+    "tsoLabelCode": "sourcingActor code",
+    "tsoLabelCodeOptional": "Alternative sourcingActor code (optional)"
 }
