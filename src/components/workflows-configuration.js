@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import Dialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
@@ -91,23 +91,39 @@ const CustomDialog = withStyles(() => ({
     },
 }))(Dialog);
 
-const ContainerTso = () => {
+const AreaTsos = ({ initialTsos, areaIndex, handleAreaTsosChanged }) => {
     const classes = useStyles();
     const intl = useIntl();
 
     const [fieldsTso, setFieldsTso] = useState([
-        { tsoCode: '', tsoCodeOptional: '' },
+        { sourcingActor: '', alternativeSourcingActor: '' },
     ]);
 
-    const handleChangeFieldTso = (index, event) => {
+    useEffect(() => {
+        handleAreaTsosChanged(areaIndex, fieldsTso);
+    }, [fieldsTso]);
+
+    useEffect(() => {
+        if (initialTsos.length !== 0) {
+            setFieldsTso(initialTsos);
+        }
+    }, [initialTsos]);
+
+    const handleChangeTsoSourcingActor = (index, event) => {
         const values = [...fieldsTso];
-        values[index].value = event.target.value;
+        values[index].sourcingActor = event.target.value;
+        setFieldsTso(values);
+    };
+
+    const handleChangeTsoAlternativeSourcingActor = (index, event) => {
+        const values = [...fieldsTso];
+        values[index].alternativeSourcingActor = event.target.value;
         setFieldsTso(values);
     };
 
     const handleAddFieldsTso = () => {
         const values = [...fieldsTso];
-        values.push({ value: null });
+        values.push({ sourcingActor: '', alternativeSourcingActor: '' });
         setFieldsTso(values);
     };
 
@@ -119,16 +135,16 @@ const ContainerTso = () => {
 
     return (
         <>
-            {fieldsTso.map((field, index) => (
+            {fieldsTso.map((tso, index) => (
                 <Grid container spacing={2} key={`${index}`}>
                     <Grid item={true} xs={12} sm={5}>
                         <TextField
                             placeholder={intl.formatMessage({
                                 id: 'tsoLabelCode',
                             })}
-                            value={field.tsoCode || ''}
+                            value={tso.sourcingActor}
                             onChange={(event) =>
-                                handleChangeFieldTso(index, event)
+                                handleChangeTsoSourcingActor(index, event)
                             }
                             InputProps={{
                                 classes: { input: classes.input },
@@ -140,9 +156,12 @@ const ContainerTso = () => {
                             placeholder={intl.formatMessage({
                                 id: 'tsoLabelCodeOptional',
                             })}
-                            value={field.tsoCodeOptional || ''}
+                            value={tso.alternativeSourcingActor}
                             onChange={(event) =>
-                                handleChangeFieldTso(index, event)
+                                handleChangeTsoAlternativeSourcingActor(
+                                    index,
+                                    event
+                                )
                             }
                             InputProps={{
                                 classes: { input: classes.input },
@@ -173,17 +192,41 @@ const ContainerTso = () => {
     );
 };
 
-const ContainerArea = () => {
+const AreasContainer = ({ handleAreasWorkFlowsChanged }) => {
     const classes = useStyles();
     const intl = useIntl();
 
-    const [fieldsArea, setFieldsArea] = useState([{ area: '' }]);
+    const [areasWorkFlows, setAreasWorkFlows] = useState([
+        { areaName: '', tsos: [] },
+    ]);
 
     function handleAddArea() {
-        const values = [...fieldsArea];
-        values.push({ value: null });
-        setFieldsArea(values);
+        const areasWorkFlowsCopy = [...areasWorkFlows];
+        areasWorkFlowsCopy.push({ areaName: '', tsos: [] });
+        setAreasWorkFlows(areasWorkFlowsCopy);
     }
+
+    function handleAreaNameChanged(e, index) {
+        const areasWorkFlowsCopy = [...areasWorkFlows];
+        areasWorkFlowsCopy[index].areaName = e.target.value;
+        setAreasWorkFlows(areasWorkFlowsCopy);
+    }
+
+    function handleDeleteArea(index) {
+        const areasWorkFlowsCopy = [...areasWorkFlows];
+        areasWorkFlowsCopy.splice(index, 1);
+        setAreasWorkFlows(areasWorkFlowsCopy);
+    }
+
+    function handleAreaTsosChanged(index, tsosList) {
+        const areasWorkFlowsCopy = [...areasWorkFlows];
+        areasWorkFlowsCopy[index].tsos = tsosList;
+        setAreasWorkFlows(areasWorkFlowsCopy);
+    }
+
+    useEffect(() => {
+        handleAreasWorkFlowsChanged(areasWorkFlows);
+    }, [areasWorkFlows]);
 
     return (
         <Grid>
@@ -205,28 +248,37 @@ const ContainerArea = () => {
                     <FormattedMessage id="tso" />
                 </Grid>
             </Grid>
-            {fieldsArea.map((field, index) => (
+            {areasWorkFlows.map((areasWorkFlow, index) => (
                 <Grid container className={classes.addNewTso} key={`${index}`}>
                     {/* Area input*/}
                     <Grid container item xs={12} sm={5}>
                         <Grid item xs={12} sm={8}>
                             <TextField
                                 placeholder={intl.formatMessage({ id: 'area' })}
-                                value={field.area || ''}
+                                value={areasWorkFlow.areaName}
                                 InputProps={{
                                     classes: { input: classes.input },
                                 }}
+                                onChange={(e) =>
+                                    handleAreaNameChanged(e, index)
+                                }
                             />
                         </Grid>
                         <Grid item xs={12} sm={3} align="center">
                             <IconButton>
-                                <DeleteIcon />
+                                <DeleteIcon
+                                    onClick={() => handleDeleteArea(index)}
+                                />
                             </IconButton>
                         </Grid>
                     </Grid>
                     {/* Tso inputs */}
                     <Grid container item xs={12} sm={7} spacing={1}>
-                        <ContainerTso />
+                        <AreaTsos
+                            initialTsos={areasWorkFlow.tsos}
+                            areaIndex={index}
+                            handleAreaTsosChanged={handleAreaTsosChanged}
+                        />
                     </Grid>
                 </Grid>
             ))}
@@ -247,13 +299,19 @@ const ContainerArea = () => {
     );
 };
 
-const ConfigurationWorkflows = ({ open, onClose }) => {
+const WorkflowsConfiguration = ({ open, onClose }) => {
+    const [areasWorkFlows, setAreasWorkFlows] = useState([]);
+
     const handleClose = () => {
         onClose();
     };
 
     const handleSave = () => {
-        console.log('save');
+        console.log('Save: ', areasWorkFlows);
+    };
+
+    const handleAreasWorkFlowsChanged = (areas) => {
+        setAreasWorkFlows(areas);
     };
 
     return (
@@ -262,7 +320,9 @@ const ConfigurationWorkflows = ({ open, onClose }) => {
                 <FormattedMessage id="configurationWorkflowsTitle" />
             </CustomDialogTitle>
             <DialogContent dividers>
-                <ContainerArea />
+                <AreasContainer
+                    handleAreasWorkFlowsChanged={handleAreasWorkFlowsChanged}
+                />
             </DialogContent>
             <DialogActions>
                 <Button autoFocus size="small" onClick={handleClose}>
@@ -276,8 +336,8 @@ const ConfigurationWorkflows = ({ open, onClose }) => {
     );
 };
 
-ConfigurationWorkflows.propTypes = {
+WorkflowsConfiguration.propTypes = {
     open: PropTypes.bool.isRequired,
     onClose: PropTypes.func.isRequired,
 };
-export default ConfigurationWorkflows;
+export default WorkflowsConfiguration;

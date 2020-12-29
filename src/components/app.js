@@ -38,7 +38,7 @@ import { FormattedMessage } from 'react-intl';
 import Process from './process';
 
 import Parameters from './parameters';
-import ConfigurationWorkflows from './configuration-workflows';
+import WorkflowsConfiguration from './workflows-configuration';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Button from '@material-ui/core/Button';
@@ -76,8 +76,8 @@ const useStyles = makeStyles(() => ({
         marginLeft: 18,
     },
     btnConfigurationWorkflows: {
-        position: 'absolute',
-        right: '185px',
+        //position: 'absolute',
+        //marginRight: '15px',
     },
 }));
 
@@ -275,7 +275,7 @@ const App = () => {
                             <Button onClick={showPopupConfigurationWorkflows}>
                                 <FormattedMessage id="configurationWorkflowsLink" />
                             </Button>
-                            <ConfigurationWorkflows
+                            <WorkflowsConfiguration
                                 open={showConfigurationWorkflows}
                                 onClose={() =>
                                     setShowConfigurationWorkflows(false)
