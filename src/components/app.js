@@ -74,10 +74,14 @@ const getMuiTheme = (theme) => {
 const useStyles = makeStyles(() => ({
     process: {
         marginLeft: 18,
+        float: 'left',
+    },
+    child: {
+        width : '100%',
     },
     btnConfigurationWorkflows: {
-        //position: 'absolute',
-        //marginRight: '15px',
+        float: 'right',
+        marginTop: 3,
     },
 }));
 
@@ -253,36 +257,38 @@ const App = () => {
                     user={user}
                     appsAndUrls={appsAndUrls}
                 >
-                    <Tabs
-                        value={selectedTabId}
-                        indicatorColor="primary"
-                        variant="scrollable"
-                        scrollButtons="auto"
-                        onChange={(event, newValue) => toggleTab(newValue)}
-                        aria-label="parameters"
-                        className={classes.process}
-                    >
-                        {configs.map((config) => (
-                            <Tab
-                                key={config.process}
-                                label={config.process}
-                                value={config.process}
-                            />
-                        ))}
-                    </Tabs>
-                    {user && (
-                        <div className={classes.btnConfigurationWorkflows}>
-                            <Button onClick={showPopupConfigurationWorkflows}>
-                                <FormattedMessage id="configurationWorkflowsLink" />
-                            </Button>
-                            <WorkflowsConfiguration
-                                open={showConfigurationWorkflows}
-                                onClose={() =>
-                                    setShowConfigurationWorkflows(false)
-                                }
-                            />
-                        </div>
-                    )}
+                    <div className={classes.child}>
+                        <Tabs
+                            value={selectedTabId}
+                            indicatorColor="primary"
+                            variant="scrollable"
+                            scrollButtons="auto"
+                            onChange={(event, newValue) => toggleTab(newValue)}
+                            aria-label="parameters"
+                            className={classes.process}
+                        >
+                            {configs.map((config) => (
+                                <Tab
+                                    key={config.process}
+                                    label={config.process}
+                                    value={config.process}
+                                />
+                            ))}
+                        </Tabs>
+                        {user && (
+                            <div className={classes.btnConfigurationWorkflows}>
+                                <Button onClick={showPopupConfigurationWorkflows}>
+                                    <FormattedMessage id="configurationWorkflowsLink" />
+                                </Button>
+                                <WorkflowsConfiguration
+                                    open={showConfigurationWorkflows}
+                                    onClose={() =>
+                                        setShowConfigurationWorkflows(false)
+                                    }
+                                />
+                            </div>
+                        )}
+                    </div>
                 </TopBar>
                 <Parameters
                     showParameters={showParameters}
