@@ -155,6 +155,31 @@ export function getIgmStatus(tso, merge) {
     }
 }
 
+export function addConfigs(configs) {
+    console.debug('Saving workflows ...');
+    const addConfigs = PREFIX_ORCHESTRATOR_QUERIES + '/v1/configs';
+    return backendFetch(addConfigs, {
+        method: 'post',
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(
+            configs.map((e) => {
+                return {
+                    process: e.areaName,
+                    tsos: e.tsos.map((tso) =>
+                        tso.sourcingActor === ''
+                            ? tso.alternativeSourcingActor
+                            : tso.sourcingActor
+                    ),
+                    runBalancesAdjustment: false,
+                };
+            })
+        ),
+    });
+}
+
 export const MergeType = PropTypes.shape({
     status: PropTypes.string,
     igms: PropTypes.arrayOf(

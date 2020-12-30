@@ -24,6 +24,9 @@ import PropTypes from 'prop-types';
 
 import { withStyles, makeStyles } from '@material-ui/core/styles';
 import { FormattedMessage } from 'react-intl';
+import { addConfigs, fetchMergeConfigs } from '../utils/api';
+import { initProcesses } from '../redux/actions';
+import { useDispatch } from 'react-redux';
 
 const useStyles = makeStyles(() => ({
     addNewTso: {
@@ -299,15 +302,21 @@ const AreasContainer = ({ handleAreasWorkFlowsChanged }) => {
     );
 };
 
-const WorkflowsConfiguration = ({ open, onClose }) => {
+const WorkFlowsConfiguration = ({ open, onClose }) => {
     const [areasWorkFlows, setAreasWorkFlows] = useState([]);
+    const dispatch = useDispatch();
 
     const handleClose = () => {
         onClose();
     };
 
     const handleSave = () => {
-        console.log('Save: ', areasWorkFlows);
+        addConfigs(areasWorkFlows).then(() => {
+            fetchMergeConfigs().then((configs) => {
+                dispatch(initProcesses(configs));
+                onClose();
+            });
+        });
     };
 
     const handleAreasWorkFlowsChanged = (areas) => {
@@ -336,8 +345,8 @@ const WorkflowsConfiguration = ({ open, onClose }) => {
     );
 };
 
-WorkflowsConfiguration.propTypes = {
+WorkFlowsConfiguration.propTypes = {
     open: PropTypes.bool.isRequired,
     onClose: PropTypes.func.isRequired,
 };
-export default WorkflowsConfiguration;
+export default WorkFlowsConfiguration;

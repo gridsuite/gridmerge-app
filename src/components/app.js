@@ -38,7 +38,7 @@ import { FormattedMessage } from 'react-intl';
 import Process from './process';
 
 import Parameters from './parameters';
-import WorkflowsConfiguration from './workflows-configuration';
+import WorkFlowsConfiguration from './work-flows-configuration';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Button from '@material-ui/core/Button';
@@ -77,7 +77,7 @@ const useStyles = makeStyles(() => ({
         float: 'left',
     },
     child: {
-        width : '100%',
+        width: '100%',
     },
     btnConfigurationWorkflows: {
         float: 'right',
@@ -277,10 +277,12 @@ const App = () => {
                         </Tabs>
                         {user && (
                             <div className={classes.btnConfigurationWorkflows}>
-                                <Button onClick={showPopupConfigurationWorkflows}>
+                                <Button
+                                    onClick={showPopupConfigurationWorkflows}
+                                >
                                     <FormattedMessage id="configurationWorkflowsLink" />
                                 </Button>
-                                <WorkflowsConfiguration
+                                <WorkFlowsConfiguration
                                     open={showConfigurationWorkflows}
                                     onClose={() =>
                                         setShowConfigurationWorkflows(false)
