@@ -26,7 +26,8 @@ import { withStyles, makeStyles } from '@material-ui/core/styles';
 import { FormattedMessage } from 'react-intl';
 import { addConfigs, fetchMergeConfigs } from '../utils/api';
 import { initProcesses } from '../redux/actions';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { useHistory } from 'react-router-dom';
 
 const useStyles = makeStyles(() => ({
     addNewTso: {
@@ -98,54 +99,46 @@ const AreaTsos = ({ initialTsos, areaIndex, handleAreaTsosChanged }) => {
     const classes = useStyles();
     const intl = useIntl();
 
-    const [fieldsTso, setFieldsTso] = useState([
-        { sourcingActor: '', alternativeSourcingActor: '' },
-    ]);
+    const [areaTsos, setAreaTsos] = useState(initialTsos);
 
     useEffect(() => {
-        handleAreaTsosChanged(areaIndex, fieldsTso);
-    }, [fieldsTso]);
-
-    useEffect(() => {
-        if (initialTsos.length !== 0) {
-            setFieldsTso(initialTsos);
-        }
-    }, [initialTsos]);
+        handleAreaTsosChanged(areaIndex, areaTsos);
+    }, [areaTsos]);
 
     const handleChangeTsoSourcingActor = (index, event) => {
-        const values = [...fieldsTso];
-        values[index].sourcingActor = event.target.value;
-        setFieldsTso(values);
+        const areaTsosCopy = [...areaTsos];
+        areaTsosCopy[index] = event.target.value;
+        setAreaTsos(areaTsosCopy);
     };
 
     const handleChangeTsoAlternativeSourcingActor = (index, event) => {
-        const values = [...fieldsTso];
-        values[index].alternativeSourcingActor = event.target.value;
-        setFieldsTso(values);
+        const areaTsosCopy = [...areaTsos];
+        areaTsosCopy[index] = event.target.value;
+        setAreaTsos(areaTsosCopy);
     };
 
-    const handleAddFieldsTso = () => {
-        const values = [...fieldsTso];
-        values.push({ sourcingActor: '', alternativeSourcingActor: '' });
-        setFieldsTso(values);
+    const handleAddAreaTso = () => {
+        const areaTsosCopy = [...areaTsos];
+        areaTsosCopy.push('');
+        setAreaTsos(areaTsosCopy);
     };
 
     const handleRemoveFieldsTso = (index) => {
-        const input = [...fieldsTso];
-        input.splice(index, 1);
-        setFieldsTso(input);
+        const areaTsosCopy = [...areaTsos];
+        areaTsosCopy.splice(index, 1);
+        setAreaTsos(areaTsosCopy);
     };
 
     return (
         <>
-            {fieldsTso.map((tso, index) => (
+            {areaTsos.map((tso, index) => (
                 <Grid container spacing={2} key={`${index}`}>
                     <Grid item={true} xs={12} sm={5}>
                         <TextField
                             placeholder={intl.formatMessage({
                                 id: 'tsoLabelCode',
                             })}
-                            value={tso.sourcingActor}
+                            value={tso}
                             onChange={(event) =>
                                 handleChangeTsoSourcingActor(index, event)
                             }
@@ -159,7 +152,7 @@ const AreaTsos = ({ initialTsos, areaIndex, handleAreaTsosChanged }) => {
                             placeholder={intl.formatMessage({
                                 id: 'tsoLabelCodeOptional',
                             })}
-                            value={tso.alternativeSourcingActor}
+                            value={tso}
                             onChange={(event) =>
                                 handleChangeTsoAlternativeSourcingActor(
                                     index,
@@ -182,7 +175,7 @@ const AreaTsos = ({ initialTsos, areaIndex, handleAreaTsosChanged }) => {
                 <Button
                     style={{ width: '100%' }}
                     variant="outlined"
-                    onClick={() => handleAddFieldsTso()}
+                    onClick={() => handleAddAreaTso()}
                 >
                     <AddCircleIcon
                         fontSize="default"
@@ -195,35 +188,46 @@ const AreaTsos = ({ initialTsos, areaIndex, handleAreaTsosChanged }) => {
     );
 };
 
-const AreasContainer = ({ handleAreasWorkFlowsChanged }) => {
+const AreasContainer = ({ handleAreasWorkFlowsChanged, initialConfigs }) => {
     const classes = useStyles();
     const intl = useIntl();
 
-    const [areasWorkFlows, setAreasWorkFlows] = useState([
-        { areaName: '', tsos: [] },
-    ]);
+    const [areasWorkFlows, setAreasWorkFlows] = useState(initialConfigs);
 
     function handleAddArea() {
         const areasWorkFlowsCopy = [...areasWorkFlows];
-        areasWorkFlowsCopy.push({ areaName: '', tsos: [] });
+        areasWorkFlowsCopy.push({
+            process: '',
+            tsos: [],
+            runBalancesAdjustment: false,
+        });
         setAreasWorkFlows(areasWorkFlowsCopy);
     }
 
     function handleAreaNameChanged(e, index) {
-        const areasWorkFlowsCopy = [...areasWorkFlows];
-        areasWorkFlowsCopy[index].areaName = e.target.value;
-        setAreasWorkFlows(areasWorkFlowsCopy);
+        const configsCopy = [...areasWorkFlows];
+        configsCopy[index] = {
+            process: e.target.value,
+            tsos: configsCopy[index].tsos,
+            runBalancesAdjustment: configsCopy[index].runBalancesAdjustment,
+        };
+        setAreasWorkFlows(configsCopy);
     }
 
     function handleDeleteArea(index) {
-        const areasWorkFlowsCopy = [...areasWorkFlows];
-        areasWorkFlowsCopy.splice(index, 1);
-        setAreasWorkFlows(areasWorkFlowsCopy);
+        const configsCopy = [...areasWorkFlows];
+        configsCopy.splice(index, 1);
+        setAreasWorkFlows(configsCopy);
     }
 
     function handleAreaTsosChanged(index, tsosList) {
         const areasWorkFlowsCopy = [...areasWorkFlows];
-        areasWorkFlowsCopy[index].tsos = tsosList;
+        areasWorkFlowsCopy[index] = {
+            process: areasWorkFlowsCopy[index].process,
+            tsos: tsosList,
+            runBalancesAdjustment:
+                areasWorkFlowsCopy[index].runBalancesAdjustment,
+        };
         setAreasWorkFlows(areasWorkFlowsCopy);
     }
 
@@ -258,7 +262,7 @@ const AreasContainer = ({ handleAreasWorkFlowsChanged }) => {
                         <Grid item xs={12} sm={8}>
                             <TextField
                                 placeholder={intl.formatMessage({ id: 'area' })}
-                                value={areasWorkFlow.areaName}
+                                value={areasWorkFlow.process}
                                 InputProps={{
                                     classes: { input: classes.input },
                                 }}
@@ -304,17 +308,21 @@ const AreasContainer = ({ handleAreasWorkFlowsChanged }) => {
 
 const WorkFlowsConfiguration = ({ open, onClose }) => {
     const [areasWorkFlows, setAreasWorkFlows] = useState([]);
+    const configs = useSelector((state) => state.configs);
     const dispatch = useDispatch();
+    const history = useHistory();
 
     const handleClose = () => {
         onClose();
     };
 
     const handleSave = () => {
+        console.log('Save : ', areasWorkFlows);
         addConfigs(areasWorkFlows).then(() => {
             fetchMergeConfigs().then((configs) => {
                 dispatch(initProcesses(configs));
                 onClose();
+                history.replace('/');
             });
         });
     };
@@ -330,6 +338,7 @@ const WorkFlowsConfiguration = ({ open, onClose }) => {
             </CustomDialogTitle>
             <DialogContent dividers>
                 <AreasContainer
+                    initialConfigs={configs}
                     handleAreasWorkFlowsChanged={handleAreasWorkFlowsChanged}
                 />
             </DialogContent>

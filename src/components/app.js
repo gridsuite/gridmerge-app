@@ -284,9 +284,9 @@ const App = () => {
                                 </Button>
                                 <WorkFlowsConfiguration
                                     open={showConfigurationWorkflows}
-                                    onClose={() =>
-                                        setShowConfigurationWorkflows(false)
-                                    }
+                                    onClose={() => {
+                                        setShowConfigurationWorkflows(false);
+                                    }}
                                 />
                             </div>
                         )}

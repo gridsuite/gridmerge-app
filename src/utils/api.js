@@ -165,17 +165,15 @@ export function addConfigs(configs) {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify(
-            configs.map((e) => {
-                return {
-                    process: e.areaName,
-                    tsos: e.tsos.map((tso) =>
-                        tso.sourcingActor === ''
-                            ? tso.alternativeSourcingActor
-                            : tso.sourcingActor
-                    ),
-                    runBalancesAdjustment: false,
-                };
-            })
+            configs
+                .filter((e) => e.process != '')
+                .map((e) => {
+                    return {
+                        process: e.process,
+                        tsos: e.tsos.filter((tso) => tso != ''),
+                        runBalancesAdjustment: e.runBalancesAdjustment,
+                    };
+                })
         ),
     });
 }
