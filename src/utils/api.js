@@ -156,6 +156,17 @@ export function getIgmStatus(tso, merge) {
 }
 
 export function addConfigs(configs) {
+    const filteredConfigs = configs
+        .filter((e) => e.process !== '')
+        .map((e) => {
+            return {
+                process: e.process,
+                tsos: e.tsos
+                    .filter((tso) => tso.sourcingActor !== '')
+                    .map((tso) => tso.sourcingActor),
+                runBalancesAdjustment: e.runBalancesAdjustment,
+            };
+        });
     console.debug('Saving workflows ...');
     const addConfigs = PREFIX_ORCHESTRATOR_QUERIES + '/v1/configs';
     return backendFetch(addConfigs, {
@@ -164,17 +175,7 @@ export function addConfigs(configs) {
             Accept: 'application/json',
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify(
-            configs
-                .filter((e) => e.process != '')
-                .map((e) => {
-                    return {
-                        process: e.process,
-                        tsos: e.tsos.filter((tso) => tso != ''),
-                        runBalancesAdjustment: e.runBalancesAdjustment,
-                    };
-                })
-        ),
+        body: JSON.stringify(filteredConfigs),
     });
 }
 

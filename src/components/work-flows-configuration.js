@@ -99,21 +99,38 @@ const AreaTsos = ({ initialTsos, areaIndex, handleAreaTsosChanged }) => {
     const classes = useStyles();
     const intl = useIntl();
 
-    const [areaTsos, setAreaTsos] = useState(initialTsos);
+    const [areaTsos, setAreaTsos] = useState(
+        initialTsos.length === 0
+            ? [
+                  ...initialTsos,
+                  { sourcingActor: '', alternativeSourcingActor: '' },
+              ]
+            : initialTsos
+    );
 
     useEffect(() => {
+        console.log('handleAreaTsosChanged');
         handleAreaTsosChanged(areaIndex, areaTsos);
+        // Do not add handleAreaTsosChanged as dep because if
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [areaTsos]);
 
     const handleChangeTsoSourcingActor = (index, event) => {
         const areaTsosCopy = [...areaTsos];
-        areaTsosCopy[index] = event.target.value;
+        areaTsosCopy[index] = {
+            sourcingActor: event.target.value,
+            alternativeSourcingActor:
+                areaTsosCopy[index].alternativeSourcingActor,
+        };
         setAreaTsos(areaTsosCopy);
     };
 
     const handleChangeTsoAlternativeSourcingActor = (index, event) => {
         const areaTsosCopy = [...areaTsos];
-        areaTsosCopy[index] = event.target.value;
+        areaTsosCopy[index] = {
+            sourcingActor: areaTsosCopy[index].sourcingActor,
+            alternativeSourcingActor: event.target.value,
+        };
         setAreaTsos(areaTsosCopy);
     };
 
@@ -138,7 +155,7 @@ const AreaTsos = ({ initialTsos, areaIndex, handleAreaTsosChanged }) => {
                             placeholder={intl.formatMessage({
                                 id: 'tsoLabelCode',
                             })}
-                            value={tso}
+                            value={tso.sourcingActor}
                             onChange={(event) =>
                                 handleChangeTsoSourcingActor(index, event)
                             }
@@ -152,7 +169,7 @@ const AreaTsos = ({ initialTsos, areaIndex, handleAreaTsosChanged }) => {
                             placeholder={intl.formatMessage({
                                 id: 'tsoLabelCodeOptional',
                             })}
-                            value={tso}
+                            value={tso.alternativeSourcingActor}
                             onChange={(event) =>
                                 handleChangeTsoAlternativeSourcingActor(
                                     index,
@@ -192,7 +209,14 @@ const AreasContainer = ({ handleAreasWorkFlowsChanged, initialConfigs }) => {
     const classes = useStyles();
     const intl = useIntl();
 
-    const [areasWorkFlows, setAreasWorkFlows] = useState(initialConfigs);
+    const [areasWorkFlows, setAreasWorkFlows] = useState([
+        ...initialConfigs,
+        {
+            process: '',
+            tsos: [],
+            runBalancesAdjustment: false,
+        },
+    ]);
 
     function handleAddArea() {
         const areasWorkFlowsCopy = [...areasWorkFlows];
@@ -232,8 +256,9 @@ const AreasContainer = ({ handleAreasWorkFlowsChanged, initialConfigs }) => {
     }
 
     useEffect(() => {
+        console.log('handleAreasWorkFlowsChanged');
         handleAreasWorkFlowsChanged(areasWorkFlows);
-    }, [areasWorkFlows]);
+    }, [handleAreasWorkFlowsChanged, areasWorkFlows]);
 
     return (
         <Grid>
@@ -272,10 +297,8 @@ const AreasContainer = ({ handleAreasWorkFlowsChanged, initialConfigs }) => {
                             />
                         </Grid>
                         <Grid item xs={12} sm={3} align="center">
-                            <IconButton>
-                                <DeleteIcon
-                                    onClick={() => handleDeleteArea(index)}
-                                />
+                            <IconButton onClick={() => handleDeleteArea(index)}>
+                                <DeleteIcon />
                             </IconButton>
                         </Grid>
                     </Grid>
@@ -317,7 +340,6 @@ const WorkFlowsConfiguration = ({ open, onClose }) => {
     };
 
     const handleSave = () => {
-        console.log('Save : ', areasWorkFlows);
         addConfigs(areasWorkFlows).then(() => {
             fetchMergeConfigs().then((configs) => {
                 dispatch(initProcesses(configs));
@@ -338,7 +360,18 @@ const WorkFlowsConfiguration = ({ open, onClose }) => {
             </CustomDialogTitle>
             <DialogContent dividers>
                 <AreasContainer
-                    initialConfigs={configs}
+                    initialConfigs={configs.map((e) => {
+                        return {
+                            process: e.process,
+                            tsos: e.tsos.map((tso) => {
+                                return {
+                                    sourcingActor: tso,
+                                    alternativeSourcingActor: '',
+                                };
+                            }),
+                            runBalancesAdjustment: e.runBalancesAdjustment,
+                        };
+                    })}
                     handleAreasWorkFlowsChanged={handleAreasWorkFlowsChanged}
                 />
             </DialogContent>
