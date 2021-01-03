@@ -360,18 +360,7 @@ const WorkFlowsConfiguration = ({ open, onClose }) => {
             </CustomDialogTitle>
             <DialogContent dividers>
                 <AreasContainer
-                    initialConfigs={configs.map((e) => {
-                        return {
-                            process: e.process,
-                            tsos: e.tsos.map((tso) => {
-                                return {
-                                    sourcingActor: tso,
-                                    alternativeSourcingActor: '',
-                                };
-                            }),
-                            runBalancesAdjustment: e.runBalancesAdjustment,
-                        };
-                    })}
+                    initialConfigs={configs}
                     handleAreasWorkFlowsChanged={handleAreasWorkFlowsChanged}
                 />
             </DialogContent>

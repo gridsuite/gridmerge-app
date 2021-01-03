@@ -21,7 +21,7 @@ const CountryStatesList = (props) => {
 };
 
 CountryStatesList.propTypes = {
-    tsos: PropTypes.arrayOf(PropTypes.string).isRequired,
+    tsos: PropTypes.arrayOf(PropTypes.object).isRequired,
     merge: MergeType,
 };
 

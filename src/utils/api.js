@@ -161,9 +161,7 @@ export function addConfigs(configs) {
         .map((e) => {
             return {
                 process: e.process,
-                tsos: e.tsos
-                    .filter((tso) => tso.sourcingActor !== '')
-                    .map((tso) => tso.sourcingActor),
+                tsos: e.tsos.filter((tso) => tso.sourcingActor !== ''),
                 runBalancesAdjustment: e.runBalancesAdjustment,
             };
         });
