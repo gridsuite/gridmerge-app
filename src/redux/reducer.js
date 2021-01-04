@@ -10,8 +10,8 @@ import { createReducer } from '@reduxjs/toolkit';
 import {
     getLocalStorageTheme,
     saveLocalStorageTheme,
-    getLocalStorageTimelineLabels,
-    saveLocalStorageTimelineLabels,
+    getLocalStorageTimelineDiagonalLabels,
+    saveLocalStorageTimelineDiagonalLabels,
 } from './local-storage';
 
 import {
@@ -20,7 +20,7 @@ import {
     UPDATE_MERGES,
     UPDATE_PROCESS_DATE,
     UPDATE_SELECTED_MERGE_DATE,
-    TIMELINE_LABELS,
+    TIMELINE_DIAGONAL_LABELS,
 } from './actions';
 
 import { SIGNIN_CALLBACK_ERROR, USER } from '@gridsuite/commons-ui';
@@ -28,7 +28,7 @@ import { removeTime } from '../utils/api';
 
 const initialState = {
     theme: getLocalStorageTheme(),
-    timelineLabels: getLocalStorageTimelineLabels(),
+    timelineDiagonalLabels: getLocalStorageTimelineDiagonalLabels(),
     user: null,
     signInCallbackError: null,
     configs: [],
@@ -76,8 +76,8 @@ export const reducer = createReducer(initialState, {
         process.selectedMergeDate = action.selectedMergeDate;
     },
 
-    [TIMELINE_LABELS]: (state) => {
-        state.timelineLabels = !state.timelineLabels;
-        saveLocalStorageTimelineLabels(state.timelineLabels);
+    [TIMELINE_DIAGONAL_LABELS]: (state) => {
+        state.timelineDiagonalLabels = !state.timelineDiagonalLabels;
+        saveLocalStorageTimelineDiagonalLabels(state.timelineDiagonalLabels);
     },
 });

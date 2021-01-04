@@ -41,8 +41,8 @@ export function updateSelectedMergeDate(processIndex, selectedMergeDate) {
     };
 }
 
-export const TIMELINE_LABELS = 'TIMELINE_LABELS';
+export const TIMELINE_DIAGONAL_LABELS = 'TIMELINE_DIAGONAL_LABELS';
 
-export function timelineLabels() {
-    return { type: TIMELINE_LABELS };
+export function timelineDiagonalLabels() {
+    return { type: TIMELINE_DIAGONAL_LABELS };
 }

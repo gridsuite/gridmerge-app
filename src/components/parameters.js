@@ -31,7 +31,7 @@ import {
     DARK_THEME,
     LIGHT_THEME,
     selectTheme,
-    timelineLabels,
+    timelineDiagonalLabels,
 } from '../redux/actions';
 
 const useStyles = makeStyles((theme) => ({
@@ -52,15 +52,15 @@ const Parameters = ({ showParameters, hideParameters }) => {
 
     const theme = useSelector((state) => state.theme);
 
-    const displayTimelineLabels = useSelector((state) => state.timelineLabels);
+    const displayTimelineDiagonalLabels = useSelector((state) => state.timelineDiagonalLabels);
 
     const handleChangeTheme = (event) => {
         const theme = event.target.value;
         dispatch(selectTheme(theme));
     };
 
-    const onChangeSwitchTimelineLabels = () => {
-        dispatch(timelineLabels());
+    const onChangeSwitchTimelineDiagonalLabels = () => {
+        dispatch(timelineDiagonalLabels());
     };
 
     function TabPanel(props) {
@@ -107,15 +107,15 @@ const Parameters = ({ showParameters, hideParameters }) => {
                 <Grid item xs={6}>
                     <Typography component="span" variant="body1">
                         <Box fontWeight="fontWeightBold" m={1}>
-                            <FormattedMessage id="timelineLabels" />:
+                            <FormattedMessage id="timelineDiagonalLabels" />:
                         </Box>
                     </Typography>
                 </Grid>
                 <Grid item container xs={6} className={classes.controlItem}>
                     <Switch
-                        checked={displayTimelineLabels}
-                        onChange={onChangeSwitchTimelineLabels}
-                        value={displayTimelineLabels}
+                        checked={displayTimelineDiagonalLabels}
+                        onChange={onChangeSwitchTimelineDiagonalLabels}
+                        value={displayTimelineDiagonalLabels}
                         color="primary"
                         inputProps={{ 'aria-label': 'primary checkbox' }}
                     />

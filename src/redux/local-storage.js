@@ -22,11 +22,11 @@ export const getLocalStorageBoolean = (key, defValue) => {
     return value === 'true';
 };
 
-const LOCAL_STORAGE_TIMELINE_LABELS_KEY = 'TIMELINE_LABELS';
+const LOCAL_STORAGE_TIMELINE_DIAGONAL_LABELS_KEY = 'TIMELINE_DIAGONAL_LABELS';
 
-export const getLocalStorageTimelineLabels = () =>
-    getLocalStorageBoolean(LOCAL_STORAGE_TIMELINE_LABELS_KEY, 'true');
+export const getLocalStorageTimelineDiagonalLabels = () =>
+    getLocalStorageBoolean(LOCAL_STORAGE_TIMELINE_DIAGONAL_LABELS_KEY, 'true');
 
-export const saveLocalStorageTimelineLabels = (useName) => {
-    localStorage.setItem(LOCAL_STORAGE_TIMELINE_LABELS_KEY, useName);
+export const saveLocalStorageTimelineDiagonalLabels = (useName) => {
+    localStorage.setItem(LOCAL_STORAGE_TIMELINE_DIAGONAL_LABELS_KEY, useName);
 };
