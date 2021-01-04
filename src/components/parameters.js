@@ -52,7 +52,9 @@ const Parameters = ({ showParameters, hideParameters }) => {
 
     const theme = useSelector((state) => state.theme);
 
-    const displayTimelineDiagonalLabels = useSelector((state) => state.timelineDiagonalLabels);
+    const displayTimelineDiagonalLabels = useSelector(
+        (state) => state.timelineDiagonalLabels
+    );
 
     const handleChangeTheme = (event) => {
         const theme = event.target.value;

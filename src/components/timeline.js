@@ -106,7 +106,9 @@ const Timeline = (props) => {
 
     const [value, setValue] = useState(null);
 
-    const timelineDiagonalLabels = useSelector((state) => state.timelineDiagonalLabels);
+    const timelineDiagonalLabels = useSelector(
+        (state) => state.timelineDiagonalLabels
+    );
 
     function findMergeIndex(value) {
         return marks.findIndex((mark) => mark.value === value);
@@ -163,7 +165,9 @@ const Timeline = (props) => {
         <>
             <div className={classes.customSlider}>
                 <TheSlider
-                    className={timelineDiagonalLabels ? classes.obliqueLabels : ''}
+                    className={
+                        timelineDiagonalLabels ? classes.obliqueLabels : ''
+                    }
                     value={value}
                     marks={marks}
                     onChangeCommitted={handleSliderChange}
