@@ -48,13 +48,7 @@ const Parameters = ({ showParameters, hideParameters }) => {
 
     const handleChangeTheme = (event) => {
         const theme = event.target.value;
-        let configJson = JSON.stringify([
-            {
-                name: PARAMS_THEME_KEY,
-                value: theme,
-            },
-        ]);
-        updateConfigParameters(configJson);
+        updateConfigParameters(PARAMS_THEME_KEY, theme);
     };
 
     function TabPanel(props) {
