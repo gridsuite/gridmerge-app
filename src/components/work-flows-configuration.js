@@ -24,7 +24,12 @@ import PropTypes from 'prop-types';
 
 import { withStyles, makeStyles } from '@material-ui/core/styles';
 import { FormattedMessage } from 'react-intl';
-import { addConfigs, fetchMergeConfigs } from '../utils/api';
+import {
+    addConfigs,
+    addProcess,
+    deleteProcess,
+    fetchMergeConfigs,
+} from '../utils/api';
 import { initProcesses } from '../redux/actions';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
@@ -109,6 +114,10 @@ const AreaTsos = ({ initialTsos, areaIndex, handleAreaTsosChanged }) => {
     );
 
     useEffect(() => {
+        console.log('RENDERING AreaTsos', areaIndex);
+    }, []);
+
+    useEffect(() => {
         console.log('handleAreaTsosChanged');
         handleAreaTsosChanged(areaIndex, areaTsos);
         // Do not add handleAreaTsosChanged as dep because if
@@ -155,7 +164,11 @@ const AreaTsos = ({ initialTsos, areaIndex, handleAreaTsosChanged }) => {
                             placeholder={intl.formatMessage({
                                 id: 'tsoLabelCode',
                             })}
-                            value={tso.sourcingActor}
+                            value={
+                                tso.sourcingActor != null
+                                    ? tso.sourcingActor
+                                    : ''
+                            }
                             onChange={(event) =>
                                 handleChangeTsoSourcingActor(index, event)
                             }
@@ -169,7 +182,11 @@ const AreaTsos = ({ initialTsos, areaIndex, handleAreaTsosChanged }) => {
                             placeholder={intl.formatMessage({
                                 id: 'tsoLabelCodeOptional',
                             })}
-                            value={tso.alternativeSourcingActor}
+                            value={
+                                tso.alternativeSourcingActor != null
+                                    ? tso.alternativeSourcingActor
+                                    : ''
+                            }
                             onChange={(event) =>
                                 handleChangeTsoAlternativeSourcingActor(
                                     index,
@@ -217,6 +234,10 @@ const AreasContainer = ({ handleAreasWorkFlowsChanged, initialConfigs }) => {
             runBalancesAdjustment: false,
         },
     ]);
+
+    useEffect(() => {
+        console.log('RENDERING AreasContainer');
+    }, []);
 
     function handleAddArea() {
         const areasWorkFlowsCopy = [...areasWorkFlows];
@@ -340,14 +361,65 @@ const WorkFlowsConfiguration = ({ open, onClose }) => {
     };
 
     const handleSave = () => {
-        addConfigs(areasWorkFlows).then(() => {
+        const initialProcesses = configs.map((e) => e.process);
+        const currentProcesses = areasWorkFlows
+            .filter((e) => e.process !== '')
+            .map((e) => e.process);
+
+        console.log(initialProcesses);
+        console.log(currentProcesses);
+        let promises = [];
+        let i = 0;
+
+        for (i; i < initialProcesses.length; i++) {
+            console.log('initialProcesses[', i, ']=', initialProcesses[i]);
+            if (!currentProcesses.includes(initialProcesses[i])) {
+                console.log(initialProcesses[i], 'to be deleted');
+                promises.push(deleteProcess(initialProcesses[i]));
+            }
+        }
+        console.log('--------------------------------------------------');
+
+        function isDiffrent(initialWorkflow, areasWorkFlow) {
+            let union = [...new Set([...initialWorkflow.tsos, ...areasWorkFlow.tsos])];
+            return initialWorkflow.process !== areasWorkFlow.process ||
+            initialWorkflow.runBalancesAdjustment !== areasWorkFlow.runBalancesAdjustment ||
+            initialWorkflow.tsos.length !== areasWorkFlow.tsos.length ||
+            union.length !== areasWorkFlow.process;
+        }
+
+        for (i = 0; i < areasWorkFlows.length; i++) {
+            if (areasWorkFlows[i].process === '') {
+                continue;
+            }
+            console.log('areasWorkFlows[', i, ']=', areasWorkFlows[i].process);
+            if (!initialProcesses.includes(areasWorkFlows[i].process)) {
+                console.log(areasWorkFlows[i].process, 'is a new process');
+                promises.push(addProcess(areasWorkFlows[i]));
+            } else {
+                let intialConfig = initialProcesses.find(
+                    (e) => e === areasWorkFlows[i].process
+                );
+                // should we update it ?
+                if (isDiffrent(intialConfig, areasWorkFlows[i])) {
+                    console.log(areasWorkFlows[i].process, 'to be updated');
+                    promises.push(addProcess(areasWorkFlows[i]));
+                }
+            }
+        }
+        Promise.all(promises).then(() => {
+            console.log('all promises resolved');
             fetchMergeConfigs().then((configs) => {
                 dispatch(initProcesses(configs));
                 onClose();
-                history.replace('/');
+                //history.replace('/');
             });
         });
     };
+
+    useEffect(() => {
+        console.log('RENDERING WorkFlowsConfiguration');
+    }, []);
 
     const handleAreasWorkFlowsChanged = (areas) => {
         setAreasWorkFlows(areas);

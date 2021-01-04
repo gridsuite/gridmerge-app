@@ -123,7 +123,9 @@ export const IgmStatus = {
 };
 
 export function getIgmStatus(tso, merge) {
-    const igm = merge ? merge.igms.find((igm) => igm.tso === tso) : null;
+    const igm = merge
+        ? merge.igms.find((igm) => igm.tso === tso.sourcingActor)
+        : null;
     if (!igm) {
         return IgmStatus.ABSENT;
     }
@@ -155,25 +157,29 @@ export function getIgmStatus(tso, merge) {
     }
 }
 
-export function addConfigs(configs) {
-    const filteredConfigs = configs
-        .filter((e) => e.process !== '')
-        .map((e) => {
-            return {
-                process: e.process,
-                tsos: e.tsos.filter((tso) => tso.sourcingActor !== ''),
-                runBalancesAdjustment: e.runBalancesAdjustment,
-            };
-        });
-    console.debug('Saving workflows ...');
-    const addConfigs = PREFIX_ORCHESTRATOR_QUERIES + '/v1/configs';
-    return backendFetch(addConfigs, {
+export function addProcess(json) {
+    console.debug('Saving Process', json.process, ' ...');
+    const addProcessUrl = PREFIX_ORCHESTRATOR_QUERIES + '/v1/config';
+    return backendFetch(addProcessUrl, {
         method: 'post',
         headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify(filteredConfigs),
+        body: JSON.stringify(json),
+    });
+}
+
+export function deleteProcess(process) {
+    console.debug('Deleting Process', process, ' ...');
+    const deleteProcessUrl =
+        PREFIX_ORCHESTRATOR_QUERIES + '/v1/configs/' + process;
+    return backendFetch(deleteProcessUrl, {
+        method: 'delete',
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+        },
     });
 }
 
