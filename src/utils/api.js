@@ -159,7 +159,7 @@ export function getIgmStatus(tso, merge) {
 
 export function addProcess(json) {
     console.debug('Saving Process', json.process, ' ...');
-    const addProcessUrl = PREFIX_ORCHESTRATOR_QUERIES + '/v1/config';
+    const addProcessUrl = PREFIX_ORCHESTRATOR_QUERIES + '/v1/configs';
     return backendFetch(addProcessUrl, {
         method: 'post',
         headers: {

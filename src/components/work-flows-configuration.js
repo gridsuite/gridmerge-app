@@ -24,15 +24,10 @@ import PropTypes from 'prop-types';
 
 import { withStyles, makeStyles } from '@material-ui/core/styles';
 import { FormattedMessage } from 'react-intl';
-import {
-    addConfigs,
-    addProcess,
-    deleteProcess,
-    fetchMergeConfigs,
-} from '../utils/api';
+import { addProcess, deleteProcess, fetchMergeConfigs } from '../utils/api';
 import { initProcesses } from '../redux/actions';
 import { useDispatch, useSelector } from 'react-redux';
-import { useHistory } from 'react-router-dom';
+import Switch from '@material-ui/core/Switch';
 
 const useStyles = makeStyles(() => ({
     addNewTso: {
@@ -114,11 +109,6 @@ const AreaTsos = ({ initialTsos, areaIndex, handleAreaTsosChanged }) => {
     );
 
     useEffect(() => {
-        console.log('RENDERING AreaTsos', areaIndex);
-    }, []);
-
-    useEffect(() => {
-        console.log('handleAreaTsosChanged');
         handleAreaTsosChanged(areaIndex, areaTsos);
         // Do not add handleAreaTsosChanged as dep because if
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -235,10 +225,6 @@ const AreasContainer = ({ handleAreasWorkFlowsChanged, initialConfigs }) => {
         },
     ]);
 
-    useEffect(() => {
-        console.log('RENDERING AreasContainer');
-    }, []);
-
     function handleAddArea() {
         const areasWorkFlowsCopy = [...areasWorkFlows];
         areasWorkFlowsCopy.push({
@@ -255,6 +241,16 @@ const AreasContainer = ({ handleAreasWorkFlowsChanged, initialConfigs }) => {
             process: e.target.value,
             tsos: configsCopy[index].tsos,
             runBalancesAdjustment: configsCopy[index].runBalancesAdjustment,
+        };
+        setAreasWorkFlows(configsCopy);
+    }
+
+    function handleSwitchChange(e, index) {
+        const configsCopy = [...areasWorkFlows];
+        configsCopy[index] = {
+            process: configsCopy[index].process,
+            tsos: configsCopy[index].tsos,
+            runBalancesAdjustment: e.target.checked,
         };
         setAreasWorkFlows(configsCopy);
     }
@@ -277,7 +273,6 @@ const AreasContainer = ({ handleAreasWorkFlowsChanged, initialConfigs }) => {
     }
 
     useEffect(() => {
-        console.log('handleAreasWorkFlowsChanged');
         handleAreasWorkFlowsChanged(areasWorkFlows);
     }, [handleAreasWorkFlowsChanged, areasWorkFlows]);
 
@@ -322,6 +317,11 @@ const AreasContainer = ({ handleAreasWorkFlowsChanged, initialConfigs }) => {
                                 <DeleteIcon />
                             </IconButton>
                         </Grid>
+                        <Switch
+                            checked={areasWorkFlow.runBalancesAdjustment}
+                            onChange={(e) => handleSwitchChange(e, index)}
+                            inputProps={{ 'aria-label': 'secondary checkbox' }}
+                        />
                     </Grid>
                     {/* Tso inputs */}
                     <Grid container item xs={12} sm={7} spacing={1}>
@@ -354,8 +354,6 @@ const WorkFlowsConfiguration = ({ open, onClose }) => {
     const [areasWorkFlows, setAreasWorkFlows] = useState([]);
     const configs = useSelector((state) => state.configs);
     const dispatch = useDispatch();
-    const history = useHistory();
-
     const handleClose = () => {
         onClose();
     };
@@ -366,60 +364,53 @@ const WorkFlowsConfiguration = ({ open, onClose }) => {
             .filter((e) => e.process !== '')
             .map((e) => e.process);
 
-        console.log(initialProcesses);
-        console.log(currentProcesses);
         let promises = [];
         let i = 0;
 
+        // DELETE PROCESSES
         for (i; i < initialProcesses.length; i++) {
-            console.log('initialProcesses[', i, ']=', initialProcesses[i]);
             if (!currentProcesses.includes(initialProcesses[i])) {
-                console.log(initialProcesses[i], 'to be deleted');
                 promises.push(deleteProcess(initialProcesses[i]));
             }
         }
-        console.log('--------------------------------------------------');
+        const isDifferent = (initialWorkflow, areasWorkFlow) => {
+            let union = [
+                ...new Set([...initialWorkflow.tsos, ...areasWorkFlow.tsos]),
+            ];
+            return (
+                initialWorkflow.process !== areasWorkFlow.process ||
+                initialWorkflow.runBalancesAdjustment !==
+                    areasWorkFlow.runBalancesAdjustment ||
+                initialWorkflow.tsos.length !== areasWorkFlow.tsos.length ||
+                union.length !== areasWorkFlow.process
+            );
+        };
 
-        function isDiffrent(initialWorkflow, areasWorkFlow) {
-            let union = [...new Set([...initialWorkflow.tsos, ...areasWorkFlow.tsos])];
-            return initialWorkflow.process !== areasWorkFlow.process ||
-            initialWorkflow.runBalancesAdjustment !== areasWorkFlow.runBalancesAdjustment ||
-            initialWorkflow.tsos.length !== areasWorkFlow.tsos.length ||
-            union.length !== areasWorkFlow.process;
-        }
-
-        for (i = 0; i < areasWorkFlows.length; i++) {
+        for (let i = 0; i < areasWorkFlows.length; i++) {
             if (areasWorkFlows[i].process === '') {
                 continue;
             }
-            console.log('areasWorkFlows[', i, ']=', areasWorkFlows[i].process);
             if (!initialProcesses.includes(areasWorkFlows[i].process)) {
-                console.log(areasWorkFlows[i].process, 'is a new process');
+                // ADD NEW PROCESSES
                 promises.push(addProcess(areasWorkFlows[i]));
-            } else {
-                let intialConfig = initialProcesses.find(
-                    (e) => e === areasWorkFlows[i].process
-                );
-                // should we update it ?
-                if (isDiffrent(intialConfig, areasWorkFlows[i])) {
-                    console.log(areasWorkFlows[i].process, 'to be updated');
-                    promises.push(addProcess(areasWorkFlows[i]));
-                }
+                continue;
+            }
+
+            let intialProcess = configs.find(
+                (element) => element.process === areasWorkFlows[i].process
+            );
+            if (isDifferent(intialProcess, areasWorkFlows[i])) {
+                // UPDATE PROCESSES
+                promises.push(addProcess(areasWorkFlows[i]));
             }
         }
         Promise.all(promises).then(() => {
-            console.log('all promises resolved');
             fetchMergeConfigs().then((configs) => {
                 dispatch(initProcesses(configs));
                 onClose();
-                //history.replace('/');
             });
         });
     };
-
-    useEffect(() => {
-        console.log('RENDERING WorkFlowsConfiguration');
-    }, []);
 
     const handleAreasWorkFlowsChanged = (areas) => {
         setAreasWorkFlows(areas);
