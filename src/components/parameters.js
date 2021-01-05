@@ -25,10 +25,17 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 import Typography from '@material-ui/core/Typography';
+import Switch from '@material-ui/core/Switch';
 
-import { DARK_THEME, LIGHT_THEME } from '../redux/actions';
+import {
+    DARK_THEME,
+    LIGHT_THEME,
+    selectTheme,
+    timelineDiagonalLabels,
+} from '../redux/actions';
 import { updateConfigParameters } from '../utils/api';
 import { PARAMS_THEME_KEY } from '../utils/config-params';
+
 
 const useStyles = makeStyles((theme) => ({
     controlItem: {
@@ -46,9 +53,17 @@ const Parameters = ({ showParameters, hideParameters }) => {
 
     const theme = useSelector((state) => state.theme);
 
+    const displayTimelineDiagonalLabels = useSelector(
+        (state) => state.timelineDiagonalLabels
+    );
+
     const handleChangeTheme = (event) => {
         const theme = event.target.value;
         updateConfigParameters(PARAMS_THEME_KEY, theme);
+    };
+
+    const onChangeSwitchTimelineDiagonalLabels = () => {
+        dispatch(timelineDiagonalLabels());
     };
 
     function TabPanel(props) {
@@ -91,6 +106,22 @@ const Parameters = ({ showParameters, hideParameters }) => {
                             label={LIGHT_THEME}
                         />
                     </RadioGroup>
+                </Grid>
+                <Grid item xs={6}>
+                    <Typography component="span" variant="body1">
+                        <Box fontWeight="fontWeightBold" m={1}>
+                            <FormattedMessage id="timelineDiagonalLabels" />:
+                        </Box>
+                    </Typography>
+                </Grid>
+                <Grid item container xs={6} className={classes.controlItem}>
+                    <Switch
+                        checked={displayTimelineDiagonalLabels}
+                        onChange={onChangeSwitchTimelineDiagonalLabels}
+                        value={displayTimelineDiagonalLabels}
+                        color="primary"
+                        inputProps={{ 'aria-label': 'primary checkbox' }}
+                    />
                 </Grid>
             </Grid>
         );

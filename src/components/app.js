@@ -255,7 +255,7 @@ const App = () => {
             <Process index={index} />
         ) : (
             <h1>
-                <FormattedMessage id="PageNotFound" />{' '}
+                <FormattedMessage id="pageNotFound" />{' '}
             </h1>
         );
     }
