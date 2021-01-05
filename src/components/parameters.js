@@ -9,7 +9,7 @@ import React from 'react';
 
 import { FormattedMessage } from 'react-intl';
 
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
@@ -27,12 +27,12 @@ import Tabs from '@material-ui/core/Tabs';
 import Typography from '@material-ui/core/Typography';
 import Switch from '@material-ui/core/Switch';
 
+import { DARK_THEME, LIGHT_THEME } from '../redux/actions';
+import { updateConfigParameters } from '../utils/api';
 import {
-    DARK_THEME,
-    LIGHT_THEME,
-    selectTheme,
-    timelineDiagonalLabels,
-} from '../redux/actions';
+    PARAMS_THEME_KEY,
+    PARAMS_TIMELINE_DIAGONAL_LABELS,
+} from '../utils/config-params';
 
 const useStyles = makeStyles((theme) => ({
     controlItem: {
@@ -44,8 +44,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Parameters = ({ showParameters, hideParameters }) => {
-    const dispatch = useDispatch();
-
     const classes = useStyles();
 
     const [tabIndex, setTabIndex] = React.useState(0);
@@ -58,11 +56,14 @@ const Parameters = ({ showParameters, hideParameters }) => {
 
     const handleChangeTheme = (event) => {
         const theme = event.target.value;
-        dispatch(selectTheme(theme));
+        updateConfigParameters(PARAMS_THEME_KEY, theme);
     };
 
-    const onChangeSwitchTimelineDiagonalLabels = () => {
-        dispatch(timelineDiagonalLabels());
+    const onChangeSwitchTimelineDiagonalLabels = (event) => {
+        updateConfigParameters(
+            PARAMS_TIMELINE_DIAGONAL_LABELS,
+            event.target.value !== 'true'
+        );
     };
 
     function TabPanel(props) {
