@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -24,7 +24,12 @@ import {
     ThemeProvider,
 } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import { initProcesses, LIGHT_THEME } from '../redux/actions';
+import {
+    initProcesses,
+    LIGHT_THEME,
+    selectTheme,
+    selectTimelineDiagonalLabels,
+} from '../redux/actions';
 
 import {
     AuthenticationRouter,
@@ -41,10 +46,19 @@ import Process from './process';
 import Parameters from './parameters';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
-import { fetchAppsAndUrls, fetchMergeConfigs } from '../utils/api';
+import {
+    connectNotificationsWsUpdateConfig,
+    fetchAppsAndUrls,
+    fetchConfigParameters,
+    fetchMergeConfigs,
+} from '../utils/api';
 
 import { ReactComponent as GridMergeLogoDark } from '../images/GridMerge_logo_dark.svg';
 import { ReactComponent as GridMergeLogoLight } from '../images/GridMerge_logo_light.svg';
+import {
+    PARAMS_THEME_KEY,
+    PARAMS_TIMELINE_DIAGONAL_LABELS,
+} from '../utils/config-params';
 
 const PREFIX_URL_PROCESSES = '/processes';
 
@@ -119,6 +133,25 @@ const App = () => {
         })
     );
 
+    const updateParams = useCallback(
+        (params) => {
+            params.forEach((param) => {
+                switch (param.name) {
+                    case PARAMS_THEME_KEY:
+                        dispatch(selectTheme(param.value));
+                        break;
+                    case PARAMS_TIMELINE_DIAGONAL_LABELS:
+                        dispatch(
+                            selectTimelineDiagonalLabels(param.value === 'true')
+                        );
+                        break;
+                    default:
+                }
+            });
+        },
+        [dispatch]
+    );
+
     useEffect(() => {
         document.addEventListener('contextmenu', (event) => {
             event.preventDefault();
@@ -176,6 +209,34 @@ const App = () => {
         // Note: dispatch doesn't change
     }, [dispatch, user]);
 
+    const connectNotificationsUpdateConfig = useCallback(() => {
+        const ws = connectNotificationsWsUpdateConfig();
+
+        ws.onmessage = function (event) {
+            fetchConfigParameters().then((params) => {
+                updateParams(params);
+            });
+        };
+        ws.onerror = function (event) {
+            console.error('Unexpected Notification WebSocket error', event);
+        };
+        return ws;
+    }, [updateParams]);
+
+    useEffect(() => {
+        if (user !== null) {
+            fetchConfigParameters().then((params) => {
+                console.debug('received UI parameters :');
+                console.debug(params);
+                updateParams(params);
+            });
+            const ws = connectNotificationsUpdateConfig();
+            return function () {
+                ws.close();
+            };
+        }
+    }, [user, dispatch, connectNotificationsUpdateConfig, updateParams]);
+
     useEffect(() => {
         let index =
             matchProcess !== null
@@ -214,7 +275,7 @@ const App = () => {
             <Process index={index} />
         ) : (
             <h1>
-                <FormattedMessage id="PageNotFound" />{' '}
+                <FormattedMessage id="pageNotFound" />{' '}
             </h1>
         );
     }
