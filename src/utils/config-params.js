@@ -6,3 +6,4 @@
  */
 
 export const PARAMS_THEME_KEY = 'theme';
+export const PARAMS_TIMELINE_DIAGONAL_LABELS = 'timelineDiagonalLabel';

@@ -27,15 +27,12 @@ import Tabs from '@material-ui/core/Tabs';
 import Typography from '@material-ui/core/Typography';
 import Switch from '@material-ui/core/Switch';
 
-import {
-    DARK_THEME,
-    LIGHT_THEME,
-    selectTheme,
-    timelineDiagonalLabels,
-} from '../redux/actions';
+import { DARK_THEME, LIGHT_THEME } from '../redux/actions';
 import { updateConfigParameters } from '../utils/api';
-import { PARAMS_THEME_KEY } from '../utils/config-params';
-
+import {
+    PARAMS_THEME_KEY,
+    PARAMS_TIMELINE_DIAGONAL_LABELS,
+} from '../utils/config-params';
 
 const useStyles = makeStyles((theme) => ({
     controlItem: {
@@ -62,8 +59,11 @@ const Parameters = ({ showParameters, hideParameters }) => {
         updateConfigParameters(PARAMS_THEME_KEY, theme);
     };
 
-    const onChangeSwitchTimelineDiagonalLabels = () => {
-        dispatch(timelineDiagonalLabels());
+    const onChangeSwitchTimelineDiagonalLabels = (event) => {
+        updateConfigParameters(
+            PARAMS_TIMELINE_DIAGONAL_LABELS,
+            event.target.value !== 'true'
+        );
     };
 
     function TabPanel(props) {

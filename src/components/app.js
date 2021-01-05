@@ -24,7 +24,12 @@ import {
     ThemeProvider,
 } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import { initProcesses, LIGHT_THEME, selectTheme } from '../redux/actions';
+import {
+    initProcesses,
+    LIGHT_THEME,
+    selectTheme,
+    selectTimelineDiagonalLabels,
+} from '../redux/actions';
 
 import {
     AuthenticationRouter,
@@ -49,7 +54,10 @@ import {
 
 import { ReactComponent as GridMergeLogoDark } from '../images/GridMerge_logo_dark.svg';
 import { ReactComponent as GridMergeLogoLight } from '../images/GridMerge_logo_light.svg';
-import { PARAMS_THEME_KEY } from '../utils/config-params';
+import {
+    PARAMS_THEME_KEY,
+    PARAMS_TIMELINE_DIAGONAL_LABELS,
+} from '../utils/config-params';
 
 const PREFIX_URL_PROCESSES = '/processes';
 
@@ -124,6 +132,25 @@ const App = () => {
         })
     );
 
+    const updateParams = useCallback(
+        (params) => {
+            params.forEach((param) => {
+                switch (param.name) {
+                    case PARAMS_THEME_KEY:
+                        dispatch(selectTheme(param.value));
+                        break;
+                    case PARAMS_TIMELINE_DIAGONAL_LABELS:
+                        dispatch(
+                            selectTimelineDiagonalLabels(param.value === 'true')
+                        );
+                        break;
+                    default:
+                }
+            });
+        },
+        [dispatch]
+    );
+
     useEffect(() => {
         document.addEventListener('contextmenu', (event) => {
             event.preventDefault();
@@ -186,36 +213,28 @@ const App = () => {
 
         ws.onmessage = function (event) {
             fetchConfigParameters().then((params) => {
-                params.forEach((param) => {
-                    if (param.name === PARAMS_THEME_KEY) {
-                        dispatch(selectTheme(param.value));
-                    }
-                });
+                updateParams(params);
             });
         };
         ws.onerror = function (event) {
             console.error('Unexpected Notification WebSocket error', event);
         };
         return ws;
-    }, [dispatch]);
+    }, [updateParams]);
 
     useEffect(() => {
         if (user !== null) {
             fetchConfigParameters().then((params) => {
                 console.debug('received UI parameters :');
                 console.debug(params);
-                params.forEach((param) => {
-                    if (param.name === PARAMS_THEME_KEY) {
-                        dispatch(selectTheme(param.value));
-                    }
-                });
+                updateParams(params);
             });
             const ws = connectNotificationsUpdateConfig();
             return function () {
                 ws.close();
             };
         }
-    }, [user, dispatch, connectNotificationsUpdateConfig]);
+    }, [user, dispatch, connectNotificationsUpdateConfig, updateParams]);
 
     useEffect(() => {
         let index =
