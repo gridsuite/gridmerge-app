@@ -8,14 +8,14 @@
     "imgMerged": "IGM mergés",
     "cgmValid": "CGM validé",
     "pageNotFound": "Page non trouvé",
-    "configurationWorkflowsLink": "Configurer workflows",
-    "configurationWorkflowsTitle": "Configuration du merge des workflows",
+    "configurationWorkflowsLink": "configurer processus",
+    "configurationWorkflowsTitle": "Configuration des processus de merge",
     "cancel": "Retour",
     "save": "Enregistrer",
     "process": "Processus",
     "addNewTso": "Ajouter un nouveau TSO",
     "addNewArea": "Ajouter un nouveau area",
     "tso": "TSOs",
-    "tsoLabelCode": "sourcingActor code",
-    "tsoLabelCodeOptional": "Alternative sourcingActor code (optional)"
+    "tsoLabelCode": "Code GRT",
+    "tsoLabelCodeOptional": "Code GRT alternatif (optionnel)"
 }
