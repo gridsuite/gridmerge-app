@@ -197,10 +197,17 @@ const App = () => {
                       (c) => c.process === matchProcess.params.processName
                   )
                 : -1;
-        index !== -1
-            ? setSelectedTabId(matchProcess.params.processName)
-            : setSelectedTabId(false);
-    }, [configs, matchProcess]);
+        if (index !== -1) {
+            setSelectedTabId(matchProcess.params.processName);
+        } else {
+            if (configs.length > 0) {
+                setSelectedTabId(configs[0].process);
+                history.replace('/processes/' + configs[0].process);
+            } else {
+                setSelectedTabId(false);
+            }
+        }
+    }, [configs, matchProcess, history]);
 
     function onLogoClicked() {
         history.replace('/');
@@ -259,7 +266,13 @@ const App = () => {
                 >
                     <div className={classes.child}>
                         <Tabs
-                            value={selectedTabId}
+                            value={
+                                configs
+                                    .map((c) => c.process)
+                                    .includes(selectedTabId)
+                                    ? selectedTabId
+                                    : false
+                            }
                             indicatorColor="primary"
                             variant="scrollable"
                             scrollButtons="auto"

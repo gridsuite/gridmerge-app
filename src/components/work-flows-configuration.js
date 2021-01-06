@@ -27,7 +27,9 @@ import { FormattedMessage } from 'react-intl';
 import { addProcess, deleteProcess, fetchMergeConfigs } from '../utils/api';
 import { initProcesses } from '../redux/actions';
 import { useDispatch, useSelector } from 'react-redux';
-import Switch from '@material-ui/core/Switch';
+import RadioGroup from '@material-ui/core/RadioGroup';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Radio from '@material-ui/core/Radio';
 
 const useStyles = makeStyles(() => ({
     addNewTso: {
@@ -197,7 +199,7 @@ const AreaTsos = ({ initialTsos, areaIndex, handleAreaTsosChanged }) => {
             ))}
             <Grid direction="row" container item xs={12} sm={10}>
                 <Button
-                    style={{ width: '100%' }}
+                    style={{ width: '100%', maxHeight: '35px' }}
                     variant="outlined"
                     onClick={() => handleAddAreaTso()}
                 >
@@ -250,7 +252,7 @@ const AreasContainer = ({ handleAreasWorkFlowsChanged, initialConfigs }) => {
         configsCopy[index] = {
             process: configsCopy[index].process,
             tsos: configsCopy[index].tsos,
-            runBalancesAdjustment: e.target.checked,
+            runBalancesAdjustment: e.target.value,
         };
         setAreasWorkFlows(configsCopy);
     }
@@ -285,7 +287,7 @@ const AreasContainer = ({ handleAreasWorkFlowsChanged, initialConfigs }) => {
                     sm={5}
                     className={classes.newTsoLabel}
                 >
-                    <FormattedMessage id="area" />
+                    <FormattedMessage id="process" />
                 </Grid>
                 <Grid
                     item={true}
@@ -302,7 +304,9 @@ const AreasContainer = ({ handleAreasWorkFlowsChanged, initialConfigs }) => {
                     <Grid container item xs={12} sm={5}>
                         <Grid item xs={12} sm={8}>
                             <TextField
-                                placeholder={intl.formatMessage({ id: 'area' })}
+                                placeholder={intl.formatMessage({
+                                    id: 'process',
+                                })}
                                 value={areasWorkFlow.process}
                                 InputProps={{
                                     classes: { input: classes.input },
@@ -311,17 +315,29 @@ const AreasContainer = ({ handleAreasWorkFlowsChanged, initialConfigs }) => {
                                     handleAreaNameChanged(e, index)
                                 }
                             />
+                            <RadioGroup
+                                aria-label="gender"
+                                name="gender1"
+                                value={areasWorkFlow.runBalancesAdjustment + ''}
+                                onChange={(e) => handleSwitchChange(e, index)}
+                            >
+                                <FormControlLabel
+                                    value="true"
+                                    control={<Radio />}
+                                    label="balance adjustment"
+                                />
+                                <FormControlLabel
+                                    value="false"
+                                    control={<Radio />}
+                                    label="loadflow"
+                                />
+                            </RadioGroup>
                         </Grid>
                         <Grid item xs={12} sm={3} align="center">
                             <IconButton onClick={() => handleDeleteArea(index)}>
                                 <DeleteIcon />
                             </IconButton>
                         </Grid>
-                        <Switch
-                            checked={areasWorkFlow.runBalancesAdjustment}
-                            onChange={(e) => handleSwitchChange(e, index)}
-                            inputProps={{ 'aria-label': 'secondary checkbox' }}
-                        />
                     </Grid>
                     {/* Tso inputs */}
                     <Grid container item xs={12} sm={7} spacing={1}>
