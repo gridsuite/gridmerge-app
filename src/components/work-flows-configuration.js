@@ -369,9 +369,43 @@ const AreasContainer = ({ handleAreasWorkFlowsChanged, initialConfigs }) => {
 const WorkFlowsConfiguration = ({ open, onClose }) => {
     const [areasWorkFlows, setAreasWorkFlows] = useState([]);
     const configs = useSelector((state) => state.configs);
+    const [confirmSave, setConfirmSave] = useState(false);
     const dispatch = useDispatch();
+
+    useEffect(() => {
+        setConfirmSave(false);
+    }, []);
+
     const handleClose = () => {
         onClose();
+    };
+
+    const handleClosePopup = () => {
+        setConfirmSave(false);
+    };
+
+    const saveButtonClicked = () => {
+        if (processToBeDeletd().length === 0) {
+            handleSave();
+        } else {
+            setConfirmSave(true);
+        }
+    };
+
+    const processToBeDeletd = () => {
+        const initialProcesses = configs.map((e) => e.process);
+        const currentProcesses = areasWorkFlows
+            .filter((e) => e.process !== '')
+            .map((e) => e.process);
+
+        let toBeDeleted = [];
+        // PROCESSES
+        for (let i = 0; i < initialProcesses.length; i++) {
+            if (!currentProcesses.includes(initialProcesses[i])) {
+                toBeDeleted.push(initialProcesses[i]);
+            }
+        }
+        return toBeDeleted;
     };
 
     const handleSave = () => {
@@ -433,25 +467,49 @@ const WorkFlowsConfiguration = ({ open, onClose }) => {
     };
 
     return (
-        <CustomDialog open={open} onClose={handleClose}>
-            <CustomDialogTitle id="form-dialog-title" onClose={handleClose}>
-                <FormattedMessage id="configurationWorkflowsTitle" />
-            </CustomDialogTitle>
-            <DialogContent dividers>
-                <AreasContainer
-                    initialConfigs={configs}
-                    handleAreasWorkFlowsChanged={handleAreasWorkFlowsChanged}
-                />
-            </DialogContent>
-            <DialogActions>
-                <Button autoFocus size="small" onClick={handleClose}>
-                    <FormattedMessage id="cancel" />
-                </Button>
-                <Button variant="outlined" size="small" onClick={handleSave}>
-                    <FormattedMessage id="save" />
-                </Button>
-            </DialogActions>
-        </CustomDialog>
+        <>
+            <CustomDialog open={open} onClose={handleClose}>
+                <CustomDialogTitle id="form-dialog-title" onClose={handleClose}>
+                    {confirmSave ? (
+                        <FormattedMessage id="deletionWorkflowsitle" />
+                    ) : (
+                        <FormattedMessage id="configurationWorkflowsTitle" />
+                    )}
+                </CustomDialogTitle>
+                <DialogContent dividers>
+                    {confirmSave ? (
+                        <h3>
+                            <FormattedMessage id="confirmMessage" />
+                        </h3>
+                    ) : (
+                        <AreasContainer
+                            initialConfigs={configs}
+                            handleAreasWorkFlowsChanged={
+                                handleAreasWorkFlowsChanged
+                            }
+                        />
+                    )}
+                    {confirmSave &&
+                        processToBeDeletd().map((e) => <h3>{e}</h3>)}
+                </DialogContent>
+                <DialogActions>
+                    <Button
+                        autoFocus
+                        size="small"
+                        onClick={confirmSave ? handleClosePopup : handleClose}
+                    >
+                        <FormattedMessage id="cancel" />
+                    </Button>
+                    <Button
+                        variant="outlined"
+                        size="small"
+                        onClick={confirmSave ? handleSave : saveButtonClicked}
+                    >
+                        <FormattedMessage id="confirm" />
+                    </Button>
+                </DialogActions>
+            </CustomDialog>
+        </>
     );
 };
 
