@@ -40,3 +40,12 @@ export function updateSelectedMergeDate(processIndex, selectedMergeDate) {
         selectedMergeDate,
     };
 }
+
+export const TIMELINE_DIAGONAL_LABELS = 'TIMELINE_DIAGONAL_LABELS';
+
+export function selectTimelineDiagonalLabels(timelineDiagonalLabels) {
+    return {
+        type: TIMELINE_DIAGONAL_LABELS,
+        timelineDiagonalLabels: timelineDiagonalLabels,
+    };
+}

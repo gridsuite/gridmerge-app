@@ -7,7 +7,7 @@
     "igmReception": "Réception des IGM",
     "imgMerged": "IGM mergés",
     "cgmValid": "CGM validé",
-    "pageNotFound": "Page non trouvé",
+    "pageNotFound": "Page introuvable",
     "configurationWorkflowsLink": "Configurer processus",
     "configurationWorkflowsTitle": "Configuration des processus de merge",
     "cancel": "Retour",
@@ -20,5 +20,6 @@
     "addNewArea": "Ajouter un nouveau area",
     "tso": "TSOs",
     "tsoLabelCode": "Code GRT",
-    "tsoLabelCodeOptional": "Code GRT alternatif (optionnel)"
+    "tsoLabelCodeOptional": "Code GRT alternatif (optionnel)",
+    "timelineDiagonalLabels": "Afficher les labels en diagonal"
 }

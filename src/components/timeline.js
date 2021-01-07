@@ -7,6 +7,8 @@
 
 import React, { useEffect, useState } from 'react';
 
+import { useSelector } from 'react-redux';
+
 import { makeStyles, withStyles } from '@material-ui/styles';
 import Slider from '@material-ui/core/Slider';
 import ClockIcon from '../images/clock.svg';
@@ -15,9 +17,16 @@ import moment from 'moment';
 
 const useStyles = makeStyles((theme) => ({
     customSlider: {
-        padding: '10px 20px 10px 20px',
+        padding: '10px 20px',
         width: '100%',
         height: '60px',
+    },
+    obliqueLabels: {
+        '& span.MuiSlider-markLabel': {
+            transform: 'rotate(300deg)',
+            width: 'auto',
+            margin: '15px 0 0 -25px',
+        },
     },
 }));
 
@@ -97,6 +106,10 @@ const Timeline = (props) => {
 
     const [value, setValue] = useState(null);
 
+    const timelineDiagonalLabels = useSelector(
+        (state) => state.timelineDiagonalLabels
+    );
+
     function findMergeIndex(value) {
         return marks.findIndex((mark) => mark.value === value);
     }
@@ -152,6 +165,9 @@ const Timeline = (props) => {
         <>
             <div className={classes.customSlider}>
                 <TheSlider
+                    className={
+                        timelineDiagonalLabels ? classes.obliqueLabels : ''
+                    }
                     value={value}
                     marks={marks}
                     onChangeCommitted={handleSliderChange}

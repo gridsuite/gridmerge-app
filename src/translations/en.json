@@ -20,5 +20,6 @@
     "addNewArea": "Add new area",
     "tso": "TSOs",
     "tsoLabelCode": "sourcingActor code",
-    "tsoLabelCodeOptional": "Alternative sourcingActor code (optional)"
+    "tsoLabelCodeOptional": "Alternative sourcingActor code (optional)",
+    "timelineDiagonalLabels": "Display labels diagonally"
 }
