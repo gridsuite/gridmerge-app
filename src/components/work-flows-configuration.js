@@ -101,14 +101,7 @@ const AreaTsos = ({ initialTsos, areaIndex, handleAreaTsosChanged }) => {
     const classes = useStyles();
     const intl = useIntl();
 
-    const [areaTsos, setAreaTsos] = useState(
-        initialTsos.length === 0
-            ? [
-                  ...initialTsos,
-                  { sourcingActor: '', alternativeSourcingActor: '' },
-              ]
-            : initialTsos
-    );
+    const [areaTsos, setAreaTsos] = useState(initialTsos);
 
     useEffect(() => {
         handleAreaTsosChanged(areaIndex, areaTsos);
@@ -222,7 +215,7 @@ const AreasContainer = ({ handleAreasWorkFlowsChanged, initialConfigs }) => {
         ...initialConfigs,
         {
             process: '',
-            tsos: [],
+            tsos: [{ sourcingActor: '', alternativeSourcingActor: '' }],
             runBalancesAdjustment: false,
         },
     ]);
@@ -299,7 +292,11 @@ const AreasContainer = ({ handleAreasWorkFlowsChanged, initialConfigs }) => {
                 </Grid>
             </Grid>
             {areasWorkFlows.map((areasWorkFlow, index) => (
-                <Grid container className={classes.addNewTso} key={`${index}`}>
+                <Grid
+                    container
+                    className={classes.addNewTso}
+                    key={`${areasWorkFlow.process + index}`}
+                >
                     {/* Area input*/}
                     <Grid container item xs={12} sm={5}>
                         <Grid item xs={12} sm={8}>
@@ -385,14 +382,14 @@ const WorkFlowsConfiguration = ({ open, onClose }) => {
     };
 
     const saveButtonClicked = () => {
-        if (processToBeDeletd().length === 0) {
+        if (processesToBeDeletd().length === 0) {
             handleSave();
         } else {
             setConfirmSave(true);
         }
     };
 
-    const processToBeDeletd = () => {
+    const processesToBeDeletd = () => {
         const initialProcesses = configs.map((e) => e.process);
         const currentProcesses = areasWorkFlows
             .filter((e) => e.process !== '')
@@ -490,7 +487,7 @@ const WorkFlowsConfiguration = ({ open, onClose }) => {
                         />
                     )}
                     {confirmSave &&
-                        processToBeDeletd().map((e) => <h3>{e}</h3>)}
+                        processesToBeDeletd().map((e) => <h3 key={e}>{e}</h3>)}
                 </DialogContent>
                 <DialogActions>
                     <Button
