@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import Dialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
@@ -30,6 +30,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Radio from '@material-ui/core/Radio';
+import { v4 as uuidv4 } from 'uuid';
 
 const useStyles = makeStyles(() => ({
     addNewTso: {
@@ -212,7 +213,7 @@ const AreasContainer = ({ handleAreasWorkFlowsChanged, initialConfigs }) => {
     const intl = useIntl();
 
     const [areasWorkFlows, setAreasWorkFlows] = useState([
-        ...initialConfigs,
+        ...initialConfigs.map(e => { return {id: uuidv4(), ...e}}),
         {
             process: '',
             tsos: [{ sourcingActor: '', alternativeSourcingActor: '' }],
@@ -223,8 +224,9 @@ const AreasContainer = ({ handleAreasWorkFlowsChanged, initialConfigs }) => {
     function handleAddArea() {
         const areasWorkFlowsCopy = [...areasWorkFlows];
         areasWorkFlowsCopy.push({
+            id: uuidv4(),
             process: '',
-            tsos: [],
+            tsos: [{ sourcingActor: '', alternativeSourcingActor: '' }],
             runBalancesAdjustment: false,
         });
         setAreasWorkFlows(areasWorkFlowsCopy);
@@ -233,6 +235,7 @@ const AreasContainer = ({ handleAreasWorkFlowsChanged, initialConfigs }) => {
     function handleAreaNameChanged(e, index) {
         const configsCopy = [...areasWorkFlows];
         configsCopy[index] = {
+            id: configsCopy[index].id,
             process: e.target.value,
             tsos: configsCopy[index].tsos,
             runBalancesAdjustment: configsCopy[index].runBalancesAdjustment,
@@ -243,6 +246,7 @@ const AreasContainer = ({ handleAreasWorkFlowsChanged, initialConfigs }) => {
     function handleSwitchChange(e, index) {
         const configsCopy = [...areasWorkFlows];
         configsCopy[index] = {
+            id: configsCopy[index].id,
             process: configsCopy[index].process,
             tsos: configsCopy[index].tsos,
             runBalancesAdjustment: e.target.value,
@@ -259,6 +263,7 @@ const AreasContainer = ({ handleAreasWorkFlowsChanged, initialConfigs }) => {
     function handleAreaTsosChanged(index, tsosList) {
         const areasWorkFlowsCopy = [...areasWorkFlows];
         areasWorkFlowsCopy[index] = {
+            id: areasWorkFlowsCopy[index].id,
             process: areasWorkFlowsCopy[index].process,
             tsos: tsosList,
             runBalancesAdjustment:
@@ -295,7 +300,7 @@ const AreasContainer = ({ handleAreasWorkFlowsChanged, initialConfigs }) => {
                 <Grid
                     container
                     className={classes.addNewTso}
-                    key={`${areasWorkFlow.process + index}`}
+                    key={`${areasWorkFlow.id}`}
                 >
                     {/* Area input*/}
                     <Grid container item xs={12} sm={5}>
@@ -371,7 +376,7 @@ const WorkFlowsConfiguration = ({ open, onClose }) => {
 
     useEffect(() => {
         setConfirmSave(false);
-    }, []);
+    }, [open]);
 
     const handleClose = () => {
         onClose();
@@ -389,7 +394,7 @@ const WorkFlowsConfiguration = ({ open, onClose }) => {
         }
     };
 
-    const processesToBeDeletd = () => {
+    const processesToBeDeletd = useCallback(() => {
         const initialProcesses = configs.map((e) => e.process);
         const currentProcesses = areasWorkFlows
             .filter((e) => e.process !== '')
@@ -403,7 +408,7 @@ const WorkFlowsConfiguration = ({ open, onClose }) => {
             }
         }
         return toBeDeleted;
-    };
+    }, [configs, areasWorkFlows]);
 
     const handleSave = () => {
         const initialProcesses = configs.map((e) => e.process);
