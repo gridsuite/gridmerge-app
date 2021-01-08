@@ -174,13 +174,22 @@ export function getIgmStatus(tso, merge) {
             ? merge.igms.find((igm) => igm.tso === tso.sourcingActor)
             : null;
     if (!igm) {
-        return IgmStatus.ABSENT;
+        return {
+            status: IgmStatus.ABSENT,
+            replacingDate: null,
+            replacingBusinessProcess: null,
+        };
     }
+
     if (merge.status) {
         switch (merge.status) {
             case 'BALANCE_ADJUSTMENT_SUCCEED':
             case 'LOADFLOW_SUCCEED':
-                return IgmStatus.MERGED;
+                return {
+                    status: IgmStatus.MERGED,
+                    replacingDate: igm.replacingDate,
+                    replacingBusinessProcess: igm.replacingBusinessProcess,
+                };
 
             case 'BALANCE_ADJUSTMENT_FAILED':
             case 'LOADFLOW_FAILED':
@@ -190,13 +199,25 @@ export function getIgmStatus(tso, merge) {
     } else {
         switch (igm.status) {
             case 'AVAILABLE':
-                return IgmStatus.AVAILABLE;
+                return {
+                    status: IgmStatus.AVAILABLE,
+                    replacingDate: igm.replacingDate,
+                    replacingBusinessProcess: igm.replacingBusinessProcess,
+                };
 
             case 'VALIDATION_SUCCEED':
-                return IgmStatus.VALID;
+                return {
+                    status: IgmStatus.VALID,
+                    replacingDate: igm.replacingDate,
+                    replacingBusinessProcess: igm.replacingBusinessProcess,
+                };
 
             case 'VALIDATION_FAILED':
-                return IgmStatus.INVALID;
+                return {
+                    status: IgmStatus.INVALID,
+                    replacingDate: igm.replacingDate,
+                    replacingBusinessProcess: igm.replacingBusinessProcess,
+                };
 
             default:
                 throw Error('Status not supported');
@@ -223,6 +244,22 @@ export function deleteProcess(process) {
     return backendFetch(deleteProcessUrl, {
         method: 'delete',
     });
+}
+
+export function getReplaceIGMUrl(process, date) {
+    const url =
+        PREFIX_ORCHESTRATOR_QUERIES +
+        '/v1/' +
+        process +
+        '/' +
+        date +
+        '/replace-igms';
+    return getUrlWithToken(url);
+}
+
+export function replaceIGM(process, date) {
+    console.info('replacing igm for process : ' + process + ' at : ' + date);
+    backendFetch(getReplaceIGMUrl(process, date), { method: 'put' }).then();
 }
 
 export const MergeType = PropTypes.shape({

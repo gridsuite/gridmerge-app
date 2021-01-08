@@ -23,5 +23,6 @@
     "tsoLabelCodeOptional": "Alternative sourcingActor code (optional)",
     "timelineDiagonalLabels": "Display labels diagonally",
     "name": "name",
-    "businessProcess": "business process"
+    "businessProcess": "business process",
+    "replaceIGM": "Replace absent IGM"
 }

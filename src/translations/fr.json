@@ -23,5 +23,6 @@
     "tsoLabelCodeOptional": "Code GRT alternatif (optionnel)",
     "timelineDiagonalLabels": "Afficher les labels en diagonal",
     "name": "nom",
-    "businessProcess": "business process"
+    "businessProcess": "business process",
+    "replaceIGM": "Remplacer IGM absent"
 }
