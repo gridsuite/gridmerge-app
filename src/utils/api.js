@@ -208,7 +208,7 @@ export function getIgmStatus(tso, merge) {
 }
 
 export function addProcess(json) {
-    console.debug('Saving Process', json.process, ' ...');
+    console.info('Saving Process', json.process, ' ...');
     const addProcessUrl = PREFIX_ORCHESTRATOR_QUERIES + '/v1/configs';
     return backendFetch(addProcessUrl, {
         method: 'post',
@@ -221,7 +221,7 @@ export function addProcess(json) {
 }
 
 export function deleteProcess(process) {
-    console.debug('Deleting Process', process, ' ...');
+    console.info('Deleting Process', process, ' ...');
     const deleteProcessUrl =
         PREFIX_ORCHESTRATOR_QUERIES + '/v1/configs/' + process;
     return backendFetch(deleteProcessUrl, {

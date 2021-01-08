@@ -98,11 +98,15 @@ const CustomDialog = withStyles(() => ({
     },
 }))(Dialog);
 
-const AreaTsos = ({ initialTsos, areaIndex, handleAreaTsosChanged }) => {
+const WorkflowTsos = ({ initialTsos, areaIndex, handleAreaTsosChanged }) => {
     const classes = useStyles();
     const intl = useIntl();
 
-    const [areaTsos, setAreaTsos] = useState(initialTsos);
+    const [areaTsos, setAreaTsos] = useState(
+        initialTsos.map((e) => {
+            return { id: uuidv4(), ...e };
+        })
+    );
 
     useEffect(() => {
         handleAreaTsosChanged(areaIndex, areaTsos);
@@ -113,6 +117,7 @@ const AreaTsos = ({ initialTsos, areaIndex, handleAreaTsosChanged }) => {
     const handleChangeTsoSourcingActor = (index, event) => {
         const areaTsosCopy = [...areaTsos];
         areaTsosCopy[index] = {
+            id: areaTsosCopy[index].id,
             sourcingActor: event.target.value,
             alternativeSourcingActor:
                 areaTsosCopy[index].alternativeSourcingActor,
@@ -123,6 +128,7 @@ const AreaTsos = ({ initialTsos, areaIndex, handleAreaTsosChanged }) => {
     const handleChangeTsoAlternativeSourcingActor = (index, event) => {
         const areaTsosCopy = [...areaTsos];
         areaTsosCopy[index] = {
+            id: areaTsosCopy[index].id,
             sourcingActor: areaTsosCopy[index].sourcingActor,
             alternativeSourcingActor: event.target.value,
         };
@@ -131,7 +137,11 @@ const AreaTsos = ({ initialTsos, areaIndex, handleAreaTsosChanged }) => {
 
     const handleAddAreaTso = () => {
         const areaTsosCopy = [...areaTsos];
-        areaTsosCopy.push('');
+        areaTsosCopy.push({
+            id: uuidv4(),
+            sourcingActor: '',
+            alternativeSourcingActor: '',
+        });
         setAreaTsos(areaTsosCopy);
     };
 
@@ -144,7 +154,7 @@ const AreaTsos = ({ initialTsos, areaIndex, handleAreaTsosChanged }) => {
     return (
         <>
             {areaTsos.map((tso, index) => (
-                <Grid container spacing={2} key={`${index}`}>
+                <Grid container spacing={2} key={`${tso.id}`}>
                     <Grid item={true} xs={12} sm={5}>
                         <TextField
                             placeholder={intl.formatMessage({
@@ -185,7 +195,9 @@ const AreaTsos = ({ initialTsos, areaIndex, handleAreaTsosChanged }) => {
                         />
                     </Grid>
                     <Grid item={true} xs={12} sm={2} align="center">
-                        <IconButton onClick={() => handleRemoveFieldsTso()}>
+                        <IconButton
+                            onClick={() => handleRemoveFieldsTso(index)}
+                        >
                             <DeleteIcon />
                         </IconButton>
                     </Grid>
@@ -208,13 +220,19 @@ const AreaTsos = ({ initialTsos, areaIndex, handleAreaTsosChanged }) => {
     );
 };
 
-const AreasContainer = ({ handleAreasWorkFlowsChanged, initialConfigs }) => {
+const WorkflowsContainerContainer = ({
+    handleAreasWorkFlowsChanged,
+    initialConfigs,
+}) => {
     const classes = useStyles();
     const intl = useIntl();
 
     const [areasWorkFlows, setAreasWorkFlows] = useState([
-        ...initialConfigs.map(e => { return {id: uuidv4(), ...e}}),
+        ...initialConfigs.map((e) => {
+            return { id: uuidv4(), ...e };
+        }),
         {
+            id: uuidv4(),
             process: '',
             tsos: [{ sourcingActor: '', alternativeSourcingActor: '' }],
             runBalancesAdjustment: false,
@@ -343,7 +361,7 @@ const AreasContainer = ({ handleAreasWorkFlowsChanged, initialConfigs }) => {
                     </Grid>
                     {/* Tso inputs */}
                     <Grid container item xs={12} sm={7} spacing={1}>
-                        <AreaTsos
+                        <WorkflowTsos
                             initialTsos={areasWorkFlow.tsos}
                             areaIndex={index}
                             handleAreaTsosChanged={handleAreaTsosChanged}
@@ -425,16 +443,55 @@ const WorkFlowsConfiguration = ({ open, onClose }) => {
                 promises.push(deleteProcess(initialProcesses[i]));
             }
         }
-        const isDifferent = (initialWorkflow, areasWorkFlow) => {
-            let union = [
-                ...new Set([...initialWorkflow.tsos, ...areasWorkFlow.tsos]),
-            ];
+
+        const WorkFlowWithoutId = (workflow) => {
+            return {
+                process: workflow.process,
+                runBalancesAdjustment: workflow.runBalancesAdjustment,
+                tsos: workflow.tsos.map((tso) => {
+                    return {
+                        sourcingActor: tso.sourcingActor,
+                        alternativeSourcingActor: tso.alternativeSourcingActor,
+                    };
+                }),
+            };
+        };
+
+        const areDiffrent = (initialWorkflow, areaWorkFlow) => {
+            let areasWorkFlowWithoutId = areaWorkFlow.tsos.map((tso) => {
+                return {
+                    sourcingActor: tso.sourcingActor,
+                    alternativeSourcingActor: tso.alternativeSourcingActor,
+                };
+            });
+
+            areasWorkFlowWithoutId.forEach((e) => {
+                let index = initialWorkflow.tsos.findIndex(
+                    (res) =>
+                        res.sourcingActor === e.sourcingActor &&
+                        res.alternativeSourcingActor ===
+                            e.alternativeSourcingActor
+                );
+                if (index === -1) {
+                    return false;
+                }
+            });
+
+            initialWorkflow.tsos.forEach((e) => {
+                let index = areasWorkFlowWithoutId.findIndex(
+                    (res) =>
+                        res.sourcingActor === e.sourcingActor &&
+                        res.alternativeSourcingActor ===
+                            e.alternativeSourcingActor
+                );
+                if (index === -1) {
+                    return false;
+                }
+            });
+
             return (
-                initialWorkflow.process !== areasWorkFlow.process ||
                 initialWorkflow.runBalancesAdjustment !==
-                    areasWorkFlow.runBalancesAdjustment ||
-                initialWorkflow.tsos.length !== areasWorkFlow.tsos.length ||
-                union.length !== areasWorkFlow.process
+                areaWorkFlow.runBalancesAdjustment
             );
         };
 
@@ -444,16 +501,16 @@ const WorkFlowsConfiguration = ({ open, onClose }) => {
             }
             if (!initialProcesses.includes(areasWorkFlows[i].process)) {
                 // ADD NEW PROCESSES
-                promises.push(addProcess(areasWorkFlows[i]));
+                promises.push(addProcess(WorkFlowWithoutId(areasWorkFlows[i])));
                 continue;
             }
 
             let intialProcess = configs.find(
                 (element) => element.process === areasWorkFlows[i].process
             );
-            if (isDifferent(intialProcess, areasWorkFlows[i])) {
+            if (areDiffrent(intialProcess, areasWorkFlows[i])) {
                 // UPDATE PROCESSES
-                promises.push(addProcess(areasWorkFlows[i]));
+                promises.push(addProcess(WorkFlowWithoutId(areasWorkFlows[i])));
             }
         }
         Promise.all(promises).then(() => {
@@ -484,7 +541,7 @@ const WorkFlowsConfiguration = ({ open, onClose }) => {
                             <FormattedMessage id="confirmMessage" />
                         </h3>
                     ) : (
-                        <AreasContainer
+                        <WorkflowsContainerContainer
                             initialConfigs={configs}
                             handleAreasWorkFlowsChanged={
                                 handleAreasWorkFlowsChanged
