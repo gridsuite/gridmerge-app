@@ -17,9 +17,10 @@
     "deletionWorkflowsitle": "Suppression des workflows",
     "process": "Processus",
     "addNewTso": "Ajouter un nouveau TSO",
-    "addNewArea": "Ajouter un nouveau area",
+    "addNewProcess": "Ajouter un nouveau workflow",
     "tso": "TSOs",
     "tsoLabelCode": "Code GRT",
     "tsoLabelCodeOptional": "Code GRT alternatif (optionnel)",
-    "timelineDiagonalLabels": "Afficher les labels en diagonal"
+    "timelineDiagonalLabels": "Afficher les labels en diagonal",
+    "name": "nom"
 }

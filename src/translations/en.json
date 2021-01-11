@@ -17,9 +17,10 @@
     "deletionWorkflowsitle": "Workflows deletion",
     "process": "Process",
     "addNewTso": "Add new TSO",
-    "addNewArea": "Add new area",
+    "addNewProcess": "Add new workflow",
     "tso": "TSOs",
     "tsoLabelCode": "sourcingActor code",
     "tsoLabelCodeOptional": "Alternative sourcingActor code (optional)",
-    "timelineDiagonalLabels": "Display labels diagonally"
+    "timelineDiagonalLabels": "Display labels diagonally",
+    "name": "name"
 }

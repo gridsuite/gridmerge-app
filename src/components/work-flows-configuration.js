@@ -325,7 +325,7 @@ const WorkflowsContainerContainer = ({
                         <Grid item xs={12} sm={8}>
                             <TextField
                                 placeholder={intl.formatMessage({
-                                    id: 'process',
+                                    id: 'name',
                                 })}
                                 value={areasWorkFlow.process}
                                 InputProps={{
@@ -379,7 +379,7 @@ const WorkflowsContainerContainer = ({
                         fontSize="default"
                         style={{ marginRight: '10px' }}
                     />
-                    <FormattedMessage id="addNewArea" />
+                    <FormattedMessage id="addNewProcess" />
                 </Button>
             </Grid>
         </Grid>
@@ -405,14 +405,14 @@ const WorkFlowsConfiguration = ({ open, onClose }) => {
     };
 
     const saveButtonClicked = () => {
-        if (processesToBeDeletd().length === 0) {
+        if (processesToBeDeleted().length === 0) {
             handleSave();
         } else {
             setConfirmSave(true);
         }
     };
 
-    const processesToBeDeletd = useCallback(() => {
+    const processesToBeDeleted = useCallback(() => {
         const initialProcesses = configs.map((e) => e.process);
         const currentProcesses = areasWorkFlows
             .filter((e) => e.process !== '')
@@ -457,15 +457,16 @@ const WorkFlowsConfiguration = ({ open, onClose }) => {
             };
         };
 
-        const areDiffrent = (initialWorkflow, areaWorkFlow) => {
-            let areasWorkFlowWithoutId = areaWorkFlow.tsos.map((tso) => {
+        const areDifferent = (initialWorkflow, areaWorkFlow) => {
+            let isDiffrent = false;
+            let areasWorkFlowTsosWithoutId = areaWorkFlow.tsos.map((tso) => {
                 return {
                     sourcingActor: tso.sourcingActor,
                     alternativeSourcingActor: tso.alternativeSourcingActor,
                 };
             });
 
-            areasWorkFlowWithoutId.forEach((e) => {
+            areasWorkFlowTsosWithoutId.forEach((e) => {
                 let index = initialWorkflow.tsos.findIndex(
                     (res) =>
                         res.sourcingActor === e.sourcingActor &&
@@ -473,21 +474,25 @@ const WorkFlowsConfiguration = ({ open, onClose }) => {
                             e.alternativeSourcingActor
                 );
                 if (index === -1) {
-                    return false;
+                    isDiffrent = true;
                 }
             });
 
             initialWorkflow.tsos.forEach((e) => {
-                let index = areasWorkFlowWithoutId.findIndex(
+                let index = areasWorkFlowTsosWithoutId.findIndex(
                     (res) =>
                         res.sourcingActor === e.sourcingActor &&
                         res.alternativeSourcingActor ===
                             e.alternativeSourcingActor
                 );
                 if (index === -1) {
-                    return false;
+                    isDiffrent = true;
                 }
             });
+
+            if (isDiffrent) {
+                return true;
+            }
 
             return (
                 initialWorkflow.runBalancesAdjustment !==
@@ -508,7 +513,7 @@ const WorkFlowsConfiguration = ({ open, onClose }) => {
             let intialProcess = configs.find(
                 (element) => element.process === areasWorkFlows[i].process
             );
-            if (areDiffrent(intialProcess, areasWorkFlows[i])) {
+            if (areDifferent(intialProcess, areasWorkFlows[i])) {
                 // UPDATE PROCESSES
                 promises.push(addProcess(WorkFlowWithoutId(areasWorkFlows[i])));
             }
@@ -549,7 +554,7 @@ const WorkFlowsConfiguration = ({ open, onClose }) => {
                         />
                     )}
                     {confirmSave &&
-                        processesToBeDeletd().map((e) => <h3 key={e}>{e}</h3>)}
+                        processesToBeDeleted().map((e) => <h3 key={e}>{e}</h3>)}
                 </DialogContent>
                 <DialogActions>
                     <Button
