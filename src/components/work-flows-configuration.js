@@ -94,7 +94,7 @@ const CustomDialogTitle = withStyles(styles)((props) => {
 
 const CustomDialog = withStyles(() => ({
     paperScrollPaper: {
-        minWidth: '800px',
+        minWidth: '850px',
     },
 }))(Dialog);
 
