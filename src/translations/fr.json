@@ -22,5 +22,6 @@
     "tsoLabelCode": "Code GRT",
     "tsoLabelCodeOptional": "Code GRT alternatif (optionnel)",
     "timelineDiagonalLabels": "Afficher les labels en diagonal",
-    "name": "nom"
+    "name": "nom",
+    "businessProcess": "business process"
 }

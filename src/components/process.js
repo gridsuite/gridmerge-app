@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * Copyright (c) 2021, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -27,6 +27,8 @@ import Timeline from './timeline';
 import StepperWithStatus from './stepper';
 import CountryStatesList from './country-state-list';
 import Grid from '@material-ui/core/Grid';
+import Chip from '@material-ui/core/Chip';
+
 import {
     KeyboardDatePicker,
     MuiPickersUtilsProvider,
@@ -34,8 +36,20 @@ import {
 import 'date-fns';
 import DateFnsUtils from '@date-io/date-fns';
 import { useSnackbar } from 'notistack';
+import { makeStyles } from '@material-ui/core/styles';
+
+const useStyles = makeStyles((theme) => ({
+    itemBusinessProcess: {
+        margin: '20px',
+    },
+    businessProcess: {
+        backgroundColor: theme.palette.background.paper,
+    },
+}));
 
 const Process = (props) => {
+    const classes = useStyles();
+
     const config = useSelector((state) => state.configs[props.index]);
 
     const date = useSelector((state) => state.processes[props.index].date);
@@ -87,17 +101,22 @@ const Process = (props) => {
     );
 
     const connectNotifications = useCallback(
-        (processName) => {
-            console.info(`Connecting to notifications '${processName}'...`);
+        (processName, businessProcess) => {
+            console.info(
+                `Connecting to notifications for process : '${processName}' and business process : '${businessProcess}' ...`
+            );
 
-            const ws = connectNotificationsWebsocket(processName);
+            const ws = connectNotificationsWebsocket(
+                processName,
+                businessProcess
+            );
             ws.onmessage = function (event) {
                 const message = JSON.parse(event.data);
                 update(message);
             };
             ws.onclose = function (event) {
                 console.info(
-                    `Disconnecting from notifications '${processName}'...`
+                    `Disconnecting from notifications for process : '${processName}' and business process : '${businessProcess}' ...`
                 );
             };
             ws.onerror = function (event) {
@@ -114,12 +133,12 @@ const Process = (props) => {
     }, [config.process, date, loadMerges]);
 
     useEffect(() => {
-        const ws = connectNotifications(config.process);
+        const ws = connectNotifications(config.process, config.businessProcess);
 
         return function () {
             ws.close();
         };
-    }, [config.process, connectNotifications]);
+    }, [config.process, config.businessProcess, connectNotifications]);
 
     const handleDateChange = (date) => {
         dispatch(updateProcessDate(props.index, removeTime(date)));
@@ -149,21 +168,35 @@ const Process = (props) => {
     return (
         <Grid container direction="row" justify="space-around">
             <Grid item xs={12} md={10} key="map">
-                <Grid container justify="space-around">
-                    <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                        <KeyboardDatePicker
-                            disableToolbar
-                            variant="inline"
-                            format="MM/dd/yyyy"
-                            margin="normal"
-                            value={date}
-                            onChange={handleDateChange}
-                            KeyboardButtonProps={{
-                                'aria-label': 'change date',
-                            }}
-                            inputProps={{ readOnly: true }}
+                <Grid container direction="row" justify="center">
+                    <Grid
+                        item
+                        xs={12}
+                        md={2}
+                        key="businessProcess"
+                        className={classes.itemBusinessProcess}
+                    >
+                        <Chip
+                            label={config.businessProcess}
+                            className={classes.businessProcess}
                         />
-                    </MuiPickersUtilsProvider>
+                    </Grid>
+                    <Grid item xs={12} md={2} key="datePicker">
+                        <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                            <KeyboardDatePicker
+                                disableToolbar
+                                variant="inline"
+                                format="MM/dd/yyyy"
+                                margin="normal"
+                                value={date}
+                                onChange={handleDateChange}
+                                KeyboardButtonProps={{
+                                    'aria-label': 'change date',
+                                }}
+                                inputProps={{ readOnly: true }}
+                            />
+                        </MuiPickersUtilsProvider>
+                    </Grid>
                 </Grid>
                 <Timeline
                     merges={merges}

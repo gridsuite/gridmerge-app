@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * Copyright (c) 2021, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -230,6 +230,19 @@ const WorkflowsContainer = ({
         configsCopy[index] = {
             id: configsCopy[index].id,
             process: e.target.value,
+            businessProcess: configsCopy[index].businessProcess,
+            tsos: configsCopy[index].tsos,
+            runBalancesAdjustment: configsCopy[index].runBalancesAdjustment,
+        };
+        setAreasWorkFlows(configsCopy);
+    }
+
+    function handleAreaBusinessProcessChanged(e, index) {
+        const configsCopy = [...areasWorkFlows];
+        configsCopy[index] = {
+            id: configsCopy[index].id,
+            process: configsCopy[index].process,
+            businessProcess: e.target.value,
             tsos: configsCopy[index].tsos,
             runBalancesAdjustment: configsCopy[index].runBalancesAdjustment,
         };
@@ -241,6 +254,7 @@ const WorkflowsContainer = ({
         configsCopy[index] = {
             id: configsCopy[index].id,
             process: configsCopy[index].process,
+            businessProcess: configsCopy[index].businessProcess,
             tsos: configsCopy[index].tsos,
             runBalancesAdjustment: e.target.value,
         };
@@ -258,6 +272,7 @@ const WorkflowsContainer = ({
         areasWorkFlowsCopy[index] = {
             id: areasWorkFlowsCopy[index].id,
             process: areasWorkFlowsCopy[index].process,
+            businessProcess: areasWorkFlowsCopy[index].businessProcess,
             tsos: tsosList,
             runBalancesAdjustment:
                 areasWorkFlowsCopy[index].runBalancesAdjustment,
@@ -300,6 +315,18 @@ const WorkflowsContainer = ({
                                 }}
                                 onChange={(e) =>
                                     handleAreaNameChanged(e, index)
+                                }
+                            />
+                            <TextField
+                                placeholder={intl.formatMessage({
+                                    id: 'businessProcess',
+                                })}
+                                value={areasWorkFlow.businessProcess}
+                                InputProps={{
+                                    classes: { input: classes.input },
+                                }}
+                                onChange={(e) =>
+                                    handleAreaBusinessProcessChanged(e, index)
                                 }
                             />
                             <RadioGroup
@@ -393,6 +420,7 @@ const WorkflowsConfiguration = ({ open, onClose, matchProcess }) => {
     const workFlowWithoutId = (workflow) => {
         return {
             process: workflow.process,
+            businessProcess: workflow.businessProcess,
             runBalancesAdjustment: workflow.runBalancesAdjustment,
             tsos: workflow.tsos.map((tso) => {
                 return {
@@ -460,7 +488,10 @@ const WorkflowsConfiguration = ({ open, onClose, matchProcess }) => {
 
         for (let i = 0; i < areasWorkFlows.length; i++) {
             // ignore processes with no name
-            if (areasWorkFlows[i].process === '') {
+            if (
+                areasWorkFlows[i].process === '' ||
+                areasWorkFlows[i].businessProcess === ''
+            ) {
                 continue;
             }
 
