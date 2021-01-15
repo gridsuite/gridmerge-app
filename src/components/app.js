@@ -44,7 +44,7 @@ import { FormattedMessage } from 'react-intl';
 import Process from './process';
 
 import Parameters from './parameters';
-import WorkFlowsConfiguration from './work-flows-configuration';
+import WorkflowsConfiguration from './workflows-configuration';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Button from '@material-ui/core/Button';
@@ -368,7 +368,7 @@ const App = () => {
                                     >
                                         <FormattedMessage id="configurationWorkflowsLink" />
                                     </Button>
-                                    <WorkFlowsConfiguration
+                                    <WorkflowsConfiguration
                                         open={showConfigurationWorkflows}
                                         onClose={() => {
                                             setShowConfigurationWorkflows(

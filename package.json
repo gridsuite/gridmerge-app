@@ -28,7 +28,7 @@
         "reconnecting-websocket": "^4.4.0",
         "redux": "^4.0.5",
         "typeface-roboto": "0.0.75",
-        "uuid": "latest"
+        "uuid": "8.3.2"
     },
     "scripts": {
         "start": "react-scripts start",

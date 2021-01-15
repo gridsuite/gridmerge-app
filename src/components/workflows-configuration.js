@@ -386,7 +386,7 @@ const WorkflowsContainerContainer = ({
     );
 };
 
-const WorkFlowsConfiguration = ({ open, onClose }) => {
+const WorkflowsConfiguration = ({ open, onClose }) => {
     const [areasWorkFlows, setAreasWorkFlows] = useState([]);
     const configs = useSelector((state) => state.configs);
     const [confirmSave, setConfirmSave] = useState(false);
@@ -577,8 +577,8 @@ const WorkFlowsConfiguration = ({ open, onClose }) => {
     );
 };
 
-WorkFlowsConfiguration.propTypes = {
+WorkflowsConfiguration.propTypes = {
     open: PropTypes.bool.isRequired,
     onClose: PropTypes.func.isRequired,
 };
-export default WorkFlowsConfiguration;
+export default WorkflowsConfiguration;
