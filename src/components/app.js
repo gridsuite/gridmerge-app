@@ -89,14 +89,14 @@ const getMuiTheme = (theme) => {
 const useStyles = makeStyles(() => ({
     process: {
         marginLeft: 18,
-        float: 'left',
     },
     child: {
         width: '100%',
+        display: 'flex',
     },
     btnConfigurationWorkflows: {
-        float: 'right',
         marginTop: 3,
+        marginLeft: 'auto',
     },
 }));
 
