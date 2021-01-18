@@ -220,7 +220,7 @@ const WorkflowTsos = ({ initialTsos, areaIndex, handleAreaTsosChanged }) => {
     );
 };
 
-const WorkflowsContainerContainer = ({
+const WorkflowsContainer = ({
     handleAreasWorkFlowsChanged,
     initialConfigs,
 }) => {
@@ -458,7 +458,7 @@ const WorkflowsConfiguration = ({ open, onClose }) => {
         };
 
         const areDifferent = (initialWorkflow, areaWorkFlow) => {
-            let isDiffrent = false;
+            let isDifferent = false;
             let areasWorkFlowTsosWithoutId = areaWorkFlow.tsos.map((tso) => {
                 return {
                     sourcingActor: tso.sourcingActor,
@@ -474,7 +474,7 @@ const WorkflowsConfiguration = ({ open, onClose }) => {
                             e.alternativeSourcingActor
                 );
                 if (index === -1) {
-                    isDiffrent = true;
+                    isDifferent = true;
                 }
             });
 
@@ -486,11 +486,11 @@ const WorkflowsConfiguration = ({ open, onClose }) => {
                             e.alternativeSourcingActor
                 );
                 if (index === -1) {
-                    isDiffrent = true;
+                    isDifferent = true;
                 }
             });
 
-            if (isDiffrent) {
+            if (isDifferent) {
                 return true;
             }
 
@@ -546,7 +546,7 @@ const WorkflowsConfiguration = ({ open, onClose }) => {
                             <FormattedMessage id="confirmMessage" />
                         </h3>
                     ) : (
-                        <WorkflowsContainerContainer
+                        <WorkflowsContainer
                             initialConfigs={configs}
                             handleAreasWorkFlowsChanged={
                                 handleAreasWorkFlowsChanged
