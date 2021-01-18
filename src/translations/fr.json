@@ -14,7 +14,7 @@
     "save": "Enregistrer",
     "confirm": "Confirmer",
     "confirmMessage": "Confirmer vous la suppression des processus suivants?",
-    "deletionWorkflowsitle": "Suppression des workflows",
+    "deletionWorkflowsTitle": "Suppression des workflows",
     "process": "Processus",
     "addNewTso": "Ajouter un nouveau TSO",
     "addNewProcess": "Ajouter un nouveau workflow",

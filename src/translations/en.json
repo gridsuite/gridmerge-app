@@ -14,7 +14,7 @@
     "save": "Save",
     "confirm": "Confirm",
     "confirmMessage": "Do you confirm the deletion of the following processes?",
-    "deletionWorkflowsitle": "Workflows deletion",
+    "deletionWorkflowsTitle": "Workflows deletion",
     "process": "Process",
     "addNewTso": "Add new TSO",
     "addNewProcess": "Add new workflow",

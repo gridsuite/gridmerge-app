@@ -535,7 +535,7 @@ const WorkflowsConfiguration = ({ open, onClose }) => {
             <CustomDialog open={open} onClose={handleClose}>
                 <CustomDialogTitle id="form-dialog-title" onClose={handleClose}>
                     {confirmSave ? (
-                        <FormattedMessage id="deletionWorkflowsitle" />
+                        <FormattedMessage id="deletionWorkflowsTitle" />
                     ) : (
                         <FormattedMessage id="configurationWorkflowsTitle" />
                     )}
