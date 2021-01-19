@@ -91,8 +91,8 @@ const useStyles = makeStyles(() => ({
         marginLeft: 18,
     },
     child: {
-        width: '100%',
         display: 'flex',
+        flexGrow: 10,
     },
     btnConfigurationWorkflows: {
         marginTop: 3,
