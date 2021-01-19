@@ -30,7 +30,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Radio from '@material-ui/core/Radio';
-import { v4 as uuidv4 } from 'uuid';
 
 const useStyles = makeStyles(() => ({
     addNewTso: {
@@ -98,19 +97,21 @@ const CustomDialog = withStyles(() => ({
     },
 }))(Dialog);
 
+let globalReactKey = 1;
+
 const WorkflowTsos = ({ initialTsos, areaIndex, handleAreaTsosChanged }) => {
     const classes = useStyles();
     const intl = useIntl();
 
     const [areaTsos, setAreaTsos] = useState(
         initialTsos.map((e) => {
-            return { id: uuidv4(), ...e };
+            return { id: globalReactKey++, ...e };
         })
     );
 
     useEffect(() => {
         handleAreaTsosChanged(areaIndex, areaTsos);
-        // Do not add handleAreaTsosChanged as dep because if
+        // Do not add handleAreaTsosChanged as dependency to avoid infinite loop
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [areaTsos]);
 
@@ -138,7 +139,7 @@ const WorkflowTsos = ({ initialTsos, areaIndex, handleAreaTsosChanged }) => {
     const handleAddAreaTso = () => {
         const areaTsosCopy = [...areaTsos];
         areaTsosCopy.push({
-            id: uuidv4(),
+            id: globalReactKey++,
             sourcingActor: '',
             alternativeSourcingActor: '',
         });
@@ -229,10 +230,10 @@ const WorkflowsContainer = ({
 
     const [areasWorkFlows, setAreasWorkFlows] = useState([
         ...initialConfigs.map((e) => {
-            return { id: uuidv4(), ...e };
+            return { id: globalReactKey++, ...e };
         }),
         {
-            id: uuidv4(),
+            id: globalReactKey++,
             process: '',
             tsos: [{ sourcingActor: '', alternativeSourcingActor: '' }],
             runBalancesAdjustment: false,
@@ -242,7 +243,7 @@ const WorkflowsContainer = ({
     function handleAddArea() {
         const areasWorkFlowsCopy = [...areasWorkFlows];
         areasWorkFlowsCopy.push({
-            id: uuidv4(),
+            id: globalReactKey++,
             process: '',
             tsos: [{ sourcingActor: '', alternativeSourcingActor: '' }],
             runBalancesAdjustment: false,
