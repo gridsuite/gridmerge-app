@@ -458,7 +458,7 @@ const WorkflowsConfiguration = ({ open, onClose }) => {
                 };
             });
 
-            areasWorkFlowTsosWithoutId.forEach((e) => {
+            areasWorkFlowTsosWithoutId.every((e) => {
                 let index = initialWorkflow.tsos.findIndex(
                     (res) =>
                         res.sourcingActor === e.sourcingActor &&
@@ -467,10 +467,16 @@ const WorkflowsConfiguration = ({ open, onClose }) => {
                 );
                 if (index === -1) {
                     isDifferent = true;
+                    return false;
                 }
+                return true;
             });
 
-            initialWorkflow.tsos.forEach((e) => {
+            if (isDifferent) {
+                return true;
+            }
+
+            initialWorkflow.tsos.every((e) => {
                 let index = areasWorkFlowTsosWithoutId.findIndex(
                     (res) =>
                         res.sourcingActor === e.sourcingActor &&
@@ -479,16 +485,15 @@ const WorkflowsConfiguration = ({ open, onClose }) => {
                 );
                 if (index === -1) {
                     isDifferent = true;
+                    return false;
                 }
+                return true;
             });
 
-            if (isDifferent) {
-                return true;
-            }
-
             return (
+                isDifferent ||
                 initialWorkflow.runBalancesAdjustment !==
-                areaWorkFlow.runBalancesAdjustment
+                    areaWorkFlow.runBalancesAdjustment
             );
         };
 
