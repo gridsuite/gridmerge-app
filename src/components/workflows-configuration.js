@@ -78,7 +78,7 @@ const CustomDialogTitle = withStyles(styles)((props) => {
             style={{ padding: '15px' }}
         >
             <Typography variant="h6">{children}</Typography>
-            {onClose ? (
+            {onClose && (
                 <IconButton
                     aria-label="close"
                     className={classes.closeButton}
@@ -86,7 +86,7 @@ const CustomDialogTitle = withStyles(styles)((props) => {
                 >
                     <CloseIcon />
                 </IconButton>
-            ) : null}
+            )}
         </DialogTitle>
     );
 });
@@ -158,17 +158,13 @@ const WorkflowTsos = ({ initialTsos, areaIndex, handleAreaTsosChanged }) => {
     return (
         <>
             {areaTsos.map((tso, index) => (
-                <Grid container spacing={2} key={`${tso.id}`}>
+                <Grid container spacing={2} key={tso.id}>
                     <Grid item={true} xs={12} sm={5}>
                         <TextField
                             placeholder={intl.formatMessage({
                                 id: 'tsoLabelCode',
                             })}
-                            value={
-                                tso.sourcingActor != null
-                                    ? tso.sourcingActor
-                                    : ''
-                            }
+                            value={tso.sourcingActor}
                             onChange={(event) =>
                                 handleChangeTsoSourcingActor(index, event)
                             }
@@ -182,11 +178,7 @@ const WorkflowTsos = ({ initialTsos, areaIndex, handleAreaTsosChanged }) => {
                             placeholder={intl.formatMessage({
                                 id: 'tsoLabelCodeOptional',
                             })}
-                            value={
-                                tso.alternativeSourcingActor != null
-                                    ? tso.alternativeSourcingActor
-                                    : ''
-                            }
+                            value={tso.alternativeSourcingActor}
                             onChange={(event) =>
                                 handleChangeTsoAlternativeSourcingActor(
                                     index,
@@ -322,7 +314,7 @@ const WorkflowsContainer = ({
                 <Grid
                     container
                     className={classes.addNewTso}
-                    key={`${areasWorkFlow.id}`}
+                    key={areasWorkFlow.id}
                 >
                     {/* Area input*/}
                     <Grid container item xs={12} sm={5}>
@@ -340,8 +332,8 @@ const WorkflowsContainer = ({
                                 }
                             />
                             <RadioGroup
-                                aria-label="gender"
-                                name="gender1"
+                                aria-label="runBalancesAdjustment"
+                                name="runBalancesAdjustment"
                                 value={areasWorkFlow.runBalancesAdjustment + ''}
                                 onChange={(e) => handleSwitchChange(e, index)}
                             >
@@ -400,10 +392,6 @@ const WorkflowsConfiguration = ({ open, onClose }) => {
         setConfirmSave(false);
     }, [open]);
 
-    const handleClose = () => {
-        onClose();
-    };
-
     const handleClosePopup = () => {
         setConfirmSave(false);
     };
@@ -448,7 +436,7 @@ const WorkflowsConfiguration = ({ open, onClose }) => {
             }
         }
 
-        const WorkFlowWithoutId = (workflow) => {
+        const workFlowWithoutId = (workflow) => {
             return {
                 process: workflow.process,
                 runBalancesAdjustment: workflow.runBalancesAdjustment,
@@ -510,7 +498,7 @@ const WorkflowsConfiguration = ({ open, onClose }) => {
             }
             if (!initialProcesses.includes(areasWorkFlows[i].process)) {
                 // ADD NEW PROCESSES
-                promises.push(addProcess(WorkFlowWithoutId(areasWorkFlows[i])));
+                promises.push(addProcess(workFlowWithoutId(areasWorkFlows[i])));
                 continue;
             }
 
@@ -519,7 +507,7 @@ const WorkflowsConfiguration = ({ open, onClose }) => {
             );
             if (areDifferent(intialProcess, areasWorkFlows[i])) {
                 // UPDATE PROCESSES
-                promises.push(addProcess(WorkFlowWithoutId(areasWorkFlows[i])));
+                promises.push(addProcess(workFlowWithoutId(areasWorkFlows[i])));
             }
         }
         Promise.all(promises).then(() => {
@@ -537,7 +525,7 @@ const WorkflowsConfiguration = ({ open, onClose }) => {
     return (
         <>
             <CustomDialog open={open} onClose={handleClose}>
-                <CustomDialogTitle id="form-dialog-title" onClose={handleClose}>
+                <CustomDialogTitle id="form-dialog-title" onClose={onClose}>
                     {confirmSave ? (
                         <FormattedMessage id="deletionWorkflowsTitle" />
                     ) : (
