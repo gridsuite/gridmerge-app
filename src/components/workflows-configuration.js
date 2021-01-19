@@ -97,7 +97,10 @@ const CustomDialog = withStyles(() => ({
     },
 }))(Dialog);
 
-let globalReactKey = 1;
+const keyGenerator = (() => {
+    let key = 1;
+    return () => key++;
+})();
 
 const WorkflowTsos = ({ initialTsos, areaIndex, handleAreaTsosChanged }) => {
     const classes = useStyles();
@@ -105,7 +108,7 @@ const WorkflowTsos = ({ initialTsos, areaIndex, handleAreaTsosChanged }) => {
 
     const [areaTsos, setAreaTsos] = useState(
         initialTsos.map((e) => {
-            return { id: globalReactKey++, ...e };
+            return { id: keyGenerator(), ...e };
         })
     );
 
@@ -139,7 +142,7 @@ const WorkflowTsos = ({ initialTsos, areaIndex, handleAreaTsosChanged }) => {
     const handleAddAreaTso = () => {
         const areaTsosCopy = [...areaTsos];
         areaTsosCopy.push({
-            id: globalReactKey++,
+            id: keyGenerator(),
             sourcingActor: '',
             alternativeSourcingActor: '',
         });
@@ -230,10 +233,10 @@ const WorkflowsContainer = ({
 
     const [areasWorkFlows, setAreasWorkFlows] = useState([
         ...initialConfigs.map((e) => {
-            return { id: globalReactKey++, ...e };
+            return { id: keyGenerator(), ...e };
         }),
         {
-            id: globalReactKey++,
+            id: keyGenerator(),
             process: '',
             tsos: [{ sourcingActor: '', alternativeSourcingActor: '' }],
             runBalancesAdjustment: false,
@@ -243,7 +246,7 @@ const WorkflowsContainer = ({
     function handleAddArea() {
         const areasWorkFlowsCopy = [...areasWorkFlows];
         areasWorkFlowsCopy.push({
-            id: globalReactKey++,
+            id: keyGenerator(),
             process: '',
             tsos: [{ sourcingActor: '', alternativeSourcingActor: '' }],
             runBalancesAdjustment: false,
