@@ -371,6 +371,8 @@ const App = () => {
                                         updateSelectedTab={(val) => {
                                             setSelectedTabId(val);
                                         }}
+                                        matchProcess={matchProcess}
+                                        history={history}
                                     />
                                 </div>
                             )}

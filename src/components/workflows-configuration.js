@@ -374,21 +374,12 @@ const WorkflowsContainer = ({
     );
 };
 
-const WorkflowsConfiguration = ({ open, onClose, updateSelectedTab }) => {
+const WorkflowsConfiguration = ({ open, onClose, updateSelectedTab, matchProcess, history}) => {
     const [areasWorkFlows, setAreasWorkFlows] = useState([]);
     const configs = useSelector((state) => state.configs);
     const [confirmSave, setConfirmSave] = useState(false);
     const [saveDone, setSaveDone] = useState(false);
     const dispatch = useDispatch();
-    const PREFIX_URL_PROCESSES = '/processes';
-
-    const matchProcess = useRouteMatch({
-        path: PREFIX_URL_PROCESSES + '/:processName',
-        exact: true,
-        sensitive: false,
-    });
-
-    const history = useHistory();
 
     useEffect(() => {
         if (saveDone) {
