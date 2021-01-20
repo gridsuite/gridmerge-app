@@ -368,11 +368,6 @@ const App = () => {
                                                 false
                                             );
                                         }}
-                                        updateSelectedTab={(val) => {
-                                            setSelectedTabId(val);
-                                        }}
-                                        matchProcess={matchProcess}
-                                        history={history}
                                     />
                                 </div>
                             )}
