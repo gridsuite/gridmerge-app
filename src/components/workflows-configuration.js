@@ -30,6 +30,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Radio from '@material-ui/core/Radio';
+import { useHistory, useRouteMatch } from 'react-router-dom';
 
 const useStyles = makeStyles(() => ({
     addNewTso: {
@@ -373,14 +374,46 @@ const WorkflowsContainer = ({
     );
 };
 
-const WorkflowsConfiguration = ({ open, onClose }) => {
+const WorkflowsConfiguration = ({ open, onClose, updateSelectedTab }) => {
     const [areasWorkFlows, setAreasWorkFlows] = useState([]);
     const configs = useSelector((state) => state.configs);
     const [confirmSave, setConfirmSave] = useState(false);
+    const [saveDone, setSaveDone] = useState(false);
     const dispatch = useDispatch();
+    const PREFIX_URL_PROCESSES = '/processes';
+
+    const matchProcess = useRouteMatch({
+        path: PREFIX_URL_PROCESSES + '/:processName',
+        exact: true,
+        sensitive: false,
+    });
+
+    const history = useHistory();
+
+    useEffect(() => {
+        if (saveDone) {
+            let index =
+                matchProcess !== null
+                    ? configs.findIndex(
+                          (c) => c.process === matchProcess.params.processName
+                      )
+                    : -1;
+            if (index === -1) {
+                if (configs.length > 0) {
+                    updateSelectedTab(configs[0].process);
+                    history.replace('/processes/' + configs[0].process);
+                } else {
+                    history.replace('/');
+                    updateSelectedTab(false);
+                }
+            }
+            onClose();
+        }
+    }, [saveDone, configs, matchProcess, history, updateSelectedTab, onClose]);
 
     useEffect(() => {
         setConfirmSave(false);
+        setSaveDone(false);
     }, [open]);
 
     const handleClosePopup = () => {
@@ -509,7 +542,7 @@ const WorkflowsConfiguration = ({ open, onClose }) => {
         Promise.all(promises).then(() => {
             fetchMergeConfigs().then((configs) => {
                 dispatch(initProcesses(configs));
-                onClose();
+                setSaveDone(true);
             });
         });
     };

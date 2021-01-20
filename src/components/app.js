@@ -259,17 +259,10 @@ const App = () => {
                       (c) => c.process === matchProcess.params.processName
                   )
                 : -1;
-        if (index !== -1) {
-            setSelectedTabId(matchProcess.params.processName);
-        } else {
-            if (configs.length > 0) {
-                setSelectedTabId(configs[0].process);
-                history.replace('/processes/' + configs[0].process);
-            } else {
-                setSelectedTabId(false);
-            }
-        }
-    }, [configs, matchProcess, history]);
+        index !== -1
+            ? setSelectedTabId(matchProcess.params.processName)
+            : setSelectedTabId(false);
+    }, [configs, matchProcess]);
 
     function onLogoClicked() {
         history.replace('/');
@@ -374,6 +367,9 @@ const App = () => {
                                             setShowConfigurationWorkflows(
                                                 false
                                             );
+                                        }}
+                                        updateSelectedTab={(val) => {
+                                            setSelectedTabId(val);
                                         }}
                                     />
                                 </div>
