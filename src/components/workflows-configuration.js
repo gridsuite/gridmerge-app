@@ -159,7 +159,7 @@ const WorkflowTsos = ({ initialTsos, areaIndex, handleAreaTsosChanged }) => {
         <>
             {areaTsos.map((tso, index) => (
                 <Grid container spacing={2} key={tso.id}>
-                    <Grid item={true} xs={12} sm={5}>
+                    <Grid item xs={12} sm={5}>
                         <TextField
                             placeholder={intl.formatMessage({
                                 id: 'tsoLabelCode',
@@ -173,7 +173,7 @@ const WorkflowTsos = ({ initialTsos, areaIndex, handleAreaTsosChanged }) => {
                             }}
                         />
                     </Grid>
-                    <Grid item={true} xs={12} sm={5}>
+                    <Grid item xs={12} sm={5}>
                         <TextField
                             placeholder={intl.formatMessage({
                                 id: 'tsoLabelCodeOptional',
@@ -190,7 +190,7 @@ const WorkflowTsos = ({ initialTsos, areaIndex, handleAreaTsosChanged }) => {
                             }}
                         />
                     </Grid>
-                    <Grid item={true} xs={12} sm={2} align="center">
+                    <Grid item xs={12} sm={2} align="center">
                         <IconButton
                             onClick={() => handleRemoveFieldsTso(index)}
                         >
@@ -199,7 +199,7 @@ const WorkflowTsos = ({ initialTsos, areaIndex, handleAreaTsosChanged }) => {
                     </Grid>
                 </Grid>
             ))}
-            <Grid direction="row" container item xs={12} sm={10}>
+            <Grid container direction="row" item xs={12} sm={10}>
                 <Button
                     style={{ width: '100%', maxHeight: '35px' }}
                     variant="outlined"
@@ -291,28 +291,19 @@ const WorkflowsContainer = ({
     }, [handleAreasWorkFlowsChanged, areasWorkFlows]);
 
     return (
-        <Grid>
+        <Grid container>
             <Grid container className={classes.newTsoContainerLabel}>
-                <Grid
-                    item={true}
-                    xs={12}
-                    sm={5}
-                    className={classes.newTsoLabel}
-                >
+                <Grid item xs={12} sm={5} className={classes.newTsoLabel}>
                     <FormattedMessage id="process" />
                 </Grid>
-                <Grid
-                    item={true}
-                    xs={12}
-                    sm={7}
-                    className={classes.newTsoLabel}
-                >
+                <Grid item xs={12} sm={7} className={classes.newTsoLabel}>
                     <FormattedMessage id="tso" />
                 </Grid>
             </Grid>
             {areasWorkFlows.map((areasWorkFlow, index) => (
                 <Grid
                     container
+                    spacing={1}
                     className={classes.addNewTso}
                     key={areasWorkFlow.id}
                 >
@@ -356,7 +347,7 @@ const WorkflowsContainer = ({
                         </Grid>
                     </Grid>
                     {/* Tso inputs */}
-                    <Grid container item xs={12} sm={7} spacing={1}>
+                    <Grid container item xs={12} sm={7}>
                         <WorkflowTsos
                             initialTsos={areasWorkFlow.tsos}
                             areaIndex={index}
