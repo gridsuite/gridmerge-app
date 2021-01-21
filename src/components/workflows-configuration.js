@@ -92,12 +92,6 @@ const CustomDialogTitle = withStyles(styles)((props) => {
     );
 });
 
-const CustomDialog = withStyles(() => ({
-    paperScrollPaper: {
-        minWidth: '850px',
-    },
-}))(Dialog);
-
 const keyGenerator = (() => {
     let key = 1;
     return () => key++;
@@ -523,7 +517,7 @@ const WorkflowsConfiguration = ({ open, onClose }) => {
 
     return (
         <>
-            <CustomDialog open={open} onClose={onClose}>
+            <Dialog open={open} onClose={onClose}>
                 <CustomDialogTitle id="form-dialog-title" onClose={onClose}>
                     {confirmSave ? (
                         <FormattedMessage id="deletionWorkflowsTitle" />
@@ -563,7 +557,7 @@ const WorkflowsConfiguration = ({ open, onClose }) => {
                         <FormattedMessage id="confirm" />
                     </Button>
                 </DialogActions>
-            </CustomDialog>
+            </Dialog>
         </>
     );
 };

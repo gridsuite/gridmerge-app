@@ -103,7 +103,9 @@ const MergeMap = (props) => {
                 }
             });
         }
-        return () => { isMounted = false }; // use effect cleanup to set flag false, if unmounted
+        return () => {
+            isMounted = false;
+        }; // use effect cleanup to set flag false, if unmounted
     }, [props.tsos]);
 
     const projectionConfig = { center: data.center, scale: data.scale };
