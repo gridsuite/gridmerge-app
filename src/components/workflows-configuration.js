@@ -24,7 +24,7 @@ import PropTypes from 'prop-types';
 
 import { withStyles, makeStyles } from '@material-ui/core/styles';
 import { FormattedMessage } from 'react-intl';
-import { addProcess, deleteProcess, fetchMergeConfigs } from '../utils/api';
+import { createProcess, deleteProcess, fetchMergeConfigs } from '../utils/api';
 import { initProcesses } from '../redux/actions';
 import { useDispatch, useSelector } from 'react-redux';
 import RadioGroup from '@material-ui/core/RadioGroup';
@@ -368,7 +368,7 @@ const WorkflowsContainer = ({
     );
 };
 
-const WorkflowsConfiguration = ({ open, onClose }) => {
+const WorkflowsConfiguration = ({ open, onClose, matchProcess }) => {
     const [areasWorkFlows, setAreasWorkFlows] = useState([]);
     const configs = useSelector((state) => state.configs);
     const [confirmSave, setConfirmSave] = useState(false);
@@ -396,9 +396,8 @@ const WorkflowsConfiguration = ({ open, onClose }) => {
         const currentProcesses = areasWorkFlows
             .filter((e) => e.process !== '')
             .map((e) => e.process);
-
         let toBeDeleted = [];
-        // PROCESSES
+
         for (let i = 0; i < initialProcesses.length; i++) {
             if (!currentProcesses.includes(initialProcesses[i])) {
                 toBeDeleted.push(initialProcesses[i]);
@@ -407,105 +406,111 @@ const WorkflowsConfiguration = ({ open, onClose }) => {
         return toBeDeleted;
     }, [configs, areasWorkFlows]);
 
-    const handleSave = () => {
-        const initialProcesses = configs.map((e) => e.process);
-        const currentProcesses = areasWorkFlows
-            .filter((e) => e.process !== '')
-            .map((e) => e.process);
-
-        let promises = [];
-        let i = 0;
-
-        // DELETE PROCESSES
-        for (i; i < initialProcesses.length; i++) {
-            if (!currentProcesses.includes(initialProcesses[i])) {
-                promises.push(deleteProcess(initialProcesses[i]));
-            }
-        }
-
-        const workFlowWithoutId = (workflow) => {
-            return {
-                process: workflow.process,
-                runBalancesAdjustment: workflow.runBalancesAdjustment,
-                tsos: workflow.tsos.map((tso) => {
-                    return {
-                        sourcingActor: tso.sourcingActor,
-                        alternativeSourcingActor: tso.alternativeSourcingActor,
-                    };
-                }),
-            };
-        };
-
-        const areDifferent = (initialWorkflow, areaWorkFlow) => {
-            let isDifferent = false;
-            let areasWorkFlowTsosWithoutId = areaWorkFlow.tsos.map((tso) => {
+    const workFlowWithoutId = (workflow) => {
+        return {
+            process: workflow.process,
+            runBalancesAdjustment: workflow.runBalancesAdjustment,
+            tsos: workflow.tsos.map((tso) => {
                 return {
                     sourcingActor: tso.sourcingActor,
                     alternativeSourcingActor: tso.alternativeSourcingActor,
                 };
-            });
-
-            areasWorkFlowTsosWithoutId.every((e) => {
-                let index = initialWorkflow.tsos.findIndex(
-                    (res) =>
-                        res.sourcingActor === e.sourcingActor &&
-                        res.alternativeSourcingActor ===
-                            e.alternativeSourcingActor
-                );
-                if (index === -1) {
-                    isDifferent = true;
-                    return false;
-                }
-                return true;
-            });
-
-            if (isDifferent) {
-                return true;
-            }
-
-            initialWorkflow.tsos.every((e) => {
-                let index = areasWorkFlowTsosWithoutId.findIndex(
-                    (res) =>
-                        res.sourcingActor === e.sourcingActor &&
-                        res.alternativeSourcingActor ===
-                            e.alternativeSourcingActor
-                );
-                if (index === -1) {
-                    isDifferent = true;
-                    return false;
-                }
-                return true;
-            });
-
-            return (
-                isDifferent ||
-                initialWorkflow.runBalancesAdjustment !==
-                    areaWorkFlow.runBalancesAdjustment
-            );
+            }),
         };
+    };
+
+    const areDifferent = (initialWorkflow, areaWorkFlow) => {
+        let isDifferent = false;
+        let areasWorkFlowTsosWithoutId = areaWorkFlow.tsos.map((tso) => {
+            return {
+                sourcingActor: tso.sourcingActor,
+                alternativeSourcingActor: tso.alternativeSourcingActor,
+            };
+        });
+
+        areasWorkFlowTsosWithoutId.every((e) => {
+            let index = initialWorkflow.tsos.findIndex(
+                (res) =>
+                    res.sourcingActor === e.sourcingActor &&
+                    res.alternativeSourcingActor === e.alternativeSourcingActor
+            );
+            if (index === -1) {
+                isDifferent = true;
+                return false;
+            }
+            return true;
+        });
+
+        if (isDifferent) {
+            return true;
+        }
+
+        initialWorkflow.tsos.every((e) => {
+            let index = areasWorkFlowTsosWithoutId.findIndex(
+                (res) =>
+                    res.sourcingActor === e.sourcingActor &&
+                    res.alternativeSourcingActor === e.alternativeSourcingActor
+            );
+            if (index === -1) {
+                isDifferent = true;
+                return false;
+            }
+            return true;
+        });
+
+        return (
+            isDifferent ||
+            initialWorkflow.runBalancesAdjustment !==
+                areaWorkFlow.runBalancesAdjustment
+        );
+    };
+
+    const handleSave = () => {
+        let promises = [];
+        const listProcessesToBeDeleted = processesToBeDeleted();
+
+        // DELETE PROCESSES
+        listProcessesToBeDeleted.forEach((p) => {
+            promises.push(deleteProcess(p));
+        });
 
         for (let i = 0; i < areasWorkFlows.length; i++) {
+            // ignore processes with no name
             if (areasWorkFlows[i].process === '') {
                 continue;
             }
-            if (!initialProcesses.includes(areasWorkFlows[i].process)) {
+
+            let initialProcess = configs.find(
+                (element) => element.process === areasWorkFlows[i].process
+            );
+
+            if (typeof initialProcess === 'undefined') {
                 // ADD NEW PROCESSES
-                promises.push(addProcess(workFlowWithoutId(areasWorkFlows[i])));
+                promises.push(
+                    createProcess(workFlowWithoutId(areasWorkFlows[i]))
+                );
                 continue;
             }
 
-            let intialProcess = configs.find(
-                (element) => element.process === areasWorkFlows[i].process
-            );
-            if (areDifferent(intialProcess, areasWorkFlows[i])) {
+            if (areDifferent(initialProcess, areasWorkFlows[i])) {
                 // UPDATE PROCESSES
-                promises.push(addProcess(workFlowWithoutId(areasWorkFlows[i])));
+                promises.push(
+                    createProcess(workFlowWithoutId(areasWorkFlows[i]))
+                );
             }
         }
+
         Promise.all(promises).then(() => {
             fetchMergeConfigs().then((configs) => {
                 dispatch(initProcesses(configs));
-                history.replace('/');
+                if (
+                    matchProcess !== null &&
+                    listProcessesToBeDeleted.includes(
+                        matchProcess.params.processName
+                    )
+                ) {
+                    history.replace('/');
+                }
                 onClose();
             });
         });

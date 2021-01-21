@@ -79,7 +79,6 @@ const MergeMap = (props) => {
     }
 
     useEffect(() => {
-        let isMounted = true; // note this flag denote mount status
         setData({
             geographies: [],
             center: DEFAULT_CENTER,
@@ -94,18 +93,13 @@ const MergeMap = (props) => {
             ).then((jsons) => {
                 // compute geometries bounding box
                 const bb = computeBoundingBox(jsons);
-                if (isMounted) {
-                    setData({
-                        geographies: jsons,
-                        center: computeCenter(bb),
-                        scale: computeScale(bb),
-                    });
-                }
+                setData({
+                    geographies: jsons,
+                    center: computeCenter(bb),
+                    scale: computeScale(bb),
+                });
             });
         }
-        return () => {
-            isMounted = false;
-        }; // use effect cleanup to set flag false, if unmounted
     }, [props.tsos]);
 
     const projectionConfig = { center: data.center, scale: data.scale };
