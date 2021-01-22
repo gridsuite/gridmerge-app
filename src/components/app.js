@@ -342,7 +342,7 @@ const App = () => {
                                 />
                             ))}
                         </Tabs>
-                        <div style={{ flexGrow: 4 }}></div>
+                        <div style={{ flexGrow: 1 }}></div>
                         {user && (
                             <div
                                 className={
