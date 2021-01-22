@@ -90,13 +90,8 @@ const useStyles = makeStyles(() => ({
     process: {
         marginLeft: 18,
     },
-    child: {
-        display: 'flex',
-        flexGrow: 10,
-    },
     btnConfigurationWorkflows: {
         marginTop: 3,
-        marginLeft: 'auto',
     },
 }));
 
@@ -322,57 +317,56 @@ const App = () => {
                         user={user}
                         appsAndUrls={appsAndUrls}
                     >
-                        <div className={classes.child}>
-                            <Tabs
-                                value={
-                                    configs
-                                        .map((c) => c.process)
-                                        .includes(selectedTabId)
-                                        ? selectedTabId
-                                        : false
+                        <Tabs
+                            value={
+                                configs
+                                    .map((c) => c.process)
+                                    .includes(selectedTabId)
+                                    ? selectedTabId
+                                    : false
+                            }
+                            indicatorColor="primary"
+                            variant="scrollable"
+                            scrollButtons="auto"
+                            onChange={(event, newValue) =>
+                                toggleTab(newValue)
+                            }
+                            aria-label="parameters"
+                            className={classes.process}
+                        >
+                            {configs.map((config) => (
+                                <Tab
+                                    key={config.process}
+                                    label={config.process}
+                                    value={config.process}
+                                />
+                            ))}
+                        </Tabs>
+                        <div style={{ flexGrow: 4 }}></div>
+                        {user && (
+                            <div
+                                className={
+                                    classes.btnConfigurationWorkflows
                                 }
-                                indicatorColor="primary"
-                                variant="scrollable"
-                                scrollButtons="auto"
-                                onChange={(event, newValue) =>
-                                    toggleTab(newValue)
-                                }
-                                aria-label="parameters"
-                                className={classes.process}
                             >
-                                {configs.map((config) => (
-                                    <Tab
-                                        key={config.process}
-                                        label={config.process}
-                                        value={config.process}
-                                    />
-                                ))}
-                            </Tabs>
-                            {user && (
-                                <div
-                                    className={
-                                        classes.btnConfigurationWorkflows
+                                <Button
+                                    onClick={
+                                        showPopupConfigurationWorkflows
                                     }
                                 >
-                                    <Button
-                                        onClick={
-                                            showPopupConfigurationWorkflows
-                                        }
-                                    >
-                                        <FormattedMessage id="configurationWorkflowsLink" />
-                                    </Button>
-                                    <WorkflowsConfiguration
-                                        open={showConfigurationWorkflows}
-                                        onClose={() => {
-                                            setShowConfigurationWorkflows(
-                                                false
-                                            );
-                                        }}
-                                        matchProcess={matchProcess}
-                                    />
-                                </div>
-                            )}
-                        </div>
+                                    <FormattedMessage id="configurationWorkflowsLink" />
+                                </Button>
+                                <WorkflowsConfiguration
+                                    open={showConfigurationWorkflows}
+                                    onClose={() => {
+                                        setShowConfigurationWorkflows(
+                                            false
+                                        );
+                                    }}
+                                    matchProcess={matchProcess}
+                                />
+                            </div>
+                        )}
                     </TopBar>
                     <Parameters
                         showParameters={showParameters}
