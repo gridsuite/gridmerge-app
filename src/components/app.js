@@ -133,17 +133,6 @@ const App = () => {
         sensitive: false,
     });
 
-    const selectedTabId = useMemo(
-        () =>
-            matchProcess !== null &&
-            configs
-                .map((c) => c.process)
-                .includes(matchProcess.params.processName)
-                ? matchProcess.params.processName
-                : false,
-        [configs, matchProcess]
-    );
-
     // Can't use lazy initializer because useRouteMatch is a hook
     const [initialMatchSilentRenewCallbackUrl] = useState(
         useRouteMatch({
@@ -255,6 +244,16 @@ const App = () => {
             };
         }
     }, [user, dispatch, connectNotificationsUpdateConfig, updateParams]);
+
+    const selectedTabId = useMemo(() => {
+        let index =
+            matchProcess !== null
+                ? configs.findIndex(
+                      (c) => c.process === matchProcess.params.processName
+                  )
+                : -1;
+        return index !== -1 ? matchProcess.params.processName : false;
+    }, [configs, matchProcess]);
 
     function onLogoClicked() {
         history.replace('/');
