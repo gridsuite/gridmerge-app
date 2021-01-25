@@ -213,7 +213,6 @@ export function createProcess(json) {
     return backendFetch(addProcessUrl, {
         method: 'post',
         headers: {
-            Accept: 'application/json',
             'Content-Type': 'application/json',
         },
         body: JSON.stringify(json),
@@ -226,10 +225,6 @@ export function deleteProcess(process) {
         PREFIX_ORCHESTRATOR_QUERIES + '/v1/configs/' + process;
     return backendFetch(deleteProcessUrl, {
         method: 'delete',
-        headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-        },
     });
 }
 
