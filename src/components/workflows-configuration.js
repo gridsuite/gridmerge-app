@@ -156,6 +156,7 @@ const WorkflowTsos = ({ initialTsos, areaIndex, handleAreaTsosChanged }) => {
                 <Grid container spacing={2} key={tso.id}>
                     <Grid item xs={12} sm={5}>
                         <TextField
+                            fullWidth={true}
                             placeholder={intl.formatMessage({
                                 id: 'tsoLabelCode',
                             })}
@@ -170,6 +171,7 @@ const WorkflowTsos = ({ initialTsos, areaIndex, handleAreaTsosChanged }) => {
                     </Grid>
                     <Grid item xs={12} sm={5}>
                         <TextField
+                            fullWidth={true}
                             placeholder={intl.formatMessage({
                                 id: 'tsoLabelCodeOptional',
                             })}
@@ -306,6 +308,7 @@ const WorkflowsContainer = ({
                     <Grid container item xs={12} sm={5}>
                         <Grid item xs={12} sm={8}>
                             <TextField
+                                fullWidth={true}
                                 placeholder={intl.formatMessage({
                                     id: 'name',
                                 })}
@@ -524,7 +527,12 @@ const WorkflowsConfiguration = ({ open, onClose, matchProcess }) => {
 
     return (
         <>
-            <Dialog open={open} onClose={onClose}>
+            <Dialog
+                open={open}
+                onClose={onClose}
+                maxWidth={'lg'}
+                fullWidth={true}
+            >
                 <CustomDialogTitle id="form-dialog-title" onClose={onClose}>
                     {confirmSave ? (
                         <FormattedMessage id="deletionWorkflowsTitle" />
