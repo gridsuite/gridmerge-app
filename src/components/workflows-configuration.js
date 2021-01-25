@@ -84,7 +84,7 @@ const keyGenerator = (() => {
 const WorkflowTsos = ({ initialTsos, areaIndex, handleAreaTsosChanged }) => {
     const classes = useStyles();
     const intl = useIntl();
-
+    // areaTsos copies will be deleted in an upcoming PR
     const [areaTsos, setAreaTsos] = useState(
         initialTsos.map((e) => {
             return { id: keyGenerator(), ...e };
@@ -94,6 +94,7 @@ const WorkflowTsos = ({ initialTsos, areaIndex, handleAreaTsosChanged }) => {
     useEffect(() => {
         handleAreaTsosChanged(areaIndex, areaTsos);
         // Do not add handleAreaTsosChanged as dependency to avoid infinite loop
+        // To be changed
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [areaTsos]);
 
@@ -558,5 +559,6 @@ const WorkflowsConfiguration = ({ open, onClose, matchProcess }) => {
 WorkflowsConfiguration.propTypes = {
     open: PropTypes.bool.isRequired,
     onClose: PropTypes.func.isRequired,
+    matchProcess: PropTypes.object.isRequired,
 };
 export default WorkflowsConfiguration;
