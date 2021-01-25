@@ -559,6 +559,6 @@ const WorkflowsConfiguration = ({ open, onClose, matchProcess }) => {
 WorkflowsConfiguration.propTypes = {
     open: PropTypes.bool.isRequired,
     onClose: PropTypes.func.isRequired,
-    matchProcess: PropTypes.object.isRequired,
+    matchProcess: PropTypes.object,
 };
 export default WorkflowsConfiguration;
