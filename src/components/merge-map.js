@@ -87,7 +87,7 @@ const MergeMap = (props) => {
         if (props.tsos.length > 0) {
             Promise.all(
                 props.tsos.map((tso) => {
-                    const url = tso.toLowerCase() + '.json';
+                    const url = tso.sourcingActor.toLowerCase() + '.json';
                     return fetch(url).then((resp) => resp.json());
                 })
             ).then((jsons) => {
@@ -142,7 +142,7 @@ MergeMap.defaultProps = {
 };
 
 MergeMap.propTypes = {
-    tsos: PropTypes.arrayOf(PropTypes.string).isRequired,
+    tsos: PropTypes.arrayOf(PropTypes.object).isRequired,
     merge: MergeType,
 };
 

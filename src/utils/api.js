@@ -173,7 +173,9 @@ export const IgmStatus = {
 };
 
 export function getIgmStatus(tso, merge) {
-    const igm = merge ? merge.igms.find((igm) => igm.tso === tso) : null;
+    const igm = merge
+        ? merge.igms.find((igm) => igm.tso === tso.sourcingActor)
+        : null;
     if (!igm) {
         return IgmStatus.ABSENT;
     }
@@ -203,6 +205,27 @@ export function getIgmStatus(tso, merge) {
                 throw Error('Status not supported');
         }
     }
+}
+
+export function createProcess(json) {
+    console.info('Saving Process', json.process, ' ...');
+    const addProcessUrl = PREFIX_ORCHESTRATOR_QUERIES + '/v1/configs';
+    return backendFetch(addProcessUrl, {
+        method: 'post',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(json),
+    });
+}
+
+export function deleteProcess(process) {
+    console.info('Deleting Process', process, ' ...');
+    const deleteProcessUrl =
+        PREFIX_ORCHESTRATOR_QUERIES + '/v1/configs/' + process;
+    return backendFetch(deleteProcessUrl, {
+        method: 'delete',
+    });
 }
 
 export const MergeType = PropTypes.shape({

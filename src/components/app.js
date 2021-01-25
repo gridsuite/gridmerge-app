@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -44,8 +44,10 @@ import { FormattedMessage } from 'react-intl';
 import Process from './process';
 
 import Parameters from './parameters';
+import WorkflowsConfiguration from './workflows-configuration';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
+import Button from '@material-ui/core/Button';
 import {
     connectNotificationsWsUpdateConfig,
     fetchAppsAndUrls,
@@ -88,6 +90,9 @@ const useStyles = makeStyles(() => ({
     process: {
         marginLeft: 18,
     },
+    btnConfigurationWorkflows: {
+        marginLeft: 'auto',
+    },
 }));
 
 const noUserManager = { instance: null, error: null };
@@ -107,6 +112,11 @@ const App = () => {
 
     const [showParameters, setShowParameters] = useState(false);
 
+    const [
+        showConfigurationWorkflows,
+        setShowConfigurationWorkflows,
+    ] = useState(false);
+
     const history = useHistory();
 
     const dispatch = useDispatch();
@@ -116,8 +126,6 @@ const App = () => {
     const classes = useStyles();
 
     const [appsAndUrls, setAppsAndUrls] = React.useState([]);
-
-    const [selectedTabId, setSelectedTabId] = React.useState(false);
 
     const matchProcess = useRouteMatch({
         path: PREFIX_URL_PROCESSES + '/:processName',
@@ -237,16 +245,14 @@ const App = () => {
         }
     }, [user, dispatch, connectNotificationsUpdateConfig, updateParams]);
 
-    useEffect(() => {
+    const selectedTabId = useMemo(() => {
         let index =
             matchProcess !== null
                 ? configs.findIndex(
                       (c) => c.process === matchProcess.params.processName
                   )
                 : -1;
-        index !== -1
-            ? setSelectedTabId(matchProcess.params.processName)
-            : setSelectedTabId(false);
+        return index !== -1 ? matchProcess.params.processName : false;
     }, [configs, matchProcess]);
 
     function onLogoClicked() {
@@ -279,6 +285,10 @@ const App = () => {
             </h1>
         );
     }
+
+    const showPopupConfigurationWorkflows = () => {
+        setShowConfigurationWorkflows(true);
+    };
 
     return (
         <ThemeProvider theme={getMuiTheme(theme)}>
@@ -320,6 +330,25 @@ const App = () => {
                                 />
                             ))}
                         </Tabs>
+                        {user && (
+                            <>
+                                <Button
+                                    className={
+                                        classes.btnConfigurationWorkflows
+                                    }
+                                    onClick={showPopupConfigurationWorkflows}
+                                >
+                                    <FormattedMessage id="configurationWorkflowsLink" />
+                                </Button>
+                                <WorkflowsConfiguration
+                                    open={showConfigurationWorkflows}
+                                    onClose={() => {
+                                        setShowConfigurationWorkflows(false);
+                                    }}
+                                    matchProcess={matchProcess}
+                                />
+                            </>
+                        )}
                     </TopBar>
                     <Parameters
                         showParameters={showParameters}
@@ -359,7 +388,7 @@ const App = () => {
                                 />
                                 <Route>
                                     <h1>
-                                        <FormattedMessage id="PageNotFound" />{' '}
+                                        <FormattedMessage id="pageNotFound" />{' '}
                                     </h1>
                                 </Route>
                             </Switch>
