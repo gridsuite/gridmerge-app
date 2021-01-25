@@ -91,7 +91,7 @@ const useStyles = makeStyles(() => ({
         marginLeft: 18,
     },
     btnConfigurationWorkflows: {
-        marginTop: 3,
+        marginLeft: 'auto',
     },
 }));
 
@@ -331,10 +331,12 @@ const App = () => {
                                 />
                             ))}
                         </Tabs>
-                        <div style={{ flexGrow: 1 }}></div>
                         {user && (
-                            <div className={classes.btnConfigurationWorkflows}>
+                            <>
                                 <Button
+                                    className={
+                                        classes.btnConfigurationWorkflows
+                                    }
                                     onClick={showPopupConfigurationWorkflows}
                                 >
                                     <FormattedMessage id="configurationWorkflowsLink" />
@@ -346,7 +348,7 @@ const App = () => {
                                     }}
                                     matchProcess={matchProcess}
                                 />
-                            </div>
+                            </>
                         )}
                     </TopBar>
                     <Parameters
