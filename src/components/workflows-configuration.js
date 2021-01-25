@@ -152,7 +152,7 @@ const WorkflowTsos = ({ initialTsos, areaIndex, handleAreaTsosChanged }) => {
         <>
             {areaTsos.map((tso, index) => (
                 <Grid container spacing={2} key={tso.id}>
-                    <Grid item xs={12} sm={5}>
+                    <Grid item xs={12} sm={4}>
                         <TextField
                             fullWidth={true}
                             placeholder={intl.formatMessage({
@@ -167,7 +167,7 @@ const WorkflowTsos = ({ initialTsos, areaIndex, handleAreaTsosChanged }) => {
                             }}
                         />
                     </Grid>
-                    <Grid item xs={12} sm={5}>
+                    <Grid item xs={12} sm={6}>
                         <TextField
                             fullWidth={true}
                             placeholder={intl.formatMessage({
