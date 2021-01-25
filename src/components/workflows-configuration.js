@@ -286,7 +286,7 @@ const WorkflowsContainer = ({
     }, [handleAreasWorkFlowsChanged, areasWorkFlows]);
 
     return (
-        <Grid container>
+        <div>
             <Grid container className={classes.newTsoContainerLabel}>
                 <Grid item xs={12} sm={5} className={classes.newTsoLabel}>
                     <FormattedMessage id="process" />
@@ -335,14 +335,14 @@ const WorkflowsContainer = ({
                                 />
                             </RadioGroup>
                         </Grid>
-                        <Grid item xs={12} sm={3} align="center">
+                        <Grid item xs={12} sm={4} align="center">
                             <IconButton onClick={() => handleDeleteArea(index)}>
                                 <DeleteIcon />
                             </IconButton>
                         </Grid>
                     </Grid>
                     {/* Tso inputs */}
-                    <Grid container item xs={12} sm={7}>
+                    <Grid item xs={12} sm={7}>
                         <WorkflowTsos
                             initialTsos={areasWorkFlow.tsos}
                             areaIndex={index}
@@ -351,20 +351,22 @@ const WorkflowsContainer = ({
                     </Grid>
                 </Grid>
             ))}
-            <Grid container item xs={12} sm={6}>
-                <Button
-                    className={classes.addNewArea}
-                    variant="outlined"
-                    onClick={() => handleAddArea()}
-                >
-                    <AddCircleIcon
-                        fontSize="default"
-                        style={{ marginRight: '10px' }}
-                    />
-                    <FormattedMessage id="addNewProcess" />
-                </Button>
+            <Grid container>
+                <Grid item xs={12} sm={6}>
+                    <Button
+                        className={classes.addNewArea}
+                        variant="outlined"
+                        onClick={() => handleAddArea()}
+                    >
+                        <AddCircleIcon
+                            fontSize="default"
+                            style={{ marginRight: '10px' }}
+                        />
+                        <FormattedMessage id="addNewProcess" />
+                    </Button>
+                </Grid>
             </Grid>
-        </Grid>
+        </div>
     );
 };
 

@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -127,13 +127,22 @@ const App = () => {
 
     const [appsAndUrls, setAppsAndUrls] = React.useState([]);
 
-    const [selectedTabId, setSelectedTabId] = React.useState(false);
-
     const matchProcess = useRouteMatch({
         path: PREFIX_URL_PROCESSES + '/:processName',
         exact: true,
         sensitive: false,
     });
+
+    const selectedTabId = useMemo(
+        () =>
+            matchProcess !== null &&
+            configs
+                .map((c) => c.process)
+                .includes(matchProcess.params.processName)
+                ? matchProcess.params.processName
+                : false,
+        [configs, matchProcess]
+    );
 
     // Can't use lazy initializer because useRouteMatch is a hook
     const [initialMatchSilentRenewCallbackUrl] = useState(
@@ -247,18 +256,6 @@ const App = () => {
         }
     }, [user, dispatch, connectNotificationsUpdateConfig, updateParams]);
 
-    useEffect(() => {
-        let index =
-            matchProcess !== null
-                ? configs.findIndex(
-                      (c) => c.process === matchProcess.params.processName
-                  )
-                : -1;
-        index !== -1
-            ? setSelectedTabId(matchProcess.params.processName)
-            : setSelectedTabId(false);
-    }, [configs, matchProcess]);
-
     function onLogoClicked() {
         history.replace('/');
     }
@@ -318,19 +315,11 @@ const App = () => {
                         appsAndUrls={appsAndUrls}
                     >
                         <Tabs
-                            value={
-                                configs
-                                    .map((c) => c.process)
-                                    .includes(selectedTabId)
-                                    ? selectedTabId
-                                    : false
-                            }
+                            value={selectedTabId}
                             indicatorColor="primary"
                             variant="scrollable"
                             scrollButtons="auto"
-                            onChange={(event, newValue) =>
-                                toggleTab(newValue)
-                            }
+                            onChange={(event, newValue) => toggleTab(newValue)}
                             aria-label="parameters"
                             className={classes.process}
                         >
@@ -344,24 +333,16 @@ const App = () => {
                         </Tabs>
                         <div style={{ flexGrow: 1 }}></div>
                         {user && (
-                            <div
-                                className={
-                                    classes.btnConfigurationWorkflows
-                                }
-                            >
+                            <div className={classes.btnConfigurationWorkflows}>
                                 <Button
-                                    onClick={
-                                        showPopupConfigurationWorkflows
-                                    }
+                                    onClick={showPopupConfigurationWorkflows}
                                 >
                                     <FormattedMessage id="configurationWorkflowsLink" />
                                 </Button>
                                 <WorkflowsConfiguration
                                     open={showConfigurationWorkflows}
                                     onClose={() => {
-                                        setShowConfigurationWorkflows(
-                                            false
-                                        );
+                                        setShowConfigurationWorkflows(false);
                                     }}
                                     matchProcess={matchProcess}
                                 />
