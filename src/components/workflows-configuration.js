@@ -32,50 +32,36 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Radio from '@material-ui/core/Radio';
 import { useHistory } from 'react-router-dom';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
     addNewTso: {
-        border: '1px solid #ccc',
-        padding: '5px 0 20px 15px',
-        margin: '15px 0',
+        border: '1px solid',
+        padding: theme.spacing(1),
+        margin: theme.spacing(2, 0, 2, 0),
     },
     newTsoContainerLabel: {
         fontWeight: 'bold',
-        padding: '10px 10px 0px 5px',
-    },
-    newTsoLabel: {
-        paddingLeft: '10px',
     },
     input: {
         textOverflow: 'ellipsis',
     },
-    addNewArea: {
-        margin: '10px 0px 20px 0px',
-        width: '100%',
-    },
 }));
 
-const styles = (theme) => ({
+const styles = () => ({
+    // Link : https://material-ui.com/components/dialogs/#customized-dialogs
+    // Material ui recommends position:absolute for the close button but we prefer display:flex  instead
     root: {
-        margin: 0,
-        padding: theme.spacing(2),
+        display: 'flex',
     },
     closeButton: {
-        position: 'absolute',
-        right: theme.spacing(1),
-        top: theme.spacing(1),
-        color: theme.palette.grey[500],
+        marginLeft: 'auto',
+        padding: 0,
     },
 });
 
 const CustomDialogTitle = withStyles(styles)((props) => {
     const { children, classes, onClose, ...other } = props;
     return (
-        <DialogTitle
-            disableTypography
-            className={classes.root}
-            {...other}
-            style={{ padding: '15px' }}
-        >
+        <DialogTitle disableTypography className={classes.root} {...other}>
             <Typography variant="h6">{children}</Typography>
             {onClose && (
                 <IconButton
@@ -196,14 +182,11 @@ const WorkflowTsos = ({ initialTsos, areaIndex, handleAreaTsosChanged }) => {
             ))}
             <Grid container direction="row" item xs={12} sm={10}>
                 <Button
-                    style={{ width: '100%', maxHeight: '35px' }}
+                    fullWidth={true}
                     variant="outlined"
                     onClick={() => handleAddAreaTso()}
+                    startIcon={<AddCircleIcon />}
                 >
-                    <AddCircleIcon
-                        fontSize="default"
-                        style={{ marginRight: '10px' }}
-                    />
                     <FormattedMessage id="addNewTso" />
                 </Button>
             </Grid>
@@ -288,10 +271,10 @@ const WorkflowsContainer = ({
     return (
         <div>
             <Grid container className={classes.newTsoContainerLabel}>
-                <Grid item xs={12} sm={5} className={classes.newTsoLabel}>
+                <Grid item xs={12} sm={5}>
                     <FormattedMessage id="process" />
                 </Grid>
-                <Grid item xs={12} sm={7} className={classes.newTsoLabel}>
+                <Grid item xs={12} sm={7}>
                     <FormattedMessage id="tso" />
                 </Grid>
             </Grid>
@@ -355,14 +338,11 @@ const WorkflowsContainer = ({
             <Grid container>
                 <Grid item xs={12} sm={6}>
                     <Button
-                        className={classes.addNewArea}
+                        fullWidth={true}
                         variant="outlined"
                         onClick={() => handleAddArea()}
+                        startIcon={<AddCircleIcon />}
                     >
-                        <AddCircleIcon
-                            fontSize="default"
-                            style={{ marginRight: '10px' }}
-                        />
                         <FormattedMessage id="addNewProcess" />
                     </Button>
                 </Grid>
