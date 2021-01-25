@@ -46,9 +46,7 @@ const useStyles = makeStyles(() => ({
         paddingLeft: '10px',
     },
     input: {
-        '&::placeholder': {
-            fontSize: '12px',
-        },
+        textOverflow: 'ellipsis',
     },
     addNewArea: {
         margin: '10px 0px 20px 0px',
