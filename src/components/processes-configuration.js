@@ -143,7 +143,7 @@ const ProcessTsos = ({ initialTsos, processIndex, handleAreaTsosChanged }) => {
                         <TextField
                             fullWidth={true}
                             placeholder={intl.formatMessage({
-                                id: 'tsoLabelCode',
+                                id: 'sourcingActorCode',
                             })}
                             value={tso.sourcingActor}
                             onChange={(event) =>
@@ -158,7 +158,7 @@ const ProcessTsos = ({ initialTsos, processIndex, handleAreaTsosChanged }) => {
                         <TextField
                             fullWidth={true}
                             placeholder={intl.formatMessage({
-                                id: 'tsoLabelCodeOptional',
+                                id: 'alternativeSourcingActorCode',
                             })}
                             value={tso.alternativeSourcingActor}
                             onChange={(event) =>
@@ -274,7 +274,7 @@ const ProcessesContainer = ({ handleProcessesChanged, initialConfigs }) => {
                     <FormattedMessage id="process" />
                 </Grid>
                 <Grid item xs={12} sm={7}>
-                    <FormattedMessage id="tso" />
+                    <FormattedMessage id="tsos" />
                 </Grid>
             </Grid>
             {currentProcesses.map((process, index) => (

@@ -338,7 +338,7 @@ const App = () => {
                                     }
                                     onClick={showPopupConfigurationProcesses}
                                 >
-                                    <FormattedMessage id="configurationProcessesLink" />
+                                    <FormattedMessage id="configureProcesses" />
                                 </Button>
                                 <ProcessesConfiguration
                                     open={showConfigurationProcesses}
