@@ -81,63 +81,63 @@ const keyGenerator = (() => {
     return () => key++;
 })();
 
-const WorkflowTsos = ({ initialTsos, areaIndex, handleAreaTsosChanged }) => {
+const ProcessTsos = ({ initialTsos, processIndex, handleAreaTsosChanged }) => {
     const classes = useStyles();
     const intl = useIntl();
-    // areaTsos copies will be deleted in an upcoming PR
-    const [areaTsos, setAreaTsos] = useState(
+    // processTsos copies will be deleted in an upcoming PR
+    const [processTsos, setProcessTsos] = useState(
         initialTsos.map((e) => {
             return { id: keyGenerator(), ...e };
         })
     );
 
     useEffect(() => {
-        handleAreaTsosChanged(areaIndex, areaTsos);
+        handleAreaTsosChanged(processIndex, processTsos);
         // Do not add handleAreaTsosChanged as dependency to avoid infinite loop
         // To be changed
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [areaTsos]);
+    }, [processTsos]);
 
-    const handleChangeTsoSourcingActor = (index, event) => {
-        const areaTsosCopy = [...areaTsos];
-        areaTsosCopy[index] = {
-            id: areaTsosCopy[index].id,
+    const handleTsoSourcingActorChanged = (index, event) => {
+        const processTsosCopy = [...processTsos];
+        processTsosCopy[index] = {
+            id: processTsosCopy[index].id,
             sourcingActor: event.target.value,
             alternativeSourcingActor:
-                areaTsosCopy[index].alternativeSourcingActor,
+                processTsosCopy[index].alternativeSourcingActor,
         };
-        setAreaTsos(areaTsosCopy);
+        setProcessTsos(processTsosCopy);
     };
 
-    const handleChangeTsoAlternativeSourcingActor = (index, event) => {
-        const areaTsosCopy = [...areaTsos];
-        areaTsosCopy[index] = {
-            id: areaTsosCopy[index].id,
-            sourcingActor: areaTsosCopy[index].sourcingActor,
+    const handleTsoAlternativeSourcingActorChanged = (index, event) => {
+        const processTsosCopy = [...processTsos];
+        processTsosCopy[index] = {
+            id: processTsosCopy[index].id,
+            sourcingActor: processTsosCopy[index].sourcingActor,
             alternativeSourcingActor: event.target.value,
         };
-        setAreaTsos(areaTsosCopy);
+        setProcessTsos(processTsosCopy);
     };
 
-    const handleAddAreaTso = () => {
-        const areaTsosCopy = [...areaTsos];
-        areaTsosCopy.push({
+    const handleAddProcessTso = () => {
+        const processTsosCopy = [...processTsos];
+        processTsosCopy.push({
             id: keyGenerator(),
             sourcingActor: '',
             alternativeSourcingActor: '',
         });
-        setAreaTsos(areaTsosCopy);
+        setProcessTsos(processTsosCopy);
     };
 
-    const handleRemoveFieldsTso = (index) => {
-        const areaTsosCopy = [...areaTsos];
-        areaTsosCopy.splice(index, 1);
-        setAreaTsos(areaTsosCopy);
+    const handleRemoveProcessTso = (index) => {
+        const processTsosCopy = [...processTsos];
+        processTsosCopy.splice(index, 1);
+        setProcessTsos(processTsosCopy);
     };
 
     return (
         <>
-            {areaTsos.map((tso, index) => (
+            {processTsos.map((tso, index) => (
                 <Grid container spacing={2} key={tso.id}>
                     <Grid item xs={12} sm={4}>
                         <TextField
@@ -147,7 +147,7 @@ const WorkflowTsos = ({ initialTsos, areaIndex, handleAreaTsosChanged }) => {
                             })}
                             value={tso.sourcingActor}
                             onChange={(event) =>
-                                handleChangeTsoSourcingActor(index, event)
+                                handleTsoSourcingActorChanged(index, event)
                             }
                             InputProps={{
                                 classes: { input: classes.input },
@@ -162,7 +162,7 @@ const WorkflowTsos = ({ initialTsos, areaIndex, handleAreaTsosChanged }) => {
                             })}
                             value={tso.alternativeSourcingActor}
                             onChange={(event) =>
-                                handleChangeTsoAlternativeSourcingActor(
+                                handleTsoAlternativeSourcingActorChanged(
                                     index,
                                     event
                                 )
@@ -174,7 +174,7 @@ const WorkflowTsos = ({ initialTsos, areaIndex, handleAreaTsosChanged }) => {
                     </Grid>
                     <Grid item xs={12} sm={2} align="center">
                         <IconButton
-                            onClick={() => handleRemoveFieldsTso(index)}
+                            onClick={() => handleRemoveProcessTso(index)}
                         >
                             <DeleteIcon />
                         </IconButton>
@@ -185,7 +185,7 @@ const WorkflowTsos = ({ initialTsos, areaIndex, handleAreaTsosChanged }) => {
                 <Button
                     fullWidth={true}
                     variant="outlined"
-                    onClick={() => handleAddAreaTso()}
+                    onClick={() => handleAddProcessTso()}
                     startIcon={<AddCircleIcon />}
                 >
                     <FormattedMessage id="addNewTso" />
@@ -195,14 +195,11 @@ const WorkflowTsos = ({ initialTsos, areaIndex, handleAreaTsosChanged }) => {
     );
 };
 
-const WorkflowsContainer = ({
-    handleAreasWorkFlowsChanged,
-    initialConfigs,
-}) => {
+const ProcessesContainer = ({ handleProcessesChanged, initialConfigs }) => {
     const classes = useStyles();
     const intl = useIntl();
 
-    const [areasWorkFlows, setAreasWorkFlows] = useState([
+    const [currentProcesses, setCurrentProcesses] = useState([
         ...initialConfigs.map((e) => {
             return { id: keyGenerator(), ...e };
         }),
@@ -214,60 +211,61 @@ const WorkflowsContainer = ({
         },
     ]);
 
-    function handleAddArea() {
-        const areasWorkFlowsCopy = [...areasWorkFlows];
-        areasWorkFlowsCopy.push({
+    function handleAddProcess() {
+        const currentProcessesCopy = [...currentProcesses];
+        currentProcessesCopy.push({
             id: keyGenerator(),
             process: '',
             tsos: [{ sourcingActor: '', alternativeSourcingActor: '' }],
             runBalancesAdjustment: false,
         });
-        setAreasWorkFlows(areasWorkFlowsCopy);
+        setCurrentProcesses(currentProcessesCopy);
     }
 
-    function handleAreaNameChanged(e, index) {
-        const configsCopy = [...areasWorkFlows];
-        configsCopy[index] = {
-            id: configsCopy[index].id,
+    function handleProcessNameChanged(e, index) {
+        const currentProcessesCopy = [...currentProcesses];
+        currentProcessesCopy[index] = {
+            id: currentProcessesCopy[index].id,
             process: e.target.value,
-            tsos: configsCopy[index].tsos,
-            runBalancesAdjustment: configsCopy[index].runBalancesAdjustment,
+            tsos: currentProcessesCopy[index].tsos,
+            runBalancesAdjustment:
+                currentProcessesCopy[index].runBalancesAdjustment,
         };
-        setAreasWorkFlows(configsCopy);
+        setCurrentProcesses(currentProcessesCopy);
     }
 
-    function handleSwitchChange(e, index) {
-        const configsCopy = [...areasWorkFlows];
-        configsCopy[index] = {
-            id: configsCopy[index].id,
-            process: configsCopy[index].process,
-            tsos: configsCopy[index].tsos,
+    function handleProcessAlgorithmChanged(e, index) {
+        const currentProcessesCopy = [...currentProcesses];
+        currentProcessesCopy[index] = {
+            id: currentProcessesCopy[index].id,
+            process: currentProcessesCopy[index].process,
+            tsos: currentProcessesCopy[index].tsos,
             runBalancesAdjustment: e.target.value,
         };
-        setAreasWorkFlows(configsCopy);
+        setCurrentProcesses(currentProcessesCopy);
     }
 
-    function handleDeleteArea(index) {
-        const configsCopy = [...areasWorkFlows];
-        configsCopy.splice(index, 1);
-        setAreasWorkFlows(configsCopy);
+    function handleDeleteProcess(index) {
+        const currentProcessesCopy = [...currentProcesses];
+        currentProcessesCopy.splice(index, 1);
+        setCurrentProcesses(currentProcessesCopy);
     }
 
-    function handleAreaTsosChanged(index, tsosList) {
-        const areasWorkFlowsCopy = [...areasWorkFlows];
-        areasWorkFlowsCopy[index] = {
-            id: areasWorkFlowsCopy[index].id,
-            process: areasWorkFlowsCopy[index].process,
+    function handleProcessTsosChanged(index, tsosList) {
+        const currentProcessesCopy = [...currentProcesses];
+        currentProcessesCopy[index] = {
+            id: currentProcessesCopy[index].id,
+            process: currentProcessesCopy[index].process,
             tsos: tsosList,
             runBalancesAdjustment:
-                areasWorkFlowsCopy[index].runBalancesAdjustment,
+                currentProcessesCopy[index].runBalancesAdjustment,
         };
-        setAreasWorkFlows(areasWorkFlowsCopy);
+        setCurrentProcesses(currentProcessesCopy);
     }
 
     useEffect(() => {
-        handleAreasWorkFlowsChanged(areasWorkFlows);
-    }, [handleAreasWorkFlowsChanged, areasWorkFlows]);
+        handleProcessesChanged(currentProcesses);
+    }, [handleProcessesChanged, currentProcesses]);
 
     return (
         <div>
@@ -279,12 +277,12 @@ const WorkflowsContainer = ({
                     <FormattedMessage id="tso" />
                 </Grid>
             </Grid>
-            {areasWorkFlows.map((areasWorkFlow, index) => (
+            {currentProcesses.map((process, index) => (
                 <Grid
                     container
                     spacing={1}
                     className={classes.addNewTso}
-                    key={areasWorkFlow.id}
+                    key={process.id}
                 >
                     {/* Area input*/}
                     <Grid container item xs={12} sm={5}>
@@ -294,19 +292,19 @@ const WorkflowsContainer = ({
                                 placeholder={intl.formatMessage({
                                     id: 'name',
                                 })}
-                                value={areasWorkFlow.process}
+                                value={process.process}
                                 InputProps={{
                                     classes: { input: classes.input },
                                 }}
                                 onChange={(e) =>
-                                    handleAreaNameChanged(e, index)
+                                    handleProcessNameChanged(e, index)
                                 }
                             />
                             <RadioGroup
                                 aria-label="runBalancesAdjustment"
                                 name="runBalancesAdjustment"
-                                value={areasWorkFlow.runBalancesAdjustment + ''}
-                                onChange={(e) => handleSwitchChange(e, index)}
+                                value={process.runBalancesAdjustment + ''}
+                                onChange={(e) => handleProcessAlgorithmChanged(e, index)}
                             >
                                 <FormControlLabel
                                     value="true"
@@ -321,17 +319,17 @@ const WorkflowsContainer = ({
                             </RadioGroup>
                         </Grid>
                         <Grid item xs={12} sm={4} align="center">
-                            <IconButton onClick={() => handleDeleteArea(index)}>
+                            <IconButton onClick={() => handleDeleteProcess(index)}>
                                 <DeleteIcon />
                             </IconButton>
                         </Grid>
                     </Grid>
                     {/* Tso inputs */}
                     <Grid item xs={12} sm={7}>
-                        <WorkflowTsos
-                            initialTsos={areasWorkFlow.tsos}
-                            areaIndex={index}
-                            handleAreaTsosChanged={handleAreaTsosChanged}
+                        <ProcessTsos
+                            initialTsos={process.tsos}
+                            processIndex={index}
+                            handleAreaTsosChanged={handleProcessTsosChanged}
                         />
                     </Grid>
                 </Grid>
@@ -341,7 +339,7 @@ const WorkflowsContainer = ({
                     <Button
                         fullWidth={true}
                         variant="outlined"
-                        onClick={() => handleAddArea()}
+                        onClick={() => handleAddProcess()}
                         startIcon={<AddCircleIcon />}
                     >
                         <FormattedMessage id="addNewProcess" />
@@ -352,8 +350,8 @@ const WorkflowsContainer = ({
     );
 };
 
-const WorkflowsConfiguration = ({ open, onClose, matchProcess }) => {
-    const [areasWorkFlows, setAreasWorkFlows] = useState([]);
+const ProcessesConfiguration = ({ open, onClose, matchProcess }) => {
+    const [processes, setProcesses] = useState([]);
     const configs = useSelector((state) => state.configs);
     const [confirmSave, setConfirmSave] = useState(false);
     const dispatch = useDispatch();
@@ -362,10 +360,6 @@ const WorkflowsConfiguration = ({ open, onClose, matchProcess }) => {
     useEffect(() => {
         setConfirmSave(false);
     }, [open]);
-
-    const handleClosePopup = () => {
-        setConfirmSave(false);
-    };
 
     const saveButtonClicked = () => {
         if (processesToBeDeleted().length === 0) {
@@ -377,7 +371,7 @@ const WorkflowsConfiguration = ({ open, onClose, matchProcess }) => {
 
     const processesToBeDeleted = useCallback(() => {
         const initialProcesses = configs.map((e) => e.process);
-        const currentProcesses = areasWorkFlows
+        const currentProcesses = processes
             .filter((e) => e.process !== '')
             .map((e) => e.process);
         let toBeDeleted = [];
@@ -388,13 +382,13 @@ const WorkflowsConfiguration = ({ open, onClose, matchProcess }) => {
             }
         }
         return toBeDeleted;
-    }, [configs, areasWorkFlows]);
+    }, [configs, processes]);
 
-    const workFlowWithoutId = (workflow) => {
+    const processWithoutId = (process) => {
         return {
-            process: workflow.process,
-            runBalancesAdjustment: workflow.runBalancesAdjustment,
-            tsos: workflow.tsos.map((tso) => {
+            process: process.process,
+            runBalancesAdjustment: process.runBalancesAdjustment,
+            tsos: process.tsos.map((tso) => {
                 return {
                     sourcingActor: tso.sourcingActor,
                     alternativeSourcingActor: tso.alternativeSourcingActor,
@@ -403,17 +397,17 @@ const WorkflowsConfiguration = ({ open, onClose, matchProcess }) => {
         };
     };
 
-    const areDifferent = (initialWorkflow, areaWorkFlow) => {
+    const areDifferent = (initialProcess, currentProcess) => {
         let isDifferent = false;
-        let areasWorkFlowTsosWithoutId = areaWorkFlow.tsos.map((tso) => {
+        let processTsosWithoutId = currentProcess.tsos.map((tso) => {
             return {
                 sourcingActor: tso.sourcingActor,
                 alternativeSourcingActor: tso.alternativeSourcingActor,
             };
         });
 
-        areasWorkFlowTsosWithoutId.every((e) => {
-            let index = initialWorkflow.tsos.findIndex(
+        processTsosWithoutId.every((e) => {
+            let index = initialProcess.tsos.findIndex(
                 (res) =>
                     res.sourcingActor === e.sourcingActor &&
                     res.alternativeSourcingActor === e.alternativeSourcingActor
@@ -429,8 +423,8 @@ const WorkflowsConfiguration = ({ open, onClose, matchProcess }) => {
             return true;
         }
 
-        initialWorkflow.tsos.every((e) => {
-            let index = areasWorkFlowTsosWithoutId.findIndex(
+        initialProcess.tsos.every((e) => {
+            let index = processTsosWithoutId.findIndex(
                 (res) =>
                     res.sourcingActor === e.sourcingActor &&
                     res.alternativeSourcingActor === e.alternativeSourcingActor
@@ -444,8 +438,8 @@ const WorkflowsConfiguration = ({ open, onClose, matchProcess }) => {
 
         return (
             isDifferent ||
-            initialWorkflow.runBalancesAdjustment !==
-                areaWorkFlow.runBalancesAdjustment
+            initialProcess.runBalancesAdjustment !==
+                currentProcess.runBalancesAdjustment
         );
     };
 
@@ -458,29 +452,25 @@ const WorkflowsConfiguration = ({ open, onClose, matchProcess }) => {
             promises.push(deleteProcess(p));
         });
 
-        for (let i = 0; i < areasWorkFlows.length; i++) {
+        for (let i = 0; i < processes.length; i++) {
             // ignore processes with no name
-            if (areasWorkFlows[i].process === '') {
+            if (processes[i].process === '') {
                 continue;
             }
 
             let initialProcess = configs.find(
-                (element) => element.process === areasWorkFlows[i].process
+                (element) => element.process === processes[i].process
             );
 
             if (typeof initialProcess === 'undefined') {
                 // ADD NEW PROCESSES
-                promises.push(
-                    createProcess(workFlowWithoutId(areasWorkFlows[i]))
-                );
+                promises.push(createProcess(processWithoutId(processes[i])));
                 continue;
             }
 
-            if (areDifferent(initialProcess, areasWorkFlows[i])) {
+            if (areDifferent(initialProcess, processes[i])) {
                 // UPDATE PROCESSES
-                promises.push(
-                    createProcess(workFlowWithoutId(areasWorkFlows[i]))
-                );
+                promises.push(createProcess(processWithoutId(processes[i])));
             }
         }
 
@@ -500,8 +490,8 @@ const WorkflowsConfiguration = ({ open, onClose, matchProcess }) => {
         });
     };
 
-    const handleAreasWorkFlowsChanged = (areas) => {
-        setAreasWorkFlows(areas);
+    const handleProcessesChanged = (processes) => {
+        setProcesses(processes);
     };
 
     return (
@@ -514,9 +504,9 @@ const WorkflowsConfiguration = ({ open, onClose, matchProcess }) => {
             >
                 <CustomDialogTitle id="form-dialog-title" onClose={onClose}>
                     {confirmSave ? (
-                        <FormattedMessage id="deletionWorkflowsTitle" />
+                        <FormattedMessage id="deletionProcessesTitle" />
                     ) : (
-                        <FormattedMessage id="configurationWorkflowsTitle" />
+                        <FormattedMessage id="processesConfigurationTitle" />
                     )}
                 </CustomDialogTitle>
                 <DialogContent dividers>
@@ -525,22 +515,16 @@ const WorkflowsConfiguration = ({ open, onClose, matchProcess }) => {
                             <FormattedMessage id="confirmMessage" />
                         </h3>
                     ) : (
-                        <WorkflowsContainer
+                        <ProcessesContainer
                             initialConfigs={configs}
-                            handleAreasWorkFlowsChanged={
-                                handleAreasWorkFlowsChanged
-                            }
+                            handleProcessesChanged={handleProcessesChanged}
                         />
                     )}
                     {confirmSave &&
                         processesToBeDeleted().map((e) => <h3 key={e}>{e}</h3>)}
                 </DialogContent>
                 <DialogActions>
-                    <Button
-                        autoFocus
-                        size="small"
-                        onClick={confirmSave ? handleClosePopup : onClose}
-                    >
+                    <Button autoFocus size="small" onClick={onClose}>
                         <FormattedMessage id="cancel" />
                     </Button>
                     <Button
@@ -556,9 +540,9 @@ const WorkflowsConfiguration = ({ open, onClose, matchProcess }) => {
     );
 };
 
-WorkflowsConfiguration.propTypes = {
+ProcessesConfiguration.propTypes = {
     open: PropTypes.bool.isRequired,
     onClose: PropTypes.func.isRequired,
     matchProcess: PropTypes.object,
 };
-export default WorkflowsConfiguration;
+export default ProcessesConfiguration;
