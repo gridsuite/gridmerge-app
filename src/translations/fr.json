@@ -14,5 +14,22 @@
     "exportFormat": "Format de l'export",
     "exportStudyErrorMsg": "Le format de l'export n'est pas spécifié",
 
-    "cancel": "Annuler"
+    "cancel": "Annuler",
+
+    "pageNotFound": "Page introuvable",
+    "configurationWorkflowsLink": "Configurer processus",
+    "configurationWorkflowsTitle": "Configuration des processus de merge",
+    "cancel": "Retour",
+    "save": "Enregistrer",
+    "confirm": "Confirmer",
+    "confirmMessage": "Confirmer vous la suppression des processus suivants?",
+    "deletionWorkflowsTitle": "Suppression des workflows",
+    "process": "Processus",
+    "addNewTso": "Ajouter un nouveau TSO",
+    "addNewProcess": "Ajouter un nouveau workflow",
+    "tso": "TSOs",
+    "tsoLabelCode": "Code GRT",
+    "tsoLabelCodeOptional": "Code GRT alternatif (optionnel)",
+    "timelineDiagonalLabels": "Afficher les labels en diagonal",
+    "name": "nom"
 }

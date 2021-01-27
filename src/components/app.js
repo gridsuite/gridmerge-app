@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -24,7 +24,12 @@ import {
     ThemeProvider,
 } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import { initProcesses, LIGHT_THEME } from '../redux/actions';
+import {
+    initProcesses,
+    LIGHT_THEME,
+    selectTheme,
+    selectTimelineDiagonalLabels,
+} from '../redux/actions';
 
 import {
     AuthenticationRouter,
@@ -32,18 +37,30 @@ import {
     initializeAuthenticationProd,
     logout,
     TopBar,
+    SnackbarProvider,
 } from '@gridsuite/commons-ui';
 import { FormattedMessage } from 'react-intl';
 
 import Process from './process';
 
 import Parameters from './parameters';
+import WorkflowsConfiguration from './workflows-configuration';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
-import { fetchAppsAndUrls, fetchMergeConfigs } from '../utils/api';
+import Button from '@material-ui/core/Button';
+import {
+    connectNotificationsWsUpdateConfig,
+    fetchAppsAndUrls,
+    fetchConfigParameters,
+    fetchMergeConfigs,
+} from '../utils/api';
 
 import { ReactComponent as GridMergeLogoDark } from '../images/GridMerge_logo_dark.svg';
 import { ReactComponent as GridMergeLogoLight } from '../images/GridMerge_logo_light.svg';
+import {
+    PARAMS_THEME_KEY,
+    PARAMS_TIMELINE_DIAGONAL_LABELS,
+} from '../utils/config-params';
 
 const PREFIX_URL_PROCESSES = '/processes';
 
@@ -73,6 +90,9 @@ const useStyles = makeStyles(() => ({
     process: {
         marginLeft: 18,
     },
+    btnConfigurationWorkflows: {
+        marginLeft: 'auto',
+    },
 }));
 
 const noUserManager = { instance: null, error: null };
@@ -92,6 +112,11 @@ const App = () => {
 
     const [showParameters, setShowParameters] = useState(false);
 
+    const [
+        showConfigurationWorkflows,
+        setShowConfigurationWorkflows,
+    ] = useState(false);
+
     const history = useHistory();
 
     const dispatch = useDispatch();
@@ -101,8 +126,6 @@ const App = () => {
     const classes = useStyles();
 
     const [appsAndUrls, setAppsAndUrls] = React.useState([]);
-
-    const [selectedTabId, setSelectedTabId] = React.useState(false);
 
     const matchProcess = useRouteMatch({
         path: PREFIX_URL_PROCESSES + '/:processName',
@@ -116,6 +139,25 @@ const App = () => {
             path: '/silent-renew-callback',
             exact: true,
         })
+    );
+
+    const updateParams = useCallback(
+        (params) => {
+            params.forEach((param) => {
+                switch (param.name) {
+                    case PARAMS_THEME_KEY:
+                        dispatch(selectTheme(param.value));
+                        break;
+                    case PARAMS_TIMELINE_DIAGONAL_LABELS:
+                        dispatch(
+                            selectTimelineDiagonalLabels(param.value === 'true')
+                        );
+                        break;
+                    default:
+                }
+            });
+        },
+        [dispatch]
     );
 
     useEffect(() => {
@@ -175,16 +217,42 @@ const App = () => {
         // Note: dispatch doesn't change
     }, [dispatch, user]);
 
+    const connectNotificationsUpdateConfig = useCallback(() => {
+        const ws = connectNotificationsWsUpdateConfig();
+
+        ws.onmessage = function (event) {
+            fetchConfigParameters().then((params) => {
+                updateParams(params);
+            });
+        };
+        ws.onerror = function (event) {
+            console.error('Unexpected Notification WebSocket error', event);
+        };
+        return ws;
+    }, [updateParams]);
+
     useEffect(() => {
+        if (user !== null) {
+            fetchConfigParameters().then((params) => {
+                console.debug('received UI parameters :');
+                console.debug(params);
+                updateParams(params);
+            });
+            const ws = connectNotificationsUpdateConfig();
+            return function () {
+                ws.close();
+            };
+        }
+    }, [user, dispatch, connectNotificationsUpdateConfig, updateParams]);
+
+    const selectedTabId = useMemo(() => {
         let index =
             matchProcess !== null
                 ? configs.findIndex(
                       (c) => c.process === matchProcess.params.processName
                   )
                 : -1;
-        index !== -1
-            ? setSelectedTabId(matchProcess.params.processName)
-            : setSelectedTabId(false);
+        return index !== -1 ? matchProcess.params.processName : false;
     }, [configs, matchProcess]);
 
     function onLogoClicked() {
@@ -213,100 +281,129 @@ const App = () => {
             <Process index={index} />
         ) : (
             <h1>
-                <FormattedMessage id="PageNotFound" />{' '}
+                <FormattedMessage id="pageNotFound" />{' '}
             </h1>
         );
     }
 
+    const showPopupConfigurationWorkflows = () => {
+        setShowConfigurationWorkflows(true);
+    };
+
     return (
         <ThemeProvider theme={getMuiTheme(theme)}>
-            <React.Fragment>
-                <CssBaseline />
-                <TopBar
-                    appName="Merge"
-                    appColor="#2D9BF0"
-                    appLogo={
-                        theme === LIGHT_THEME ? (
-                            <GridMergeLogoLight />
-                        ) : (
-                            <GridMergeLogoDark />
-                        )
-                    }
-                    onParametersClick={() => showParametersClicked()}
-                    onLogoutClick={() => logout(dispatch, userManager.instance)}
-                    onLogoClick={() => onLogoClicked()}
-                    user={user}
-                    appsAndUrls={appsAndUrls}
-                >
-                    <Tabs
-                        value={selectedTabId}
-                        indicatorColor="primary"
-                        variant="scrollable"
-                        scrollButtons="auto"
-                        onChange={(event, newValue) => toggleTab(newValue)}
-                        aria-label="parameters"
-                        className={classes.process}
+            <SnackbarProvider hideIconVariant={false}>
+                <React.Fragment>
+                    <CssBaseline />
+                    <TopBar
+                        appName="Merge"
+                        appColor="#2D9BF0"
+                        appLogo={
+                            theme === LIGHT_THEME ? (
+                                <GridMergeLogoLight />
+                            ) : (
+                                <GridMergeLogoDark />
+                            )
+                        }
+                        onParametersClick={() => showParametersClicked()}
+                        onLogoutClick={() =>
+                            logout(dispatch, userManager.instance)
+                        }
+                        onLogoClick={() => onLogoClicked()}
+                        user={user}
+                        appsAndUrls={appsAndUrls}
                     >
-                        {configs.map((config) => (
-                            <Tab
-                                key={config.process}
-                                label={config.process}
-                                value={config.process}
-                            />
-                        ))}
-                    </Tabs>
-                </TopBar>
-                <Parameters
-                    showParameters={showParameters}
-                    hideParameters={hideParameters}
-                />
-                {user !== null ? (
-                    <>
-                        <Switch>
-                            <Route exact path={'/'}>
-                                {configs.length > 0 && (
-                                    <Redirect
-                                        to={
-                                            PREFIX_URL_PROCESSES +
-                                            '/' +
-                                            configs[0].process
-                                        }
-                                    />
-                                )}
-                            </Route>
-                            <Route exact path="/sign-in-callback">
-                                <Redirect to={getPreLoginPath() || '/'} />
-                            </Route>
-                            <Route exact path="/logout-callback">
-                                <h1>
-                                    Error: logout failed; you are still logged
-                                    in.
-                                </h1>
-                            </Route>
-                            <Route
-                                exact
-                                path={PREFIX_URL_PROCESSES + '/:processName'}
-                                render={({ match }) =>
-                                    displayProcess(match.params.processName)
-                                }
-                            />
-                            <Route>
-                                <h1>
-                                    <FormattedMessage id="PageNotFound" />{' '}
-                                </h1>
-                            </Route>
-                        </Switch>
-                    </>
-                ) : (
-                    <AuthenticationRouter
-                        userManager={userManager}
-                        signInCallbackError={signInCallbackError}
-                        dispatch={dispatch}
-                        history={history}
-                        location={location}
+                        <Tabs
+                            value={selectedTabId}
+                            indicatorColor="primary"
+                            variant="scrollable"
+                            scrollButtons="auto"
+                            onChange={(event, newValue) => toggleTab(newValue)}
+                            aria-label="parameters"
+                            className={classes.process}
+                        >
+                            {configs.map((config) => (
+                                <Tab
+                                    key={config.process}
+                                    label={config.process}
+                                    value={config.process}
+                                />
+                            ))}
+                        </Tabs>
+                        {user && (
+                            <>
+                                <Button
+                                    className={
+                                        classes.btnConfigurationWorkflows
+                                    }
+                                    onClick={showPopupConfigurationWorkflows}
+                                >
+                                    <FormattedMessage id="configurationWorkflowsLink" />
+                                </Button>
+                                <WorkflowsConfiguration
+                                    open={showConfigurationWorkflows}
+                                    onClose={() => {
+                                        setShowConfigurationWorkflows(false);
+                                    }}
+                                    matchProcess={matchProcess}
+                                />
+                            </>
+                        )}
+                    </TopBar>
+                    <Parameters
+                        showParameters={showParameters}
+                        hideParameters={hideParameters}
                     />
-                )}
-            </React.Fragment>
+                    {user !== null ? (
+                        <>
+                            <Switch>
+                                <Route exact path={'/'}>
+                                    {configs.length > 0 && (
+                                        <Redirect
+                                            to={
+                                                PREFIX_URL_PROCESSES +
+                                                '/' +
+                                                configs[0].process
+                                            }
+                                        />
+                                    )}
+                                </Route>
+                                <Route exact path="/sign-in-callback">
+                                    <Redirect to={getPreLoginPath() || '/'} />
+                                </Route>
+                                <Route exact path="/logout-callback">
+                                    <h1>
+                                        Error: logout failed; you are still
+                                        logged in.
+                                    </h1>
+                                </Route>
+                                <Route
+                                    exact
+                                    path={
+                                        PREFIX_URL_PROCESSES + '/:processName'
+                                    }
+                                    render={({ match }) =>
+                                        displayProcess(match.params.processName)
+                                    }
+                                />
+                                <Route>
+                                    <h1>
+                                        <FormattedMessage id="pageNotFound" />{' '}
+                                    </h1>
+                                </Route>
+                            </Switch>
+                        </>
+                    ) : (
+                        <AuthenticationRouter
+                            userManager={userManager}
+                            signInCallbackError={signInCallbackError}
+                            dispatch={dispatch}
+                            history={history}
+                            location={location}
+                        />
+                    )}
+                </React.Fragment>
+            </SnackbarProvider>
         </ThemeProvider>
     );
 };

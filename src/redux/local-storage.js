@@ -16,3 +16,8 @@ export const getLocalStorageTheme = () => {
 export const saveLocalStorageTheme = (theme) => {
     localStorage.setItem(LOCAL_STORAGE_THEME_KEY, theme);
 };
+
+export const getLocalStorageBoolean = (key, defValue) => {
+    const value = localStorage.getItem(key) || defValue;
+    return value === 'true';
+};

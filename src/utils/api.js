@@ -14,6 +14,9 @@ const PREFIX_NOTIFICATION_WS =
     process.env.REACT_APP_WS_GATEWAY + '/merge-notification';
 const PREFIX_ORCHESTRATOR_QUERIES =
     process.env.REACT_APP_API_GATEWAY + '/merge';
+const PREFIX_CONFIG_NOTIFICATION_WS =
+    process.env.REACT_APP_WS_GATEWAY + '/config-notification';
+const PREFIX_CONFIG_QUERIES = process.env.REACT_APP_API_GATEWAY + '/config';
 
 const APPS_METADATA_SERVER_URL = fetch('env.json');
 
@@ -52,6 +55,53 @@ export function connectNotificationsWebsocket(process) {
         console.info('Connected Websocket ' + wsadress + ' ...');
     };
     return rws;
+}
+
+export function connectNotificationsWsUpdateConfig() {
+    const webSocketBaseUrl = document.baseURI
+        .replace(/^http:\/\//, 'ws://')
+        .replace(/^https:\/\//, 'wss://');
+    const webSocketUrl =
+        webSocketBaseUrl + PREFIX_CONFIG_NOTIFICATION_WS + '/notify';
+
+    let webSocketUrlWithToken;
+    webSocketUrlWithToken = webSocketUrl + '?access_token=' + getToken();
+
+    const reconnectingWebSocket = new ReconnectingWebSocket(
+        webSocketUrlWithToken
+    );
+    reconnectingWebSocket.onopen = function (event) {
+        console.info(
+            'Connected Websocket update config ' + webSocketUrl + ' ...'
+        );
+    };
+    return reconnectingWebSocket;
+}
+
+export function fetchConfigParameters() {
+    console.info('Fetching UI configuration params ...');
+    const fetchParams = PREFIX_CONFIG_QUERIES + '/v1/parameters';
+    return backendFetch(fetchParams).then((res) => {
+        return res.json();
+    });
+}
+
+export function updateConfigParameters(name, value) {
+    console.info('updating parameters : ' + name + ' : ' + value);
+    const updateParams = PREFIX_CONFIG_QUERIES + '/v1/parameters';
+    backendFetch(updateParams, {
+        method: 'put',
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify([
+            {
+                name: name,
+                value: value,
+            },
+        ]),
+    }).then();
 }
 
 export function fetchMergeConfigs() {
@@ -124,7 +174,9 @@ export const IgmStatus = {
 };
 
 export function getIgmStatus(tso, merge) {
-    const igm = merge ? merge.igms.find((igm) => igm.tso === tso) : null;
+    const igm = merge
+        ? merge.igms.find((igm) => igm.tso === tso.sourcingActor)
+        : null;
     if (!igm) {
         return IgmStatus.ABSENT;
     }
@@ -154,6 +206,27 @@ export function getIgmStatus(tso, merge) {
                 throw Error('Status not supported');
         }
     }
+}
+
+export function createProcess(json) {
+    console.info('Saving Process', json.process, ' ...');
+    const addProcessUrl = PREFIX_ORCHESTRATOR_QUERIES + '/v1/configs';
+    return backendFetch(addProcessUrl, {
+        method: 'post',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(json),
+    });
+}
+
+export function deleteProcess(process) {
+    console.info('Deleting Process', process, ' ...');
+    const deleteProcessUrl =
+        PREFIX_ORCHESTRATOR_QUERIES + '/v1/configs/' + process;
+    return backendFetch(deleteProcessUrl, {
+        method: 'delete',
+    });
 }
 
 export const MergeType = PropTypes.shape({
