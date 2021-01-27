@@ -81,7 +81,11 @@ const keyGenerator = (() => {
     return () => key++;
 })();
 
-const ProcessTsos = ({ initialTsos, processIndex, handleAreaTsosChanged }) => {
+const ProcessTsos = ({
+    initialTsos,
+    processIndex,
+    handleProcessTsosChanged: handleProcessTsosChanged,
+}) => {
     const classes = useStyles();
     const intl = useIntl();
     // processTsos copies will be deleted in an upcoming PR
@@ -92,8 +96,8 @@ const ProcessTsos = ({ initialTsos, processIndex, handleAreaTsosChanged }) => {
     );
 
     useEffect(() => {
-        handleAreaTsosChanged(processIndex, processTsos);
-        // Do not add handleAreaTsosChanged as dependency to avoid infinite loop
+        handleProcessTsosChanged(processIndex, processTsos);
+        // Do not add handleProcessTsosChanged as dependency to avoid infinite loop
         // To be changed
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [processTsos]);
@@ -284,7 +288,7 @@ const ProcessesContainer = ({ handleProcessesChanged, initialConfigs }) => {
                     className={classes.addNewTso}
                     key={process.id}
                 >
-                    {/* Area input*/}
+                    {/* Process input*/}
                     <Grid container item xs={12} sm={5}>
                         <Grid item xs={12} sm={8}>
                             <TextField
@@ -337,7 +341,7 @@ const ProcessesContainer = ({ handleProcessesChanged, initialConfigs }) => {
                         <ProcessTsos
                             initialTsos={process.tsos}
                             processIndex={index}
-                            handleAreaTsosChanged={handleProcessTsosChanged}
+                            handleProcessTsosChanged={handleProcessTsosChanged}
                         />
                     </Grid>
                 </Grid>
