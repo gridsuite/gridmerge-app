@@ -176,7 +176,8 @@ const StepperWithStatus = (props) => {
                     (s) =>
                         s.status === IgmStatus.INVALID ||
                         s.status === IgmStatus.ABSENT
-                )
+                ) &&
+                !allStatus.some((s) => s.status === IgmStatus.AVAILABLE)
             ) {
                 setReplaceIGMEnabled(true);
             } else {
