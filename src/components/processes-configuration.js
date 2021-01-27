@@ -304,22 +304,30 @@ const ProcessesContainer = ({ handleProcessesChanged, initialConfigs }) => {
                                 aria-label="runBalancesAdjustment"
                                 name="runBalancesAdjustment"
                                 value={process.runBalancesAdjustment + ''}
-                                onChange={(e) => handleProcessAlgorithmChanged(e, index)}
+                                onChange={(e) =>
+                                    handleProcessAlgorithmChanged(e, index)
+                                }
                             >
                                 <FormControlLabel
                                     value="true"
                                     control={<Radio />}
-                                    label="balance adjustment"
+                                    label={intl.formatMessage({
+                                        id: 'balanceAdjustment',
+                                    })}
                                 />
                                 <FormControlLabel
                                     value="false"
                                     control={<Radio />}
-                                    label="loadflow"
+                                    label={intl.formatMessage({
+                                        id: 'loadflow',
+                                    })}
                                 />
                             </RadioGroup>
                         </Grid>
                         <Grid item xs={12} sm={4} align="center">
-                            <IconButton onClick={() => handleDeleteProcess(index)}>
+                            <IconButton
+                                onClick={() => handleDeleteProcess(index)}
+                            >
                                 <DeleteIcon />
                             </IconButton>
                         </Grid>

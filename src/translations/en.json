@@ -22,5 +22,7 @@
     "tsoLabelCode": "sourcingActor code",
     "tsoLabelCodeOptional": "Alternative sourcingActor code (optional)",
     "timelineDiagonalLabels": "Display labels diagonally",
-    "name": "name"
+    "name": "name",
+    "balanceAdjustment": "Balance adjustment",
+    "loadflow": "Loadflow"
 }
