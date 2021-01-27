@@ -84,7 +84,7 @@ const keyGenerator = (() => {
 const ProcessTsos = ({
     initialTsos,
     processIndex,
-    handleProcessTsosChanged: handleProcessTsosChanged,
+    handleProcessTsosChanged,
 }) => {
     const classes = useStyles();
     const intl = useIntl();
