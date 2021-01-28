@@ -483,7 +483,8 @@ const ProcessesConfiguration = ({ open, onClose, matchProcess }) => {
         return (
             isDifferent ||
             initialProcess.runBalancesAdjustment !==
-                currentProcess.runBalancesAdjustment
+                currentProcess.runBalancesAdjustment ||
+            initialProcess.businessProcess !== currentProcess.businessProcess
         );
     };
 
