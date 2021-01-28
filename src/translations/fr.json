@@ -23,7 +23,7 @@
     "alternativeSourcingActorCode": "Code GRT alternatif (optionnel)",
     "timelineDiagonalLabels": "Afficher les labels en diagonal",
     "name": "nom",
-    "businessProcess": "business process",
+    "businessProcess": "horizon",
     "balanceAdjustment": "Équilibrage des bilans",
     "loadflow": "Calcul de répartition"
 }
