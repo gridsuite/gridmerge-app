@@ -210,6 +210,7 @@ const ProcessesContainer = ({ handleProcessesChanged, initialConfigs }) => {
         {
             id: keyGenerator(),
             process: '',
+            businessProcess: '',
             tsos: [{ sourcingActor: '', alternativeSourcingActor: '' }],
             runBalancesAdjustment: false,
         },
@@ -220,6 +221,7 @@ const ProcessesContainer = ({ handleProcessesChanged, initialConfigs }) => {
         currentProcessesCopy.push({
             id: keyGenerator(),
             process: '',
+            businessProcess: '',
             tsos: [{ sourcingActor: '', alternativeSourcingActor: '' }],
             runBalancesAdjustment: false,
         });
@@ -231,6 +233,20 @@ const ProcessesContainer = ({ handleProcessesChanged, initialConfigs }) => {
         currentProcessesCopy[index] = {
             id: currentProcessesCopy[index].id,
             process: e.target.value,
+            businessProcess: currentProcessesCopy[index].businessProcess,
+            tsos: currentProcessesCopy[index].tsos,
+            runBalancesAdjustment:
+                currentProcessesCopy[index].runBalancesAdjustment,
+        };
+        setCurrentProcesses(currentProcessesCopy);
+    }
+
+    function handleBusinessProcessChanged(e, index) {
+        const currentProcessesCopy = [...currentProcesses];
+        currentProcessesCopy[index] = {
+            id: currentProcessesCopy[index].id,
+            process: currentProcessesCopy[index].process,
+            businessProcess: e.target.value,
             tsos: currentProcessesCopy[index].tsos,
             runBalancesAdjustment:
                 currentProcessesCopy[index].runBalancesAdjustment,
@@ -243,6 +259,7 @@ const ProcessesContainer = ({ handleProcessesChanged, initialConfigs }) => {
         currentProcessesCopy[index] = {
             id: currentProcessesCopy[index].id,
             process: currentProcessesCopy[index].process,
+            businessProcess: currentProcessesCopy[index].businessProcess,
             tsos: currentProcessesCopy[index].tsos,
             runBalancesAdjustment: e.target.value,
         };
@@ -260,6 +277,7 @@ const ProcessesContainer = ({ handleProcessesChanged, initialConfigs }) => {
         currentProcessesCopy[index] = {
             id: currentProcessesCopy[index].id,
             process: currentProcessesCopy[index].process,
+            businessProcess: currentProcessesCopy[index].businessProcess,
             tsos: tsosList,
             runBalancesAdjustment:
                 currentProcessesCopy[index].runBalancesAdjustment,
@@ -302,6 +320,19 @@ const ProcessesContainer = ({ handleProcessesChanged, initialConfigs }) => {
                                 }}
                                 onChange={(e) =>
                                     handleProcessNameChanged(e, index)
+                                }
+                            />
+                            <TextField
+                                fullWidth={true}
+                                placeholder={intl.formatMessage({
+                                    id: 'businessProcess',
+                                })}
+                                value={process.businessProcess}
+                                InputProps={{
+                                    classes: { input: classes.input },
+                                }}
+                                onChange={(e) =>
+                                    handleBusinessProcessChanged(e, index)
                                 }
                             />
                             <RadioGroup
@@ -399,6 +430,7 @@ const ProcessesConfiguration = ({ open, onClose, matchProcess }) => {
     const processWithoutId = (process) => {
         return {
             process: process.process,
+            businessProcess: process.businessProcess,
             runBalancesAdjustment: process.runBalancesAdjustment,
             tsos: process.tsos.map((tso) => {
                 return {
@@ -451,7 +483,8 @@ const ProcessesConfiguration = ({ open, onClose, matchProcess }) => {
         return (
             isDifferent ||
             initialProcess.runBalancesAdjustment !==
-                currentProcess.runBalancesAdjustment
+                currentProcess.runBalancesAdjustment ||
+            initialProcess.businessProcess !== currentProcess.businessProcess
         );
     };
 
@@ -466,7 +499,10 @@ const ProcessesConfiguration = ({ open, onClose, matchProcess }) => {
 
         for (let i = 0; i < processes.length; i++) {
             // ignore processes with no name
-            if (processes[i].process === '') {
+            if (
+                processes[i].process === '' ||
+                processes[i].businessProcess === ''
+            ) {
                 continue;
             }
 

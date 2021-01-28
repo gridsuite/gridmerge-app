@@ -23,6 +23,7 @@
     "alternativeSourcingActorCode": "Alternative TSO code (optional)",
     "timelineDiagonalLabels": "Display labels diagonally",
     "name": "name",
+    "businessProcess": "business process",
     "balanceAdjustment": "Balance adjustment",
     "loadflow": "Loadflow"
 }
