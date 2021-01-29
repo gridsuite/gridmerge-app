@@ -335,18 +335,6 @@ const ProcessesContainer = ({ handleProcessesChanged, initialConfigs }) => {
                                     handleBusinessProcessChanged(e, index)
                                 }
                             />
-                            <TextField
-                                placeholder={intl.formatMessage({
-                                    id: 'businessProcess',
-                                })}
-                                value={areasWorkFlow.businessProcess}
-                                InputProps={{
-                                    classes: { input: classes.input },
-                                }}
-                                onChange={(e) =>
-                                    handleAreaBusinessProcessChanged(e, index)
-                                }
-                            />
                             <RadioGroup
                                 aria-label="runBalancesAdjustment"
                                 name="runBalancesAdjustment"
