@@ -146,7 +146,10 @@ const MergeMap = (props) => {
                                                     ' - ' +
                                                     status.replacingBusinessProcess
                                             );
-                                        } else if (props.merge) {
+                                        } else if (
+                                            props.merge &&
+                                            status.status !== IgmStatus.ABSENT
+                                        ) {
                                             let dt = new Date(props.merge.date);
                                             setTooltip(
                                                 '' +
