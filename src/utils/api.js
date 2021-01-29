@@ -47,7 +47,7 @@ export function connectNotificationsWebsocket(process, businessProcess) {
         PREFIX_NOTIFICATION_WS +
         '/notify?process=' +
         encodeURIComponent(process) +
-        '?businessProcess=' +
+        '&businessProcess=' +
         encodeURIComponent(businessProcess);
     const wsaddressWithToken = wsadress + '&access_token=' + getToken();
 
