@@ -95,48 +95,42 @@ const ProcessTsos = ({
         })
     );
 
-    useEffect(() => {
+    const updateProcessTsos = (processTsos) => {
         handleProcessTsosChanged(processIndex, processTsos);
-        // Do not add handleProcessTsosChanged as dependency to avoid infinite loop
-        // To be changed
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [processTsos]);
+        setProcessTsos(processTsos);
+    };
 
     const handleTsoSourcingActorChanged = (index, event) => {
-        const processTsosCopy = [...processTsos];
-        processTsosCopy[index] = {
-            id: processTsosCopy[index].id,
+        processTsos[index] = {
+            id: processTsos[index].id,
             sourcingActor: event.target.value,
             alternativeSourcingActor:
-                processTsosCopy[index].alternativeSourcingActor,
+                processTsos[index].alternativeSourcingActor,
         };
-        setProcessTsos(processTsosCopy);
+        updateProcessTsos(processTsos);
     };
 
     const handleTsoAlternativeSourcingActorChanged = (index, event) => {
-        const processTsosCopy = [...processTsos];
-        processTsosCopy[index] = {
-            id: processTsosCopy[index].id,
-            sourcingActor: processTsosCopy[index].sourcingActor,
+        processTsos[index] = {
+            id: processTsos[index].id,
+            sourcingActor: processTsos[index].sourcingActor,
             alternativeSourcingActor: event.target.value,
         };
-        setProcessTsos(processTsosCopy);
+        updateProcessTsos(processTsos);
     };
 
     const handleAddProcessTso = () => {
-        const processTsosCopy = [...processTsos];
-        processTsosCopy.push({
+        processTsos.push({
             id: keyGenerator(),
             sourcingActor: '',
             alternativeSourcingActor: '',
         });
-        setProcessTsos(processTsosCopy);
+        updateProcessTsos(processTsos);
     };
 
     const handleRemoveProcessTso = (index) => {
-        const processTsosCopy = [...processTsos];
-        processTsosCopy.splice(index, 1);
-        setProcessTsos(processTsosCopy);
+        processTsos.splice(index, 1);
+        updateProcessTsos(processTsos);
     };
 
     return (
