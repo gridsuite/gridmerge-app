@@ -127,13 +127,15 @@ export function getExportMergeUrl(process, date, timeZoneoffset) {
 
 export function fetchAppsAndUrls() {
     console.info(`Fetching apps and urls...`);
-    return fetch('env.json').then((res) => res.json()).then((res) => {
-        return fetch(res.appsMetadataServerUrl + '/apps-metadata.json').then(
-            (response) => {
+    return fetch('env.json')
+        .then((res) => res.json())
+        .then((res) => {
+            return fetch(
+                res.appsMetadataServerUrl + '/apps-metadata.json'
+            ).then((response) => {
                 return response.json();
-            }
-        );
-    });
+            });
+        });
 }
 
 /**
