@@ -18,8 +18,6 @@ const PREFIX_CONFIG_NOTIFICATION_WS =
     process.env.REACT_APP_WS_GATEWAY + '/config-notification';
 const PREFIX_CONFIG_QUERIES = process.env.REACT_APP_API_GATEWAY + '/config';
 
-const APPS_METADATA_SERVER_URL = fetch('env.json');
-
 function getToken() {
     const state = store.getState();
     return state.user.id_token;
@@ -129,7 +127,7 @@ export function getExportMergeUrl(process, date, timeZoneoffset) {
 
 export function fetchAppsAndUrls() {
     console.info(`Fetching apps and urls...`);
-    return APPS_METADATA_SERVER_URL.then((res) => res.json()).then((res) => {
+    return fetch('env.json').then((res) => res.json()).then((res) => {
         return fetch(res.appsMetadataServerUrl + '/apps-metadata.json').then(
             (response) => {
                 return response.json();
