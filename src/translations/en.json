@@ -26,5 +26,6 @@
     "businessProcess": "business process",
     "balanceAdjustment": "Balance adjustment",
     "loadflow": "Loadflow",
-    "replaceIGM": "Replace missing IGM"
+    "replaceIGM": "Replace missing IGM",
+    "noReplacingIGMAvailable": "No replacing IGM available"
 }

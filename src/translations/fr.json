@@ -26,5 +26,6 @@
     "businessProcess": "horizon",
     "balanceAdjustment": "Équilibrage des bilans",
     "loadflow": "Calcul de répartition",
-    "replaceIGM": "Remplacer IGM absent"
+    "replaceIGM": "Remplacer IGM absent",
+    "noReplacingIGMAvailable": "Aucun IGM de remplacement disponible"
 }

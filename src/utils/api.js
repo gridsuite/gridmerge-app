@@ -259,7 +259,9 @@ export function getReplaceIGMUrl(process, date) {
 
 export function replaceIGM(process, date) {
     console.info('replacing igm for process : ' + process + ' at : ' + date);
-    backendFetch(getReplaceIGMUrl(process, date), { method: 'put' }).then();
+    return backendFetch(getReplaceIGMUrl(process, date), {
+        method: 'put',
+    }).then((response) => (response ? response.json() : null));
 }
 
 export const MergeType = PropTypes.shape({

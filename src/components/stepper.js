@@ -22,6 +22,8 @@ import {
     replaceIGM,
 } from '../utils/api';
 import PropTypes from 'prop-types';
+import { useSnackbar } from 'notistack';
+import { useIntl } from 'react-intl';
 
 const useStyles = makeStyles((theme) => ({
     stepperContainer: {
@@ -103,12 +105,14 @@ const CustomStepLabel = withStyles({
 })(StepLabel);
 
 const StepperWithStatus = (props) => {
+    const intl = useIntl();
     const DownloadIframe = 'downloadIframe';
     const classes = useStyles();
     const [availableStep, setAvailableStep] = useState(false);
     const [validStep, setValidStep] = useState(false);
     const [mergedStep, setMergedStep] = useState(false);
     const [replaceIGMEnabled, setReplaceIGMEnabled] = useState(false);
+    const { enqueueSnackbar } = useSnackbar();
 
     const handleClickExport = () => {
         console.info('Downloading merge ' + props.merge.process + '...');
@@ -128,7 +132,16 @@ const StepperWithStatus = (props) => {
 
     const handleReplaceIGM = () => {
         console.info('Replacing IGM ' + props.merge.process + '...');
-        replaceIGM(props.merge.process, props.merge.date);
+        replaceIGM(props.merge.process, props.merge.date).then((res) => {
+            if (res == null || Object.keys(res).length === 0) {
+                const errorMessage = intl.formatMessage({
+                    id: 'noReplacingIGMAvailable',
+                });
+                enqueueSnackbar(errorMessage, {
+                    variant: 'info',
+                });
+            }
+        });
     };
 
     const allStatusEqualValueArray = (arr) =>
