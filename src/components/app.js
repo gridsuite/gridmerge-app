@@ -44,7 +44,7 @@ import { FormattedMessage } from 'react-intl';
 import Process from './process';
 
 import Parameters from './parameters';
-import WorkflowsConfiguration from './workflows-configuration';
+import ProcessesConfiguration from './processes-configuration';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Button from '@material-ui/core/Button';
@@ -90,7 +90,7 @@ const useStyles = makeStyles(() => ({
     process: {
         marginLeft: 18,
     },
-    btnConfigurationWorkflows: {
+    btnConfigurationProcesses: {
         marginLeft: 'auto',
     },
 }));
@@ -113,8 +113,8 @@ const App = () => {
     const [showParameters, setShowParameters] = useState(false);
 
     const [
-        showConfigurationWorkflows,
-        setShowConfigurationWorkflows,
+        showConfigurationProcesses,
+        setShowConfigurationProcesses,
     ] = useState(false);
 
     const history = useHistory();
@@ -286,8 +286,8 @@ const App = () => {
         );
     }
 
-    const showPopupConfigurationWorkflows = () => {
-        setShowConfigurationWorkflows(true);
+    const showPopupConfigurationProcesses = () => {
+        setShowConfigurationProcesses(true);
     };
 
     return (
@@ -334,16 +334,16 @@ const App = () => {
                             <>
                                 <Button
                                     className={
-                                        classes.btnConfigurationWorkflows
+                                        classes.btnConfigurationProcesses
                                     }
-                                    onClick={showPopupConfigurationWorkflows}
+                                    onClick={showPopupConfigurationProcesses}
                                 >
-                                    <FormattedMessage id="configurationWorkflowsLink" />
+                                    <FormattedMessage id="configureProcesses" />
                                 </Button>
-                                <WorkflowsConfiguration
-                                    open={showConfigurationWorkflows}
+                                <ProcessesConfiguration
+                                    open={showConfigurationProcesses}
                                     onClose={() => {
-                                        setShowConfigurationWorkflows(false);
+                                        setShowConfigurationProcesses(false);
                                     }}
                                     matchProcess={matchProcess}
                                 />

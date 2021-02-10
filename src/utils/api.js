@@ -18,8 +18,6 @@ const PREFIX_CONFIG_NOTIFICATION_WS =
     process.env.REACT_APP_WS_GATEWAY + '/config-notification';
 const PREFIX_CONFIG_QUERIES = process.env.REACT_APP_API_GATEWAY + '/config';
 
-const APPS_METADATA_SERVER_URL = fetch('env.json');
-
 function getToken() {
     const state = store.getState();
     return state.user.id_token;
@@ -37,7 +35,7 @@ function backendFetch(url, init) {
     return fetch(url, initCopy);
 }
 
-export function connectNotificationsWebsocket(process) {
+export function connectNotificationsWebsocket(process, businessProcess) {
     // The websocket API doesn't allow relative urls
     const wsbase = document.baseURI
         .replace(/^http:\/\//, 'ws://')
@@ -46,7 +44,9 @@ export function connectNotificationsWebsocket(process) {
         wsbase +
         PREFIX_NOTIFICATION_WS +
         '/notify?process=' +
-        encodeURIComponent(process);
+        encodeURIComponent(process) +
+        '&businessProcess=' +
+        encodeURIComponent(businessProcess);
     const wsaddressWithToken = wsadress + '&access_token=' + getToken();
 
     const rws = new ReconnectingWebSocket(wsaddressWithToken);
@@ -110,12 +110,6 @@ export function fetchMergeConfigs() {
     return backendFetch(fetchConfigsUrl).then((response) => response.json());
 }
 
-export function fetchMerges(process) {
-    console.info(`Fetching merges of process ${process}...`);
-    const url = PREFIX_ORCHESTRATOR_QUERIES + '/v1/' + process + '/merges';
-    return backendFetch(url).then((response) => response.json());
-}
-
 function getUrlWithToken(baseUrl) {
     return baseUrl + '?access_token=' + getToken();
 }
@@ -134,13 +128,15 @@ export function getExportMergeUrl(process, date, timeZoneoffset, format) {
 
 export function fetchAppsAndUrls() {
     console.info(`Fetching apps and urls...`);
-    return APPS_METADATA_SERVER_URL.then((res) => res.json()).then((res) => {
-        return fetch(res.appsMetadataServerUrl + '/apps-metadata.json').then(
-            (response) => {
+    return fetch('env.json')
+        .then((res) => res.json())
+        .then((res) => {
+            return fetch(
+                res.appsMetadataServerUrl + '/apps-metadata.json'
+            ).then((response) => {
                 return response.json();
-            }
-        );
-    });
+            });
+        });
 }
 
 /**
@@ -174,9 +170,10 @@ export const IgmStatus = {
 };
 
 export function getIgmStatus(tso, merge) {
-    const igm = merge
-        ? merge.igms.find((igm) => igm.tso === tso.sourcingActor)
-        : null;
+    const igm =
+        merge && tso
+            ? merge.igms.find((igm) => igm.tso === tso.sourcingActor)
+            : null;
     if (!igm) {
         return IgmStatus.ABSENT;
     }
