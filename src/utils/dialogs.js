@@ -18,7 +18,6 @@ import React from 'react';
 import Select from '@material-ui/core/Select';
 import InputLabel from '@material-ui/core/InputLabel';
 import makeStyles from '@material-ui/core/styles/makeStyles';
-import CircularProgress from '@material-ui/core/CircularProgress';
 import Alert from '@material-ui/lab/Alert';
 import { getExportMergeUrl } from './api';
 
@@ -32,12 +31,8 @@ import { getExportMergeUrl } from './api';
  * @param {String} message Message of the dialog
  */
 const ExportDialog = ({ open, onClose, onClick, process, date, title }) => {
-    const availableFormats = ['CGMES', 'XIIDM'];
-    const [selectedFormat, setSelectedFormat] = React.useState(
-        availableFormats
-    );
-    const [loading, setLoading] = React.useState(false);
-    const [downloadUrl, setDownloadUrl] = React.useState('');
+    const availableFormats = ['', 'CGMES', 'XIIDM'];
+    const [selectedFormat, setSelectedFormat] = React.useState('');
     const [exportStudyErr, setExportStudyErr] = React.useState('');
 
     const useStyles = makeStyles(() => ({
@@ -46,11 +41,19 @@ const ExportDialog = ({ open, onClose, onClick, process, date, title }) => {
         },
     }));
 
+    const classes = useStyles();
+    const intl = useIntl();
+
     const handleClick = () => {
         console.debug('Request for exporting in format: ' + selectedFormat);
         if (selectedFormat) {
-            setLoading(true);
-            onClick(downloadUrl);
+            const url = getExportMergeUrl(
+                process,
+                new Date(date).toISOString(),
+                -new Date().getTimezoneOffset(),
+                selectedFormat
+            );
+            onClick(url);
         } else {
             setExportStudyErr(
                 intl.formatMessage({ id: 'exportStudyErrorMsg' })
@@ -60,31 +63,17 @@ const ExportDialog = ({ open, onClose, onClick, process, date, title }) => {
 
     const handleClose = () => {
         setExportStudyErr('');
-        setLoading(false);
         onClose();
     };
 
     const handleExited = () => {
         setExportStudyErr('');
         setSelectedFormat('');
-        setLoading(false);
-        setDownloadUrl('');
     };
 
     const handleChange = (event) => {
-        let selected = event.target.value;
-        setSelectedFormat(selected);
-        const url = getExportMergeUrl(
-            process,
-            new Date(date).toISOString(),
-            -new Date().getTimezoneOffset(),
-            selected
-        );
-        setDownloadUrl(url);
+        setSelectedFormat(event.target.value);
     };
-
-    const classes = useStyles();
-    const intl = useIntl();
 
     return (
         <Dialog
@@ -107,7 +96,7 @@ const ExportDialog = ({ open, onClose, onClick, process, date, title }) => {
                             id: 'select-format',
                         }}
                     >
-                        {availableFormats !== '' &&
+                        {availableFormats &&
                             availableFormats.map(function (element) {
                                 return (
                                     <MenuItem key={element} value={element}>
@@ -117,26 +106,19 @@ const ExportDialog = ({ open, onClose, onClick, process, date, title }) => {
                             })}
                     </Select>
                 </FormControl>
-                {exportStudyErr !== '' && (
+                {exportStudyErr && (
                     <Alert severity="error">{exportStudyErr}</Alert>
-                )}
-                {loading && (
-                    <div
-                        style={{
-                            display: 'flex',
-                            justifyContent: 'center',
-                            marginTop: '5px',
-                        }}
-                    >
-                        <CircularProgress />
-                    </div>
                 )}
             </DialogContent>
             <DialogActions>
                 <Button onClick={handleClose} variant="text">
                     <FormattedMessage id="cancel" />
                 </Button>
-                <Button onClick={handleClick} variant="outlined">
+                <Button
+                    onClick={handleClick}
+                    variant="outlined"
+                    disabled={!selectedFormat}
+                >
                     <FormattedMessage id="export" />
                 </Button>
             </DialogActions>

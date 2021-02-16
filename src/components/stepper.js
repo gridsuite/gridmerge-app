@@ -14,7 +14,7 @@ import IconButton from '@material-ui/core/IconButton';
 import Grid from '@material-ui/core/Grid';
 import { FormattedMessage, useIntl } from 'react-intl';
 import GetAppIcon from '@material-ui/icons/GetApp';
-import { getExportMergeUrl, getIgmStatus, IgmStatus } from '../utils/api';
+import { getIgmStatus, IgmStatus } from '../utils/api';
 import { ExportDialog } from '../utils/dialogs';
 import PropTypes from 'prop-types';
 
@@ -197,14 +197,6 @@ const StepperWithStatus = (props) => {
                 open={openExportDialog}
                 onClose={handleCloseExport}
                 onClick={handleClickExport}
-                url={
-                    props.merge &&
-                    getExportMergeUrl(
-                        props.merge.process,
-                        new Date(props.merge.date).toISOString(),
-                        -new Date().getTimezoneOffset()
-                    )
-                }
                 process={props.merge === undefined ? '' : props.merge.process}
                 date={props.merge === undefined ? '' : props.merge.date}
                 title={useIntl().formatMessage({ id: 'exportNetwork' })}
