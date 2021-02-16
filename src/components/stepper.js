@@ -74,7 +74,9 @@ const CustomStepLabel = withStyles({
 
 const StepperWithStatus = (props) => {
     const DownloadIframe = 'downloadIframe';
+    const availableFormats = ['', 'CGMES', 'XIIDM'];
     const classes = useStyles();
+    const intl = useIntl();
     const [availableStep, setAvailableStep] = useState(false);
     const [validStep, setValidStep] = useState(false);
     const [mergedStep, setMergedStep] = useState(false);
@@ -194,13 +196,15 @@ const StepperWithStatus = (props) => {
             </Grid>
             <Grid item xs={12} md={2}></Grid>
             <ExportDialog
-                open={openExportDialog}
                 onClose={handleCloseExport}
                 onClick={handleClickExport}
-                process={props.merge === undefined ? '' : props.merge.process}
-                date={props.merge === undefined ? '' : props.merge.date}
+                open={openExportDialog}
+                process={props.merge && props.merge.process}
+                date={props.merge && props.merge.date}
                 title={useIntl().formatMessage({ id: 'exportNetwork' })}
                 getDownloadUrl={getExportMergeUrl}
+                formats={availableFormats}
+                errorMessage={intl.formatMessage({ id: 'exportStudyErrorMsg' })}
             />
         </Grid>
     );

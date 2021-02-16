@@ -7,7 +7,7 @@
 
 import Dialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import { FormattedMessage, useIntl } from 'react-intl';
+import { FormattedMessage } from 'react-intl';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
 import Button from '@material-ui/core/Button';
@@ -29,8 +29,17 @@ import Alert from '@material-ui/lab/Alert';
  * @param {String} title Title of the dialog
  * @param {String} message Message of the dialog
  */
-const ExportDialog = ({ open, onClose, onClick, process, date, title, getDownloadUrl }) => {
-    const availableFormats = ['', 'CGMES', 'XIIDM'];
+const ExportDialog = ({
+    open,
+    onClose,
+    onClick,
+    process,
+    date,
+    title,
+    getDownloadUrl,
+    formats,
+    errorMessage,
+}) => {
     const [selectedFormat, setSelectedFormat] = React.useState('');
     const [exportStudyErr, setExportStudyErr] = React.useState('');
 
@@ -41,7 +50,6 @@ const ExportDialog = ({ open, onClose, onClick, process, date, title, getDownloa
     }));
 
     const classes = useStyles();
-    const intl = useIntl();
 
     const handleClick = () => {
         console.debug('Request for exporting in format: ' + selectedFormat);
@@ -54,9 +62,7 @@ const ExportDialog = ({ open, onClose, onClick, process, date, title, getDownloa
             );
             onClick(url);
         } else {
-            setExportStudyErr(
-                intl.formatMessage({ id: 'exportStudyErrorMsg' })
-            );
+            setExportStudyErr(errorMessage);
         }
     };
 
@@ -95,8 +101,8 @@ const ExportDialog = ({ open, onClose, onClick, process, date, title, getDownloa
                             id: 'select-format',
                         }}
                     >
-                        {availableFormats &&
-                            availableFormats.map(function (element) {
+                        {formats &&
+                            formats.map(function (element) {
                                 return (
                                     <MenuItem key={element} value={element}>
                                         {element}
