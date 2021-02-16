@@ -74,7 +74,7 @@ const CustomStepLabel = withStyles({
 
 const StepperWithStatus = (props) => {
     const DownloadIframe = 'downloadIframe';
-    const availableFormats = ['', 'CGMES', 'XIIDM'];
+    const availableFormats = ['CGMES', 'XIIDM'];
     const classes = useStyles();
     const intl = useIntl();
     const [availableStep, setAvailableStep] = useState(false);

@@ -96,6 +96,7 @@ const ExportDialog = ({
                     <Select
                         labelId="select-format-label"
                         id="controlled-select-format"
+                        defaultValue=""
                         onChange={handleChange}
                         inputProps={{
                             id: 'select-format',
