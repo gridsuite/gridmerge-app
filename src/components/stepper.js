@@ -196,12 +196,12 @@ const StepperWithStatus = (props) => {
             </Grid>
             <Grid item xs={12} md={2}></Grid>
             <ExportDialog
+                title={useIntl().formatMessage({ id: 'exportNetwork' })}
+                open={openExportDialog}
                 onClose={handleCloseExport}
                 onClick={handleClickExport}
-                open={openExportDialog}
                 process={props.merge && props.merge.process}
                 date={props.merge && props.merge.date}
-                title={useIntl().formatMessage({ id: 'exportNetwork' })}
                 getDownloadUrl={getExportMergeUrl}
                 formats={availableFormats}
                 errorMessage={intl.formatMessage({ id: 'exportStudyErrorMsg' })}
