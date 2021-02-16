@@ -198,13 +198,12 @@ const StepperWithStatus = (props) => {
                 onClose={handleCloseExport}
                 onClick={handleClickExport}
                 url={
-                    props.merge === undefined
-                        ? ''
-                        : getExportMergeUrl(
-                              props.merge.process,
-                              new Date(props.merge.date).toISOString(),
-                              -new Date().getTimezoneOffset()
-                          )
+                    props.merge &&
+                    getExportMergeUrl(
+                        props.merge.process,
+                        new Date(props.merge.date).toISOString(),
+                        -new Date().getTimezoneOffset()
+                    )
                 }
                 process={props.merge === undefined ? '' : props.merge.process}
                 date={props.merge === undefined ? '' : props.merge.date}
