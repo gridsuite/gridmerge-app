@@ -19,7 +19,6 @@ import Select from '@material-ui/core/Select';
 import InputLabel from '@material-ui/core/InputLabel';
 import makeStyles from '@material-ui/core/styles/makeStyles';
 import Alert from '@material-ui/lab/Alert';
-import { getExportMergeUrl } from './api';
 
 /**
  * Dialog to export the network case #TODO To be moved in the common-ui repository once it has been created
@@ -30,7 +29,7 @@ import { getExportMergeUrl } from './api';
  * @param {String} title Title of the dialog
  * @param {String} message Message of the dialog
  */
-const ExportDialog = ({ open, onClose, onClick, process, date, title }) => {
+const ExportDialog = ({ open, onClose, onClick, process, date, title, getDownloadUrl }) => {
     const availableFormats = ['', 'CGMES', 'XIIDM'];
     const [selectedFormat, setSelectedFormat] = React.useState('');
     const [exportStudyErr, setExportStudyErr] = React.useState('');
@@ -47,7 +46,7 @@ const ExportDialog = ({ open, onClose, onClick, process, date, title }) => {
     const handleClick = () => {
         console.debug('Request for exporting in format: ' + selectedFormat);
         if (selectedFormat) {
-            const url = getExportMergeUrl(
+            const url = getDownloadUrl(
                 process,
                 new Date(date).toISOString(),
                 -new Date().getTimezoneOffset(),
