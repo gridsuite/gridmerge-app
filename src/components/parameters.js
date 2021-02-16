@@ -89,7 +89,7 @@ const Parameters = ({ showParameters, hideParameters }) => {
                 <Grid item xs={6}>
                     <Typography component="span" variant="body1">
                         <Box fontWeight="fontWeightBold" m={1}>
-                            <FormattedMessage id="theme" />:
+                            <FormattedMessage id="theme" />
                         </Box>
                     </Typography>
                 </Grid>
@@ -110,7 +110,7 @@ const Parameters = ({ showParameters, hideParameters }) => {
                 <Grid item xs={6}>
                     <Typography component="span" variant="body1">
                         <Box fontWeight="fontWeightBold" m={1}>
-                            <FormattedMessage id="timelineDiagonalLabels" />:
+                            <FormattedMessage id="timelineDiagonalLabels" />
                         </Box>
                     </Typography>
                 </Grid>

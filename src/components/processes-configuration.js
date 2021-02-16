@@ -293,7 +293,7 @@ const ProcessesContainer = ({ handleProcessesChanged, initialConfigs }) => {
         <div>
             <Grid container className={classes.newTsoContainerLabel}>
                 <Grid item xs={12} sm={5}>
-                    <FormattedMessage id="process" />
+                    <FormattedMessage id="processes" />
                 </Grid>
                 <Grid item xs={12} sm={7}>
                     <FormattedMessage id="tsos" />
