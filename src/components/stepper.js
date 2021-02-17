@@ -14,8 +14,16 @@ import IconButton from '@material-ui/core/IconButton';
 import Grid from '@material-ui/core/Grid';
 import { FormattedMessage } from 'react-intl';
 import GetAppIcon from '@material-ui/icons/GetApp';
-import { getExportMergeUrl, getIgmStatus, IgmStatus } from '../utils/api';
+import BuildIcon from '@material-ui/icons/Build';
+import {
+    getExportMergeUrl,
+    getIgmStatus,
+    IgmStatus,
+    replaceIGM,
+} from '../utils/api';
 import PropTypes from 'prop-types';
+import { useSnackbar } from 'notistack';
+import { useIntl } from 'react-intl';
 
 const useStyles = makeStyles((theme) => ({
     stepperContainer: {
@@ -56,6 +64,31 @@ const useStyles = makeStyles((theme) => ({
         downloadContainer: {
             minHeight: '120px',
         },
+        replaceIGMContainer: {
+            minHeight: '120px',
+        },
+    },
+    replaceIGMContainer: {
+        textAlign: 'center',
+        marginRight: '5px',
+        backgroundColor: theme.palette.background.paper,
+    },
+    replaceIGMButton: {
+        padding: '3px',
+    },
+    replaceIGMIcon: {
+        fontSize: '50px',
+    },
+    replaceIGMLabelDisabled: {
+        color: '#b5b5b5',
+        display: 'block',
+        fontSize: '14px',
+        lineHeight: '1',
+    },
+    replaceIGMLabelEnabled: {
+        display: 'block',
+        fontSize: '14px',
+        lineHeight: '1',
     },
 }));
 
@@ -72,11 +105,14 @@ const CustomStepLabel = withStyles({
 })(StepLabel);
 
 const StepperWithStatus = (props) => {
+    const intl = useIntl();
     const DownloadIframe = 'downloadIframe';
     const classes = useStyles();
     const [availableStep, setAvailableStep] = useState(false);
     const [validStep, setValidStep] = useState(false);
     const [mergedStep, setMergedStep] = useState(false);
+    const [replaceIGMEnabled, setReplaceIGMEnabled] = useState(false);
+    const { enqueueSnackbar } = useSnackbar();
 
     const handleClickExport = () => {
         console.info('Downloading merge ' + props.merge.process + '...');
@@ -94,7 +130,22 @@ const StepperWithStatus = (props) => {
         );
     };
 
-    const allEqualValueArray = (arr) => arr.every((v) => v === arr[0]);
+    const handleReplaceIGM = () => {
+        console.info('Replacing IGM ' + props.merge.process + '...');
+        replaceIGM(props.merge.process, props.merge.date).then((res) => {
+            if (res == null || Object.keys(res).length === 0) {
+                const errorMessage = intl.formatMessage({
+                    id: 'noReplacingIGMAvailable',
+                });
+                enqueueSnackbar(errorMessage, {
+                    variant: 'info',
+                });
+            }
+        });
+    };
+
+    const allStatusEqualValueArray = (arr) =>
+        arr.every((v) => v.status === arr[0].status);
 
     const enableDisabledAllSteps = (value) => {
         setAvailableStep(value);
@@ -113,23 +164,42 @@ const StepperWithStatus = (props) => {
             const allStatus = props.tsos.map((tso) => {
                 return getIgmStatus(tso, props.merge);
             });
-            if (allEqualValueArray(allStatus)) {
-                if (allStatus[allStatus.length - 1] === IgmStatus.MERGED) {
+            if (allStatusEqualValueArray(allStatus)) {
+                if (
+                    allStatus[allStatus.length - 1].status === IgmStatus.MERGED
+                ) {
                     enableDisabledAllSteps(true);
                 } else if (
-                    allStatus[allStatus.length - 1] === IgmStatus.VALID
+                    allStatus[allStatus.length - 1].status === IgmStatus.VALID
                 ) {
                     getStepsStatus(true, true, false);
                 }
             } else if (
-                allStatus.includes(IgmStatus.AVAILABLE) ||
-                allStatus.includes(IgmStatus.VALID)
+                allStatus.some(
+                    (s) =>
+                        s.status === IgmStatus.AVAILABLE ||
+                        s.status === IgmStatus.VALID
+                )
             ) {
                 getStepsStatus(true, false, false);
+            }
+
+            if (
+                allStatus.some(
+                    (s) =>
+                        s.status === IgmStatus.INVALID ||
+                        s.status === IgmStatus.ABSENT
+                ) &&
+                !allStatus.some((s) => s.status === IgmStatus.AVAILABLE)
+            ) {
+                setReplaceIGMEnabled(true);
+            } else {
+                setReplaceIGMEnabled(false);
             }
             // TODO : error cases
         } else {
             enableDisabledAllSteps(false);
+            setReplaceIGMEnabled(false);
         }
     }, [props.merge, props.tsos]);
 
@@ -140,6 +210,28 @@ const StepperWithStatus = (props) => {
     return (
         <Grid container direction="row" className={classes.stepperContainer}>
             <Grid item xs={12} md={2}></Grid>
+            <Grid item xs={12} md={1} className={classes.replaceIGMContainer}>
+                <IconButton
+                    aria-label="replace"
+                    className={classes.replaceIGMButton}
+                    onClick={handleReplaceIGM}
+                    disabled={!replaceIGMEnabled}
+                >
+                    <BuildIcon
+                        fontSize="large"
+                        className={classes.replaceIGMIcon}
+                    />
+                </IconButton>
+                <span
+                    className={
+                        !replaceIGMEnabled
+                            ? classes.replaceIGMLabelDisabled
+                            : classes.replaceIGMLabelEnabled
+                    }
+                >
+                    <FormattedMessage id="replaceIGM" />
+                </span>
+            </Grid>
             <Grid item xs={12} md={7}>
                 <CustomStepper>
                     <Step active={availableStep}>
