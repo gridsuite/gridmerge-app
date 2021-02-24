@@ -86,14 +86,14 @@ const Parameters = ({ showParameters, hideParameters }) => {
     function GeneralTab() {
         return (
             <Grid container spacing={2} className={classes.grid}>
-                <Grid item xs={6}>
+                <Grid item xs={8}>
                     <Typography component="span" variant="body1">
                         <Box fontWeight="fontWeightBold" m={1}>
-                            <FormattedMessage id="theme" />:
+                            <FormattedMessage id="theme" />
                         </Box>
                     </Typography>
                 </Grid>
-                <Grid item container xs={6} className={classes.controlItem}>
+                <Grid item container xs={4} className={classes.controlItem}>
                     <RadioGroup row value={theme} onChange={handleChangeTheme}>
                         <FormControlLabel
                             value={DARK_THEME}
@@ -107,14 +107,14 @@ const Parameters = ({ showParameters, hideParameters }) => {
                         />
                     </RadioGroup>
                 </Grid>
-                <Grid item xs={6}>
+                <Grid item xs={8}>
                     <Typography component="span" variant="body1">
                         <Box fontWeight="fontWeightBold" m={1}>
-                            <FormattedMessage id="timelineDiagonalLabels" />:
+                            <FormattedMessage id="timelineDiagonalLabels" />
                         </Box>
                     </Typography>
                 </Grid>
-                <Grid item container xs={6} className={classes.controlItem}>
+                <Grid item container xs={4} className={classes.controlItem}>
                     <Switch
                         checked={displayTimelineDiagonalLabels}
                         onChange={onChangeSwitchTimelineDiagonalLabels}
