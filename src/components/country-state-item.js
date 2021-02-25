@@ -158,7 +158,7 @@ const CountryStateItem = (props) => {
         }
     };
 
-    const detail = getDetailsByCountry(props.tso.sourcingActor.toUpperCase());
+    const detail = getDetailsByCountry(props.tso.toUpperCase());
 
     const status = getIgmStatus(props.tso, props.merge);
 

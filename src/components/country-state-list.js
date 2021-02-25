@@ -15,7 +15,7 @@ const CountryStatesList = (props) => {
         <List>
             {props.tsos.map((tso) => (
                 <CountryStateItem
-                    key={tso.sourcingActor}
+                    key={tso}
                     tso={tso}
                     merge={props.merge}
                 />

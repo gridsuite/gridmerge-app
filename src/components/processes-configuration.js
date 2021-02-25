@@ -91,7 +91,10 @@ const ProcessTsos = ({
     // processTsos copies will be deleted in an upcoming PR
     const [processTsos, setProcessTsos] = useState(
         initialTsos.map((e) => {
-            return { id: keyGenerator(), ...e };
+            return {
+                id: keyGenerator(),
+                sourcingActor: e
+            };
         })
     );
 
@@ -107,18 +110,6 @@ const ProcessTsos = ({
         processTsosCopy[index] = {
             id: processTsosCopy[index].id,
             sourcingActor: event.target.value,
-            alternativeSourcingActor:
-                processTsosCopy[index].alternativeSourcingActor,
-        };
-        setProcessTsos(processTsosCopy);
-    };
-
-    const handleTsoAlternativeSourcingActorChanged = (index, event) => {
-        const processTsosCopy = [...processTsos];
-        processTsosCopy[index] = {
-            id: processTsosCopy[index].id,
-            sourcingActor: processTsosCopy[index].sourcingActor,
-            alternativeSourcingActor: event.target.value,
         };
         setProcessTsos(processTsosCopy);
     };
@@ -128,7 +119,6 @@ const ProcessTsos = ({
         processTsosCopy.push({
             id: keyGenerator(),
             sourcingActor: '',
-            alternativeSourcingActor: '',
         });
         setProcessTsos(processTsosCopy);
     };
@@ -143,7 +133,7 @@ const ProcessTsos = ({
         <>
             {processTsos.map((tso, index) => (
                 <Grid container spacing={2} key={tso.id}>
-                    <Grid item xs={12} sm={4}>
+                    <Grid item xs={12} sm={10}>
                         <TextField
                             fullWidth={true}
                             placeholder={intl.formatMessage({
@@ -152,24 +142,6 @@ const ProcessTsos = ({
                             value={tso.sourcingActor}
                             onChange={(event) =>
                                 handleTsoSourcingActorChanged(index, event)
-                            }
-                            InputProps={{
-                                classes: { input: classes.input },
-                            }}
-                        />
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                        <TextField
-                            fullWidth={true}
-                            placeholder={intl.formatMessage({
-                                id: 'alternativeSourcingActorCode',
-                            })}
-                            value={tso.alternativeSourcingActor}
-                            onChange={(event) =>
-                                handleTsoAlternativeSourcingActorChanged(
-                                    index,
-                                    event
-                                )
                             }
                             InputProps={{
                                 classes: { input: classes.input },
@@ -211,7 +183,7 @@ const ProcessesContainer = ({ handleProcessesChanged, initialConfigs }) => {
             id: keyGenerator(),
             process: '',
             businessProcess: '',
-            tsos: [{ sourcingActor: '', alternativeSourcingActor: '' }],
+            tsos: [''],
             runBalancesAdjustment: false,
         },
     ]);
@@ -222,7 +194,7 @@ const ProcessesContainer = ({ handleProcessesChanged, initialConfigs }) => {
             id: keyGenerator(),
             process: '',
             businessProcess: '',
-            tsos: [{ sourcingActor: '', alternativeSourcingActor: '' }],
+            tsos: [''],
             runBalancesAdjustment: false,
         });
         setCurrentProcesses(currentProcessesCopy);
@@ -278,7 +250,9 @@ const ProcessesContainer = ({ handleProcessesChanged, initialConfigs }) => {
             id: currentProcessesCopy[index].id,
             process: currentProcessesCopy[index].process,
             businessProcess: currentProcessesCopy[index].businessProcess,
-            tsos: tsosList,
+            tsos: tsosList.map((tso) => {
+                return tso.sourcingActor;
+            }),
             runBalancesAdjustment:
                 currentProcessesCopy[index].runBalancesAdjustment,
         };
@@ -427,34 +401,23 @@ const ProcessesConfiguration = ({ open, onClose, matchProcess }) => {
         return toBeDeleted;
     }, [configs, processes]);
 
-    const processWithoutId = (process) => {
+    const processDto = (process) => {
         return {
             process: process.process,
             businessProcess: process.businessProcess,
             runBalancesAdjustment: process.runBalancesAdjustment,
-            tsos: process.tsos.map((tso) => {
-                return {
-                    sourcingActor: tso.sourcingActor,
-                    alternativeSourcingActor: tso.alternativeSourcingActor,
-                };
-            }),
+            tsos: process.tsos,
         };
     };
 
     const areDifferent = (initialProcess, currentProcess) => {
         let isDifferent = false;
-        let processTsosWithoutId = currentProcess.tsos.map((tso) => {
-            return {
-                sourcingActor: tso.sourcingActor,
-                alternativeSourcingActor: tso.alternativeSourcingActor,
-            };
-        });
+        let processTsosWithoutId = currentProcess.tsos;
 
         processTsosWithoutId.every((e) => {
             let index = initialProcess.tsos.findIndex(
                 (res) =>
-                    res.sourcingActor === e.sourcingActor &&
-                    res.alternativeSourcingActor === e.alternativeSourcingActor
+                    res === e
             );
             if (index === -1) {
                 isDifferent = true;
@@ -470,8 +433,7 @@ const ProcessesConfiguration = ({ open, onClose, matchProcess }) => {
         initialProcess.tsos.every((e) => {
             let index = processTsosWithoutId.findIndex(
                 (res) =>
-                    res.sourcingActor === e.sourcingActor &&
-                    res.alternativeSourcingActor === e.alternativeSourcingActor
+                    res === e
             );
             if (index === -1) {
                 isDifferent = true;
@@ -512,13 +474,13 @@ const ProcessesConfiguration = ({ open, onClose, matchProcess }) => {
 
             if (typeof initialProcess === 'undefined') {
                 // ADD NEW PROCESSES
-                promises.push(createProcess(processWithoutId(processes[i])));
+                promises.push(createProcess(processDto(processes[i])));
                 continue;
             }
 
             if (areDifferent(initialProcess, processes[i])) {
                 // UPDATE PROCESSES
-                promises.push(createProcess(processWithoutId(processes[i])));
+                promises.push(createProcess(processDto(processes[i])));
             }
         }
 

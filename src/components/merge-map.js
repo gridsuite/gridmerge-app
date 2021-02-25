@@ -90,7 +90,7 @@ const MergeMap = (props) => {
         if (props.tsos.length > 0) {
             Promise.all(
                 props.tsos.map((tso) => {
-                    const url = tso.sourcingActor.toLowerCase() + '.json';
+                    const url = tso.toLowerCase() + '.json';
                     return fetch(url).then((resp) => resp.json());
                 })
             ).then((jsons) => {
@@ -140,7 +140,7 @@ const MergeMap = (props) => {
                                             );
                                             setTooltip(
                                                 '' +
-                                                    tso.sourcingActor +
+                                                    tso +
                                                     ' - ' +
                                                     dt.toLocaleString() +
                                                     ' - ' +
@@ -153,7 +153,7 @@ const MergeMap = (props) => {
                                             let dt = new Date(props.merge.date);
                                             setTooltip(
                                                 '' +
-                                                    tso.sourcingActor +
+                                                    tso +
                                                     ' - ' +
                                                     dt.toLocaleString() +
                                                     ' - ' +

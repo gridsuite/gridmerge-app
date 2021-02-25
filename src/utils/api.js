@@ -172,7 +172,7 @@ export const IgmStatus = {
 export function getIgmStatus(tso, merge) {
     const igm =
         merge && tso
-            ? merge.igms.find((igm) => igm.tso === tso.sourcingActor)
+            ? merge.igms.find((igm) => igm.tso === tso)
             : null;
     if (!igm) {
         return {
