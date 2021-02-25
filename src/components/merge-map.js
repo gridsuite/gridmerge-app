@@ -12,6 +12,7 @@ import { ComposableMap, Geographies, Geography } from 'react-simple-maps';
 import { makeStyles } from '@material-ui/core/styles';
 import bbox from 'geojson-bbox';
 import { IgmStatus, getIgmStatus, MergeType } from '../utils/api';
+import ReactTooltip from 'react-tooltip';
 
 const TSO_STROKE_COLOR = 'white';
 const DEFAULT_CENTER = [0, 0];
@@ -31,6 +32,8 @@ const MergeMap = (props) => {
         center: DEFAULT_CENTER,
         scale: DEFAULT_SCALE,
     });
+
+    const [tooltip, setTooltip] = useState('');
 
     const classes = useStyles();
 
@@ -64,15 +67,15 @@ const MergeMap = (props) => {
     }
 
     function tsoColor(status) {
-        switch (status) {
+        switch (status.status) {
             case IgmStatus.AVAILABLE:
-                return '#009CD8';
+                return status.replacingDate == null ? '#009CD8' : '#F8E67E';
             case IgmStatus.VALID:
-                return '#02538B';
+                return status.replacingDate == null ? '#02538B' : '#F3D111';
             case IgmStatus.INVALID:
-                return '#D8404D';
+                return status.replacingDate == null ? '#D8404D' : '#D86640';
             case IgmStatus.MERGED:
-                return '#37AE4B';
+                return status.replacingDate == null ? '#37AE4B' : '#90EE90';
             default:
                 return '#78899a';
         }
@@ -107,6 +110,7 @@ const MergeMap = (props) => {
     return (
         <div>
             <ComposableMap
+                data-tip=""
                 style={{
                     height: 'calc(100vh - 240px)',
                     width: '100%',
@@ -126,12 +130,49 @@ const MergeMap = (props) => {
                                     geography={geo}
                                     className={classes.tso}
                                     fill={color}
+                                    onMouseEnter={() => {
+                                        if (
+                                            status.replacingDate &&
+                                            status.replacingBusinessProcess
+                                        ) {
+                                            let dt = new Date(
+                                                status.replacingDate
+                                            );
+                                            setTooltip(
+                                                '' +
+                                                    tso.sourcingActor +
+                                                    ' - ' +
+                                                    dt.toLocaleString() +
+                                                    ' - ' +
+                                                    status.replacingBusinessProcess
+                                            );
+                                        } else if (
+                                            props.merge &&
+                                            status.status !== IgmStatus.ABSENT
+                                        ) {
+                                            let dt = new Date(props.merge.date);
+                                            setTooltip(
+                                                '' +
+                                                    tso.sourcingActor +
+                                                    ' - ' +
+                                                    dt.toLocaleString() +
+                                                    ' - ' +
+                                                    props.config.businessProcess
+                                            );
+                                        } else {
+                                            setTooltip('');
+                                        }
+                                    }}
+                                    onMouseLeave={() => {
+                                        setTooltip('');
+                                    }}
                                 />
                             );
                         })
                     }
                 </Geographies>
             </ComposableMap>
+            <ReactTooltip>{tooltip}</ReactTooltip>
             {props.children}
         </div>
     );
@@ -144,6 +185,7 @@ MergeMap.defaultProps = {
 MergeMap.propTypes = {
     tsos: PropTypes.arrayOf(PropTypes.object).isRequired,
     merge: MergeType,
+    config: PropTypes.object,
 };
 
 export default React.memo(MergeMap);

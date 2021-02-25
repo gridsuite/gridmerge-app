@@ -170,23 +170,23 @@ const CountryStateItem = (props) => {
                     xs={12}
                     style={{ display: 'flex', width: '100%', padding: 8 }}
                 >
-                    {status === IgmStatus.ABSENT ? (
+                    {status.status === IgmStatus.ABSENT ? (
                         <HourglassEmptyIcon
                             className={`${classes.stateIcon} ${classes.waiting}`}
                         />
-                    ) : status === IgmStatus.AVAILABLE ? (
+                    ) : status.status === IgmStatus.AVAILABLE ? (
                         <LoopIcon
                             className={`${classes.stateIcon} ${classes.loading}`}
                         />
-                    ) : status === IgmStatus.INVALID ? (
+                    ) : status.status === IgmStatus.INVALID ? (
                         <WarningIcon
                             className={`${classes.stateIcon} ${classes.error}`}
                         />
-                    ) : status === IgmStatus.VALID ? (
+                    ) : status.status === IgmStatus.VALID ? (
                         <MergeIcon
                             className={`${classes.stateIcon} ${classes.success}`}
                         />
-                    ) : status === IgmStatus.MERGED ? (
+                    ) : status.status === IgmStatus.MERGED ? (
                         <DoneIcon
                             color="secondary"
                             className={`${classes.stateIcon} ${classes.success}`}

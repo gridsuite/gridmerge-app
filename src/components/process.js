@@ -203,7 +203,7 @@ const Process = (props) => {
                     mergeIndex={mergeIndex}
                     onMergeIndexChange={mergeIndexChangeHandler}
                 />
-                <MergeMap tsos={config.tsos} merge={merge} />
+                <MergeMap tsos={config.tsos} merge={merge} config={config} />
                 <StepperWithStatus tsos={config.tsos} merge={merge} />
             </Grid>
             <Grid item xs={12} md={2} key="list">
