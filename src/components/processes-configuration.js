@@ -554,7 +554,7 @@ const ProcessesConfiguration = ({ open, onClose, matchProcess }) => {
                     {confirmSave ? (
                         <FormattedMessage id="deletionProcessesTitle" />
                     ) : (
-                        <FormattedMessage id="processesConfigurationTitle" />
+                        <FormattedMessage id="mergingProcessConfigurationTitle" />
                     )}
                 </CustomDialogTitle>
                 <DialogContent dividers>
