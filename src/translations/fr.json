@@ -18,7 +18,7 @@
 
     "pageNotFound": "Page introuvable",
     "configureProcesses": "Configurer processus",
-    "processesConfigurationTitle": "Configuration des processus de merge",
+    "mergingProcessConfigurationTitle": "Configuration des processus de merge",
     "cancel": "Retour",
     "save": "Enregistrer",
     "confirm": "Confirmer",
