@@ -93,7 +93,7 @@ const ProcessTsos = ({
         initialTsos.map((e) => {
             return {
                 id: keyGenerator(),
-                sourcingActor: e
+                sourcingActor: e,
             };
         })
     );
@@ -415,10 +415,7 @@ const ProcessesConfiguration = ({ open, onClose, matchProcess }) => {
         let processTsosWithoutId = currentProcess.tsos;
 
         processTsosWithoutId.every((e) => {
-            let index = initialProcess.tsos.findIndex(
-                (res) =>
-                    res === e
-            );
+            let index = initialProcess.tsos.findIndex((res) => res === e);
             if (index === -1) {
                 isDifferent = true;
                 return false;
@@ -431,10 +428,7 @@ const ProcessesConfiguration = ({ open, onClose, matchProcess }) => {
         }
 
         initialProcess.tsos.every((e) => {
-            let index = processTsosWithoutId.findIndex(
-                (res) =>
-                    res === e
-            );
+            let index = processTsosWithoutId.findIndex((res) => res === e);
             if (index === -1) {
                 isDifferent = true;
                 return false;
