@@ -7,6 +7,15 @@
     "igmReception": "IGM uploading",
     "imgMerged": "IGM merged",
     "cgmValid": "CGM validated",
+
+    "exportNetwork": "Export the network",
+    "export": "Export",
+    "format": "Format",
+    "exportFormat": "Format of the export",
+    "exportStudyErrorMsg": "No export format specified",
+
+    "cancel": "Cancel",
+
     "pageNotFound": "Page not found",
     "configureProcesses": "Configure processes",
     "mergingProcessConfigurationTitle": "Merging process configuration",

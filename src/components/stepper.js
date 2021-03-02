@@ -12,8 +12,9 @@ import Step from '@material-ui/core/Step';
 import StepLabel from '@material-ui/core/StepLabel';
 import IconButton from '@material-ui/core/IconButton';
 import Grid from '@material-ui/core/Grid';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import GetAppIcon from '@material-ui/icons/GetApp';
+import { ExportDialog } from '../utils/dialogs';
 import BuildIcon from '@material-ui/icons/Build';
 import {
     getExportMergeUrl,
@@ -23,7 +24,6 @@ import {
 } from '../utils/api';
 import PropTypes from 'prop-types';
 import { useSnackbar } from 'notistack';
-import { useIntl } from 'react-intl';
 
 const useStyles = makeStyles((theme) => ({
     stepperContainer: {
@@ -107,6 +107,7 @@ const CustomStepLabel = withStyles({
 const StepperWithStatus = (props) => {
     const intl = useIntl();
     const DownloadIframe = 'downloadIframe';
+    const availableFormats = ['CGMES', 'XIIDM'];
     const classes = useStyles();
     const [availableStep, setAvailableStep] = useState(false);
     const [validStep, setValidStep] = useState(false);
@@ -114,20 +115,24 @@ const StepperWithStatus = (props) => {
     const [replaceIGMEnabled, setReplaceIGMEnabled] = useState(false);
     const { enqueueSnackbar } = useSnackbar();
 
-    const handleClickExport = () => {
+    const [openExportDialog, setOpenExport] = React.useState(false);
+
+    const handleCloseExport = () => {
+        setOpenExport(false);
+    };
+
+    const handleClickExport = (url) => {
         console.info('Downloading merge ' + props.merge.process + '...');
         // The getTimezoneOffset() method returns the difference, in minutes, between UTC and local time.
         // The offset is positive if the local timezone is behind UTC and negative if it is ahead
         // On service side, the opposite behaviour is expected (offset is expected to be negative if the local timezone is behind UTC and positive if it is ahead)
         // This explains the "-" sign to get the expected offset value for the service
-        window.open(
-            getExportMergeUrl(
-                props.merge.process,
-                new Date(props.merge.date).toISOString(),
-                -new Date().getTimezoneOffset()
-            ),
-            DownloadIframe
-        );
+        window.open(url, DownloadIframe);
+        handleCloseExport();
+    };
+
+    const handleOpenExport = () => {
+        setOpenExport(true);
     };
 
     const handleReplaceIGM = () => {
@@ -255,7 +260,7 @@ const StepperWithStatus = (props) => {
                 <IconButton
                     aria-label="download"
                     className={classes.downloadButton}
-                    onClick={handleClickExport}
+                    onClick={handleOpenExport}
                     disabled={!mergedStep}
                 >
                     <GetAppIcon
@@ -280,6 +285,17 @@ const StepperWithStatus = (props) => {
                 </span>
             </Grid>
             <Grid item xs={12} md={2}></Grid>
+            <ExportDialog
+                open={openExportDialog}
+                onClose={handleCloseExport}
+                onClick={handleClickExport}
+                process={props.merge && props.merge.process}
+                date={props.merge && props.merge.date}
+                title={intl.formatMessage({ id: 'exportNetwork' })}
+                getDownloadUrl={getExportMergeUrl}
+                formats={availableFormats}
+                errorMessage={intl.formatMessage({ id: 'exportStudyErrorMsg' })}
+            />
         </Grid>
     );
 };
