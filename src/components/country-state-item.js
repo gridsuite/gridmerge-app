@@ -216,7 +216,7 @@ const CountryStateItem = (props) => {
 };
 
 CountryStateItem.propTypes = {
-    tso: PropTypes.object.isRequired,
+    tso: PropTypes.string.isRequired,
     merge: MergeType,
 };
 

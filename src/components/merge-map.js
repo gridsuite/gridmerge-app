@@ -183,7 +183,7 @@ MergeMap.defaultProps = {
 };
 
 MergeMap.propTypes = {
-    tsos: PropTypes.arrayOf(PropTypes.object).isRequired,
+    tsos: PropTypes.arrayOf(PropTypes.string).isRequired,
     merge: MergeType,
     config: PropTypes.object,
 };
