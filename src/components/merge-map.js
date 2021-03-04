@@ -13,6 +13,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import bbox from 'geojson-bbox';
 import { IgmStatus, getIgmStatus, MergeType } from '../utils/api';
 import ReactTooltip from 'react-tooltip';
+import { getDetailsByCountryOrTso } from '../utils/tso-country-details';
 
 const TSO_STROKE_COLOR = 'white';
 const DEFAULT_CENTER = [0, 0];
@@ -90,7 +91,8 @@ const MergeMap = (props) => {
         if (props.tsos.length > 0) {
             Promise.all(
                 props.tsos.map((tso) => {
-                    const url = tso.toLowerCase() + '.json';
+                    const { countryCode } = getDetailsByCountryOrTso(tso);
+                    const url = countryCode.toLowerCase() + '.json';
                     return fetch(url).then((resp) => resp.json());
                 })
             ).then((jsons) => {
