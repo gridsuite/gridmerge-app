@@ -57,7 +57,6 @@ const ExportDialog = ({
             const url = getDownloadUrl(
                 process,
                 new Date(date).toISOString(),
-                -new Date().getTimezoneOffset(),
                 selectedFormat
             );
             onClick(url);
