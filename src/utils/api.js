@@ -114,7 +114,7 @@ function getUrlWithToken(baseUrl) {
     return baseUrl + '?access_token=' + getToken();
 }
 
-export function getExportMergeUrl(process, date, timeZoneoffset, format) {
+export function getExportMergeUrl(process, date, format) {
     const url =
         PREFIX_ORCHESTRATOR_QUERIES +
         '/v1/' +
@@ -123,7 +123,7 @@ export function getExportMergeUrl(process, date, timeZoneoffset, format) {
         date +
         '/export/' +
         format;
-    return getUrlWithToken(url) + '&timeZoneOffset=' + timeZoneoffset;
+    return getUrlWithToken(url);
 }
 
 export function fetchAppsAndUrls() {
