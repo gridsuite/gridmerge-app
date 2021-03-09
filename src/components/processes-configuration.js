@@ -128,7 +128,7 @@ const ProcessTsos = ({
         const processTsosCopy = [...processTsos];
         processTsosCopy[index] = {
             id: processTsosCopy[index].id,
-            sourcingActor: newValue
+            sourcingActor: newValue,
         };
         setProcessTsos(processTsosCopy);
     };
