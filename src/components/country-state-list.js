@@ -14,18 +14,14 @@ const CountryStatesList = (props) => {
     return (
         <List>
             {props.tsos.map((tso) => (
-                <CountryStateItem
-                    key={tso.sourcingActor}
-                    tso={tso}
-                    merge={props.merge}
-                />
+                <CountryStateItem key={tso} tso={tso} merge={props.merge} />
             ))}
         </List>
     );
 };
 
 CountryStatesList.propTypes = {
-    tsos: PropTypes.arrayOf(PropTypes.object).isRequired,
+    tsos: PropTypes.arrayOf(PropTypes.string).isRequired,
     merge: MergeType,
 };
 
