@@ -11,35 +11,10 @@ import LoopIcon from '@material-ui/icons/LoopOutlined';
 import HourglassEmptyIcon from '@material-ui/icons/HourglassEmptyOutlined';
 import WarningIcon from '@material-ui/icons/WarningOutlined';
 import MergeIcon from '@material-ui/icons/DoubleArrowOutlined';
-import flagAL from '../images/flags/flags-iso/flat/svg/AL.svg';
-import flagAT from '../images/flags/flags-iso/flat/svg/AT.svg';
-import flagBA from '../images/flags/flags-iso/flat/svg/BA.svg';
-import flagBE from '../images/flags/flags-iso/flat/svg/BE.svg';
-import flagBG from '../images/flags/flags-iso/flat/svg/BG.svg';
-import flagCH from '../images/flags/flags-iso/flat/svg/CH.svg';
-import flagCZ from '../images/flags/flags-iso/flat/svg/CZ.svg';
-import flagES from '../images/flags/flags-iso/flat/svg/ES.svg';
-import flagFR from '../images/flags/flags-iso/flat/svg/FR.svg';
-import flagDE from '../images/flags/flags-iso/flat/svg/DE.svg';
-import flagGR from '../images/flags/flags-iso/flat/svg/GR.svg';
-import flagHR from '../images/flags/flags-iso/flat/svg/HR.svg';
-import flagHU from '../images/flags/flags-iso/flat/svg/HU.svg';
-import flagIT from '../images/flags/flags-iso/flat/svg/IT.svg';
-import flagME from '../images/flags/flags-iso/flat/svg/ME.svg';
-import flagMK from '../images/flags/flags-iso/flat/svg/MK.svg';
-import flagNL from '../images/flags/flags-iso/flat/svg/NL.svg';
-import flagPL from '../images/flags/flags-iso/flat/svg/PL.svg';
-import flagPT from '../images/flags/flags-iso/flat/svg/PT.svg';
-import flagRO from '../images/flags/flags-iso/flat/svg/RO.svg';
-import flagRS from '../images/flags/flags-iso/flat/svg/RS.svg';
-import flagSI from '../images/flags/flags-iso/flat/svg/SI.svg';
-import flagSK from '../images/flags/flags-iso/flat/svg/SK.svg';
-import flagTR from '../images/flags/flags-iso/flat/svg/TR.svg';
-import flagUA from '../images/flags/flags-iso/flat/svg/UA.svg';
-import flagUnknown from '../images/flags/flags-iso/flat/svg/EU.svg';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import { getIgmStatus, IgmStatus, MergeType } from '../utils/api';
+import { getDetailsByCountryOrTso } from '../utils/tso-country-details';
 
 const useStyles = makeStyles((theme) => ({
     textColumn: {
@@ -98,67 +73,7 @@ const useStyles = makeStyles((theme) => ({
 const CountryStateItem = (props) => {
     const classes = useStyles();
 
-    const getDetailsByCountry = (countryCode) => {
-        switch (countryCode) {
-            case 'AL':
-                return { countryName: 'Albania', flagSrc: flagAL };
-            case 'AT':
-                return { countryName: 'Austria', flagSrc: flagAT };
-            case 'BA':
-                return {
-                    countryName: 'Bosnia and Herzegovina',
-                    flagSrc: flagBA,
-                };
-            case 'BE':
-                return { countryName: 'Belgium', flagSrc: flagBE };
-            case 'BG':
-                return { countryName: 'Bulgaria', flagSrc: flagBG };
-            case 'CH':
-                return { countryName: 'Switzerland', flagSrc: flagCH };
-            case 'CZ':
-                return { countryName: 'Czech Republic', flagSrc: flagCZ };
-            case 'DE':
-                return { countryName: 'Germany', flagSrc: flagDE };
-            case 'ES':
-                return { countryName: 'Spain', flagSrc: flagES };
-            case 'FR':
-                return { countryName: 'France', flagSrc: flagFR };
-            case 'GR':
-                return { countryName: 'Greece', flagSrc: flagGR };
-            case 'HR':
-                return { countryName: 'Croatia', flagSrc: flagHR };
-            case 'HU':
-                return { countryName: 'Hungary', flagSrc: flagHU };
-            case 'IT':
-                return { countryName: 'Italy', flagSrc: flagIT };
-            case 'ME':
-                return { countryName: 'Montenegro', flagSrc: flagME };
-            case 'MK':
-                return { countryName: 'North Macedonia', flagSrc: flagMK };
-            case 'NL':
-                return { countryName: 'Netherlands', flagSrc: flagNL };
-            case 'PL':
-                return { countryName: 'Poland', flagSrc: flagPL };
-            case 'PT':
-                return { countryName: 'Portugal', flagSrc: flagPT };
-            case 'RO':
-                return { countryName: 'Romania', flagSrc: flagRO };
-            case 'RS':
-                return { countryName: 'Serbia', flagSrc: flagRS };
-            case 'SI':
-                return { countryName: 'Slovenia', flagSrc: flagSI };
-            case 'SK':
-                return { countryName: 'Slovakia', flagSrc: flagSK };
-            case 'TR':
-                return { countryName: 'Turkey', flagSrc: flagTR };
-            case 'UA':
-                return { countryName: 'Ukraine', flagSrc: flagUA };
-            default:
-                return { countryName: '', flagSrc: flagUnknown };
-        }
-    };
-
-    const detail = getDetailsByCountry(props.tso.toUpperCase());
+    const detail = getDetailsByCountryOrTso(props.tso.toUpperCase());
 
     const status = getIgmStatus(props.tso, props.merge);
 
