@@ -5,5 +5,20 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+export const COMMON_APP_NAME = 'common';
+export const APP_NAME = 'merge';
+
 export const PARAMS_THEME_KEY = 'theme';
 export const PARAMS_TIMELINE_DIAGONAL_LABELS = 'timelineDiagonalLabel';
+
+const COMMON_CONFIG_PARAMS_NAMES = new Set([PARAMS_THEME_KEY]);
+
+export const CONFIG_PARAMS_NAMES = new Set(
+    [...COMMON_CONFIG_PARAMS_NAMES].concat([PARAMS_TIMELINE_DIAGONAL_LABELS])
+);
+
+export function getAppName(paramName) {
+    return COMMON_CONFIG_PARAMS_NAMES.has(paramName)
+        ? COMMON_APP_NAME
+        : APP_NAME;
+}
