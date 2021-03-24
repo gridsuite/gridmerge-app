@@ -31,6 +31,7 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Radio from '@material-ui/core/Radio';
 import { useHistory } from 'react-router-dom';
+import Autocomplete from '@material-ui/lab/Autocomplete';
 
 const useStyles = makeStyles((theme) => ({
     addNewTso: {
@@ -57,6 +58,25 @@ const styles = () => ({
         padding: 0,
     },
 });
+
+let businessProcessList;
+let tsosCodesList;
+
+fetch('business_processes.txt')
+    .then((data) => {
+        return data.text();
+    })
+    .then((data) => {
+        businessProcessList = data.split('\n').sort();
+    });
+
+fetch('tsos_codes.txt')
+    .then((data) => {
+        return data.text();
+    })
+    .then((data) => {
+        tsosCodesList = data.split('\n').sort();
+    });
 
 const CustomDialogTitle = withStyles(styles)((props) => {
     const { children, classes, onClose, ...other } = props;
@@ -86,7 +106,6 @@ const ProcessTsos = ({
     processIndex,
     handleProcessTsosChanged,
 }) => {
-    const classes = useStyles();
     const intl = useIntl();
     // processTsos copies will be deleted in an upcoming PR
     const [processTsos, setProcessTsos] = useState(
@@ -105,11 +124,11 @@ const ProcessTsos = ({
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [processTsos]);
 
-    const handleTsoSourcingActorChanged = (index, event) => {
+    const handleTsoSourcingActorChanged = (newValue, index) => {
         const processTsosCopy = [...processTsos];
         processTsosCopy[index] = {
             id: processTsosCopy[index].id,
-            sourcingActor: event.target.value,
+            sourcingActor: newValue,
         };
         setProcessTsos(processTsosCopy);
     };
@@ -134,18 +153,34 @@ const ProcessTsos = ({
             {processTsos.map((tso, index) => (
                 <Grid container spacing={2} key={tso.id}>
                     <Grid item xs={12} sm={10}>
-                        <TextField
-                            fullWidth={true}
-                            placeholder={intl.formatMessage({
-                                id: 'sourcingActorCode',
-                            })}
-                            value={tso.sourcingActor}
-                            onChange={(event) =>
-                                handleTsoSourcingActorChanged(index, event)
-                            }
-                            InputProps={{
-                                classes: { input: classes.input },
+                        <Autocomplete
+                            id="select_tsos_process"
+                            value={tsosCodesList.indexOf(tso.sourcingActor)}
+                            disableClearable
+                            autoHighlight
+                            onChange={(event, newValue) => {
+                                handleTsoSourcingActorChanged(
+                                    tsosCodesList[newValue],
+                                    index
+                                );
                             }}
+                            options={Object.keys(tsosCodesList)}
+                            getOptionLabel={(code) =>
+                                code !== -1 ? tsosCodesList[code] : ''
+                            }
+                            getOptionSelected={(option, value) =>
+                                option.value === value.value
+                            }
+                            size="small"
+                            renderInput={(props) => (
+                                <TextField
+                                    {...props}
+                                    variant="outlined"
+                                    placeholder={intl.formatMessage({
+                                        id: 'sourcingActorCode',
+                                    })}
+                                />
+                            )}
                         />
                     </Grid>
                     <Grid item xs={12} sm={2} align="center">
@@ -213,12 +248,12 @@ const ProcessesContainer = ({ handleProcessesChanged, initialConfigs }) => {
         setCurrentProcesses(currentProcessesCopy);
     }
 
-    function handleBusinessProcessChanged(e, index) {
+    function handleBusinessProcessChanged(newValue, index) {
         const currentProcessesCopy = [...currentProcesses];
         currentProcessesCopy[index] = {
             id: currentProcessesCopy[index].id,
             process: currentProcessesCopy[index].process,
-            businessProcess: e.target.value,
+            businessProcess: newValue,
             tsos: currentProcessesCopy[index].tsos,
             runBalancesAdjustment:
                 currentProcessesCopy[index].runBalancesAdjustment,
@@ -296,19 +331,39 @@ const ProcessesContainer = ({ handleProcessesChanged, initialConfigs }) => {
                                     handleProcessNameChanged(e, index)
                                 }
                             />
-                            <TextField
-                                fullWidth={true}
-                                placeholder={intl.formatMessage({
-                                    id: 'businessProcess',
-                                })}
-                                value={process.businessProcess}
-                                InputProps={{
-                                    classes: { input: classes.input },
+                            <Autocomplete
+                                id="select_business_process"
+                                value={businessProcessList.indexOf(
+                                    process.businessProcess
+                                )}
+                                disableClearable
+                                autoHighlight
+                                onChange={(event, newValue) => {
+                                    handleBusinessProcessChanged(
+                                        businessProcessList[newValue],
+                                        index
+                                    );
                                 }}
-                                onChange={(e) =>
-                                    handleBusinessProcessChanged(e, index)
+                                options={Object.keys(businessProcessList)}
+                                size="small"
+                                style={{ marginTop: 15, marginBottom: 5 }}
+                                getOptionLabel={(code) =>
+                                    code !== -1 ? businessProcessList[code] : ''
                                 }
+                                getOptionSelected={(option, value) =>
+                                    option.value === value.value
+                                }
+                                renderInput={(props) => (
+                                    <TextField
+                                        {...props}
+                                        variant="outlined"
+                                        placeholder={intl.formatMessage({
+                                            id: 'businessProcess',
+                                        })}
+                                    />
+                                )}
                             />
+
                             <RadioGroup
                                 aria-label="runBalancesAdjustment"
                                 name="runBalancesAdjustment"
