@@ -53,6 +53,7 @@ import {
     fetchAppsAndUrls,
     fetchConfigParameters,
     fetchMergeConfigs,
+    updateConfigParameters,
 } from '../utils/api';
 
 import { ReactComponent as GridMergeLogoDark } from '../images/GridMerge_logo_dark.svg';
@@ -286,6 +287,10 @@ const App = () => {
         );
     }
 
+    const handleThemeClick = (theme) => {
+        updateConfigParameters(PARAMS_THEME_KEY, theme);
+    };
+
     const showPopupConfigurationProcesses = () => {
         setShowConfigurationProcesses(true);
     };
@@ -312,6 +317,9 @@ const App = () => {
                         onLogoClick={() => onLogoClicked()}
                         user={user}
                         appsAndUrls={appsAndUrls}
+                        onThemeClick={handleThemeClick}
+                        theme={theme}
+                        onAboutClick={() => console.debug('about')}
                     >
                         <Tabs
                             value={selectedTabId}
