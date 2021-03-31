@@ -8,7 +8,7 @@ import React from 'react';
 import { List } from '@material-ui/core';
 import PropTypes from 'prop-types';
 import CountryStateItem from './country-state-item';
-import { MergeType } from '../utils/api';
+import { MergeType } from '../utils/rest-api';
 
 const CountryStatesList = (props) => {
     return (

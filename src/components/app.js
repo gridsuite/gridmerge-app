@@ -55,7 +55,7 @@ import {
     fetchConfigParameters,
     fetchMergeConfigs,
     updateConfigParameter,
-} from '../utils/api';
+} from '../utils/rest-api';
 
 import { ReactComponent as GridMergeLogoDark } from '../images/GridMerge_logo_dark.svg';
 import { ReactComponent as GridMergeLogoLight } from '../images/GridMerge_logo_light.svg';

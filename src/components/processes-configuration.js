@@ -24,7 +24,11 @@ import PropTypes from 'prop-types';
 
 import { withStyles, makeStyles } from '@material-ui/core/styles';
 import { FormattedMessage } from 'react-intl';
-import { createProcess, deleteProcess, fetchMergeConfigs } from '../utils/api';
+import {
+    createProcess,
+    deleteProcess,
+    fetchMergeConfigs,
+} from '../utils/rest-api';
 import { initProcesses } from '../redux/actions';
 import { useDispatch, useSelector } from 'react-redux';
 import RadioGroup from '@material-ui/core/RadioGroup';

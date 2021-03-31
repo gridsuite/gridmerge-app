@@ -16,7 +16,7 @@ import {
     connectNotificationsWebsocket,
     fetchMergesByProcessAndDate,
     removeTime,
-} from '../utils/api';
+} from '../utils/rest-api';
 import {
     updateMerges,
     updateProcessDate,

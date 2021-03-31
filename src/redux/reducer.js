@@ -17,7 +17,7 @@ import {
 } from './actions';
 
 import { SIGNIN_CALLBACK_ERROR, USER } from '@gridsuite/commons-ui';
-import { removeTime } from '../utils/api';
+import { removeTime } from '../utils/rest-api';
 import { getLocalStorageTheme, saveLocalStorageTheme } from './local-storage';
 
 const initialState = {

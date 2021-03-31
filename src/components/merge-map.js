@@ -11,7 +11,7 @@ import { ComposableMap, Geographies, Geography } from 'react-simple-maps';
 
 import { makeStyles } from '@material-ui/core/styles';
 import bbox from 'geojson-bbox';
-import { IgmStatus, getIgmStatus, MergeType } from '../utils/api';
+import { IgmStatus, getIgmStatus, MergeType } from '../utils/rest-api';
 import ReactTooltip from 'react-tooltip';
 import { getDetailsByCountryOrTso } from '../utils/tso-country-details';
 

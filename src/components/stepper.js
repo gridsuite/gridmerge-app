@@ -21,7 +21,7 @@ import {
     getIgmStatus,
     IgmStatus,
     replaceIGM,
-} from '../utils/api';
+} from '../utils/rest-api';
 import PropTypes from 'prop-types';
 import { useSnackbar } from 'notistack';
 

@@ -13,7 +13,7 @@ import WarningIcon from '@material-ui/icons/WarningOutlined';
 import MergeIcon from '@material-ui/icons/DoubleArrowOutlined';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
-import { getIgmStatus, IgmStatus, MergeType } from '../utils/api';
+import { getIgmStatus, IgmStatus, MergeType } from '../utils/rest-api';
 import { getDetailsByCountryOrTso } from '../utils/tso-country-details';
 
 const useStyles = makeStyles((theme) => ({
