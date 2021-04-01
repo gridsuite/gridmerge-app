@@ -62,7 +62,6 @@ import { ReactComponent as GridMergeLogoLight } from '../images/GridMerge_logo_l
 import {
     APP_NAME,
     COMMON_APP_NAME,
-    CONFIG_PARAMS_NAMES,
     PARAMS_THEME_KEY,
     PARAMS_TIMELINE_DIAGONAL_LABELS,
 } from '../utils/config-params';
@@ -228,13 +227,12 @@ const App = () => {
 
         ws.onmessage = function (event) {
             let eventData = JSON.parse(event.data);
-            if (eventData.headers) {
-                let paramName = eventData.headers['parameterName'];
-                if (CONFIG_PARAMS_NAMES.has(paramName)) {
-                    fetchConfigParameter(paramName).then((param) => {
+            if (eventData.headers && eventData.headers['parameterName']) {
+                fetchConfigParameter(eventData.headers['parameterName']).then(
+                    (param) => {
                         updateParams([param]);
-                    });
-                }
+                    }
+                );
             }
         };
         ws.onerror = function (event) {
