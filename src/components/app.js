@@ -51,14 +51,17 @@ import Button from '@material-ui/core/Button';
 import {
     connectNotificationsWsUpdateConfig,
     fetchAppsAndUrls,
+    fetchConfigParameter,
     fetchConfigParameters,
     fetchMergeConfigs,
-    updateConfigParameters,
-} from '../utils/api';
+    updateConfigParameter,
+} from '../utils/rest-api';
 
 import { ReactComponent as GridMergeLogoDark } from '../images/GridMerge_logo_dark.svg';
 import { ReactComponent as GridMergeLogoLight } from '../images/GridMerge_logo_light.svg';
 import {
+    APP_NAME,
+    COMMON_APP_NAME,
     PARAMS_THEME_KEY,
     PARAMS_TIMELINE_DIAGONAL_LABELS,
 } from '../utils/config-params';
@@ -144,6 +147,7 @@ const App = () => {
 
     const updateParams = useCallback(
         (params) => {
+            console.debug('received UI parameters : ', params);
             params.forEach((param) => {
                 switch (param.name) {
                     case PARAMS_THEME_KEY:
@@ -222,9 +226,14 @@ const App = () => {
         const ws = connectNotificationsWsUpdateConfig();
 
         ws.onmessage = function (event) {
-            fetchConfigParameters().then((params) => {
-                updateParams(params);
-            });
+            let eventData = JSON.parse(event.data);
+            if (eventData.headers && eventData.headers['parameterName']) {
+                fetchConfigParameter(eventData.headers['parameterName']).then(
+                    (param) => {
+                        updateParams([param]);
+                    }
+                );
+            }
         };
         ws.onerror = function (event) {
             console.error('Unexpected Notification WebSocket error', event);
@@ -234,9 +243,10 @@ const App = () => {
 
     useEffect(() => {
         if (user !== null) {
-            fetchConfigParameters().then((params) => {
-                console.debug('received UI parameters :');
-                console.debug(params);
+            fetchConfigParameters(COMMON_APP_NAME).then((params) => {
+                updateParams(params);
+            });
+            fetchConfigParameters(APP_NAME).then((params) => {
                 updateParams(params);
             });
             const ws = connectNotificationsUpdateConfig();
@@ -244,7 +254,7 @@ const App = () => {
                 ws.close();
             };
         }
-    }, [user, dispatch, connectNotificationsUpdateConfig, updateParams]);
+    }, [user, dispatch, updateParams, connectNotificationsUpdateConfig]);
 
     const selectedTabId = useMemo(() => {
         let index =
@@ -288,7 +298,7 @@ const App = () => {
     }
 
     const handleThemeClick = (theme) => {
-        updateConfigParameters(PARAMS_THEME_KEY, theme);
+        updateConfigParameter(PARAMS_THEME_KEY, theme);
     };
 
     const showPopupConfigurationProcesses = () => {

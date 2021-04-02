@@ -28,7 +28,7 @@ import Typography from '@material-ui/core/Typography';
 import Switch from '@material-ui/core/Switch';
 
 import { DARK_THEME, LIGHT_THEME } from '../redux/actions';
-import { updateConfigParameters } from '../utils/api';
+import { updateConfigParameter } from '../utils/rest-api';
 import {
     PARAMS_THEME_KEY,
     PARAMS_TIMELINE_DIAGONAL_LABELS,
@@ -56,11 +56,11 @@ const Parameters = ({ showParameters, hideParameters }) => {
 
     const handleChangeTheme = (event) => {
         const theme = event.target.value;
-        updateConfigParameters(PARAMS_THEME_KEY, theme);
+        updateConfigParameter(PARAMS_THEME_KEY, theme);
     };
 
     const onChangeSwitchTimelineDiagonalLabels = (event) => {
-        updateConfigParameters(
+        updateConfigParameter(
             PARAMS_TIMELINE_DIAGONAL_LABELS,
             event.target.value !== 'true'
         );
