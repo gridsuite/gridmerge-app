@@ -11,7 +11,12 @@ import { ComposableMap, Geographies, Geography } from 'react-simple-maps';
 
 import { makeStyles } from '@material-ui/core/styles';
 import bbox from 'geojson-bbox';
-import { IgmStatus, getIgmStatus, MergeType } from '../utils/rest-api';
+import {
+    IgmStatus,
+    getIgmStatus,
+    MergeType,
+    CgmStatus,
+} from '../utils/rest-api';
 import ReactTooltip from 'react-tooltip';
 import { getDetailsByCountryOrTso } from '../utils/tso-country-details';
 
@@ -75,8 +80,24 @@ const MergeMap = (props) => {
                 return status.replacingDate == null ? '#02538B' : '#F3D111';
             case IgmStatus.INVALID:
                 return status.replacingDate == null ? '#D8404D' : '#D86640';
-            case IgmStatus.MERGED:
-                return status.replacingDate == null ? '#37AE4B' : '#90EE90';
+            case IgmStatus.MERGED: {
+                switch (status.cgmStatus) {
+                    case CgmStatus.VALID:
+                        return status.replacingDate == null
+                            ? '#37AE4B'
+                            : '#90EE90';
+                    case CgmStatus.VALID_WARNING:
+                        return status.replacingDate == null
+                            ? '#FFA500'
+                            : '#FFC14E';
+                    case CgmStatus.INVALID:
+                        return status.replacingDate == null
+                            ? '#FF0000'
+                            : '#FF3B3B';
+                    default:
+                        return '#78899a';
+                }
+            }
             default:
                 return '#78899a';
         }
