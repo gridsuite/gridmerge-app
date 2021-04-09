@@ -105,11 +105,7 @@ const keyGenerator = (() => {
     return () => key++;
 })();
 
-const ProcessTsos = ({
-    tsosList,
-    processIndex,
-    handleProcessTsosChanged,
-}) => {
+const ProcessTsos = ({ tsosList, processIndex, handleProcessTsosChanged }) => {
     const intl = useIntl();
 
     const handleTsoSourcingActorChanged = (newValue, index) => {
