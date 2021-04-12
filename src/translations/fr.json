@@ -1,7 +1,6 @@
 {
     "parameters": "Paramètres",
-    "General": "Général",
-    "theme": "Thème : ",
+    "gui": "IHM",
     "close": "Fermer",
     "downloadCgm": "Télécharger CGM",
     "igmReception": "Réception des IGM",
