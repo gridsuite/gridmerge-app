@@ -27,6 +27,21 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
+export function tsoColor(status) {
+    switch (status.status) {
+        case IgmStatus.AVAILABLE:
+            return status.replacingDate == null ? '#009CD8' : '#F8E67E';
+        case IgmStatus.VALID:
+            return status.replacingDate == null ? '#02538B' : '#F3D111';
+        case IgmStatus.INVALID:
+            return status.replacingDate == null ? '#D8404D' : '#D86640';
+        case IgmStatus.MERGED:
+            return status.replacingDate == null ? '#37AE4B' : '#90EE90';
+        default:
+            return '#78899a';
+    }
+}
+
 const MergeMap = (props) => {
     const [data, setData] = useState({
         geographies: [],
@@ -65,21 +80,6 @@ const MergeMap = (props) => {
         // default projection
         const factor = Math.max(bb[2] - bb[0], bb[3] - bb[1]);
         return DEFAULT_SCALE / factor;
-    }
-
-    function tsoColor(status) {
-        switch (status.status) {
-            case IgmStatus.AVAILABLE:
-                return status.replacingDate == null ? '#009CD8' : '#F8E67E';
-            case IgmStatus.VALID:
-                return status.replacingDate == null ? '#02538B' : '#F3D111';
-            case IgmStatus.INVALID:
-                return status.replacingDate == null ? '#D8404D' : '#D86640';
-            case IgmStatus.MERGED:
-                return status.replacingDate == null ? '#37AE4B' : '#90EE90';
-            default:
-                return '#78899a';
-        }
     }
 
     useEffect(() => {
