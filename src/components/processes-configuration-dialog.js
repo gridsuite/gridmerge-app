@@ -27,6 +27,8 @@ import {
     createProcess,
     deleteProcess,
     fetchMergeConfigs,
+    fetchTsosList,
+    fetchBusinessProcessesList,
 } from '../utils/rest-api';
 import { initProcesses } from '../redux/actions';
 import { useDispatch, useSelector } from 'react-redux';
@@ -62,25 +64,6 @@ const styles = () => ({
     },
 });
 
-let businessProcessList;
-let tsosCodesList;
-
-fetch('business_processes.txt')
-    .then((data) => {
-        return data.text();
-    })
-    .then((data) => {
-        businessProcessList = data.split('\n').sort();
-    });
-
-fetch('tsos_codes.txt')
-    .then((data) => {
-        return data.text();
-    })
-    .then((data) => {
-        tsosCodesList = data.split('\n').sort();
-    });
-
 const CustomDialogTitle = withStyles(styles)((props) => {
     const { children, classes, onClose, ...other } = props;
     return (
@@ -106,6 +89,15 @@ const keyGenerator = (() => {
 
 const ProcessTsos = ({ tsosList, processIndex, handleProcessTsosChanged }) => {
     const intl = useIntl();
+
+    const [tsosCodesList, setTsosCodesList] = useState([]);
+
+    useEffect(() => {
+        // fetching list of authorized tsos
+        fetchTsosList().then((res) => {
+            setTsosCodesList(res);
+        });
+    }, []);
 
     const handleTsoSourcingActorChanged = (newValue, index) => {
         const processTsosCopy = [...tsosList];
@@ -187,6 +179,8 @@ const ProcessesContainer = ({ handleProcessesChanged, currentProcess }) => {
     const classes = useStyles();
     const intl = useIntl();
 
+    const [businessProcessList, setBusinessProcessList] = useState([]);
+
     function handleAddProcess() {
         const currentProcessesCopy = [...currentProcess];
         currentProcessesCopy.push({
@@ -240,6 +234,13 @@ const ProcessesContainer = ({ handleProcessesChanged, currentProcess }) => {
         };
         handleProcessesChanged(currentProcessesCopy);
     }
+
+    useEffect(() => {
+        // fetching list of authorized business processes
+        fetchBusinessProcessesList().then((res) => {
+            setBusinessProcessList(res);
+        });
+    }, []);
 
     return (
         <div>
