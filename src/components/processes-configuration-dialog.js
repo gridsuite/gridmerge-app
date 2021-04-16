@@ -129,7 +129,7 @@ const ProcessTsos = ({ tsosList, processIndex, handleProcessTsosChanged }) => {
     return (
         <>
             {tsosList.map((tso, index) => (
-                <Grid container spacing={2} key={tso}>
+                <Grid container spacing={2} key={tso || index}>
                     <Grid item xs={12} sm={10}>
                         <Autocomplete
                             id="select_tsos_process"
@@ -184,12 +184,12 @@ const ProcessTsos = ({ tsosList, processIndex, handleProcessTsosChanged }) => {
     );
 };
 
-const ProcessesContainer = ({ handleProcessesChanged, currentConfigs }) => {
+const ProcessesContainer = ({ handleProcessesChanged, currentProcess }) => {
     const classes = useStyles();
     const intl = useIntl();
 
     function handleAddProcess() {
-        const currentProcessesCopy = [...currentConfigs];
+        const currentProcessesCopy = [...currentProcess];
         currentProcessesCopy.push({
             id: keyGenerator(),
             process: '',
@@ -201,7 +201,7 @@ const ProcessesContainer = ({ handleProcessesChanged, currentConfigs }) => {
     }
 
     function handleProcessNameChanged(e, index) {
-        const currentProcessesCopy = [...currentConfigs];
+        const currentProcessesCopy = [...currentProcess];
         currentProcessesCopy[index] = {
             ...currentProcessesCopy[index],
             ...{ process: e.target.value },
@@ -210,7 +210,7 @@ const ProcessesContainer = ({ handleProcessesChanged, currentConfigs }) => {
     }
 
     function handleBusinessProcessChanged(newValue, index) {
-        const currentProcessesCopy = [...currentConfigs];
+        const currentProcessesCopy = [...currentProcess];
         currentProcessesCopy[index] = {
             ...currentProcessesCopy[index],
             ...{ businessProcess: newValue },
@@ -219,7 +219,7 @@ const ProcessesContainer = ({ handleProcessesChanged, currentConfigs }) => {
     }
 
     function handleProcessAlgorithmChanged(e, index) {
-        const currentProcessesCopy = [...currentConfigs];
+        const currentProcessesCopy = [...currentProcess];
         currentProcessesCopy[index] = {
             ...currentProcessesCopy[index],
             ...{ runBalancesAdjustment: e.target.value },
@@ -228,13 +228,13 @@ const ProcessesContainer = ({ handleProcessesChanged, currentConfigs }) => {
     }
 
     function handleDeleteProcess(index) {
-        const currentProcessesCopy = [...currentConfigs];
+        const currentProcessesCopy = [...currentProcess];
         currentProcessesCopy.splice(index, 1);
         handleProcessesChanged(currentProcessesCopy);
     }
 
     function handleProcessTsosChanged(index, tsosList) {
-        const currentProcessesCopy = [...currentConfigs];
+        const currentProcessesCopy = [...currentProcess];
         currentProcessesCopy[index] = {
             ...currentProcessesCopy[index],
             ...{ tsos: tsosList },
@@ -252,12 +252,12 @@ const ProcessesContainer = ({ handleProcessesChanged, currentConfigs }) => {
                     <FormattedMessage id="tsos" />
                 </Grid>
             </Grid>
-            {currentConfigs.map((process, index) => (
+            {currentProcess.map((process, index) => (
                 <Grid
                     container
                     spacing={1}
                     className={classes.addNewTso}
-                    key={'processEdit' + index}
+                    key={process.id || 'process' + index}
                 >
                     {/* Process input*/}
                     <Grid container item xs={12} sm={5}>
@@ -366,9 +366,9 @@ const ProcessesContainer = ({ handleProcessesChanged, currentConfigs }) => {
     );
 };
 
-const ProcessesConfiguration = ({ open, onClose, matchProcess }) => {
+const ProcessesConfigurationDialog = ({ open, onClose, matchProcess }) => {
     const configs = useSelector((state) => state.configs);
-    const [processes, setProcesses] = useState(configs);
+    const [processes, setProcesses] = useState([]);
     const [confirmSave, setConfirmSave] = useState(false);
     const dispatch = useDispatch();
     const history = useHistory();
@@ -412,33 +412,14 @@ const ProcessesConfiguration = ({ open, onClose, matchProcess }) => {
     };
 
     const areDifferent = (initialProcess, currentProcess) => {
-        let isDifferent = false;
-        let processTsosWithoutId = currentProcess.tsos;
-
-        processTsosWithoutId.every((e) => {
-            let index = initialProcess.tsos.findIndex((res) => res === e);
-            if (index === -1) {
-                isDifferent = true;
-                return false;
-            }
-            return true;
-        });
-
-        if (isDifferent) {
-            return true;
-        }
-
-        initialProcess.tsos.every((e) => {
-            let index = processTsosWithoutId.findIndex((res) => res === e);
-            if (index === -1) {
-                isDifferent = true;
-                return false;
-            }
-            return true;
-        });
+        const initialsTSOs = new Set(initialProcess.tsos);
+        const currentTSOs = new Set(currentProcess.tsos);
+        const areTsoListsIdentical =
+            initialsTSOs.size === currentTSOs.size &&
+            [...currentTSOs].every((tso) => initialsTSOs.has(tso));
 
         return (
-            isDifferent ||
+            !areTsoListsIdentical ||
             initialProcess.runBalancesAdjustment !==
                 currentProcess.runBalancesAdjustment ||
             initialProcess.businessProcess !== currentProcess.businessProcess
@@ -479,8 +460,9 @@ const ProcessesConfiguration = ({ open, onClose, matchProcess }) => {
             }
         }
 
-        Promise.all(promises).then(() => {
-            fetchMergeConfigs().then((configs) => {
+        Promise.all(promises)
+            .then(fetchMergeConfigs)
+            .then((configs) => {
                 dispatch(initProcesses(configs));
                 if (
                     matchProcess !== null &&
@@ -492,11 +474,15 @@ const ProcessesConfiguration = ({ open, onClose, matchProcess }) => {
                 }
                 onClose();
             });
-        });
     };
 
     const handleProcessesChanged = (processes) => {
         setProcesses(processes);
+    };
+
+    const cancel = () => {
+        setProcesses(configs);
+        onClose();
     };
 
     return (
@@ -521,7 +507,7 @@ const ProcessesConfiguration = ({ open, onClose, matchProcess }) => {
                         </h3>
                     ) : (
                         <ProcessesContainer
-                            currentConfigs={processes}
+                            currentProcess={processes}
                             handleProcessesChanged={handleProcessesChanged}
                         />
                     )}
@@ -529,7 +515,7 @@ const ProcessesConfiguration = ({ open, onClose, matchProcess }) => {
                         processesToBeDeleted().map((e) => <h3 key={e}>{e}</h3>)}
                 </DialogContent>
                 <DialogActions>
-                    <Button autoFocus size="small" onClick={onClose}>
+                    <Button autoFocus size="small" onClick={cancel}>
                         <FormattedMessage id="cancel" />
                     </Button>
                     <Button
@@ -545,9 +531,9 @@ const ProcessesConfiguration = ({ open, onClose, matchProcess }) => {
     );
 };
 
-ProcessesConfiguration.propTypes = {
+ProcessesConfigurationDialog.propTypes = {
     open: PropTypes.bool.isRequired,
     onClose: PropTypes.func.isRequired,
     matchProcess: PropTypes.object,
 };
-export default ProcessesConfiguration;
+export default ProcessesConfigurationDialog;
