@@ -366,7 +366,7 @@ const ProcessesContainer = ({ handleProcessesChanged, currentProcess }) => {
 };
 
 function addReactKeyToProcesses(list) {
-    return [...list].map(({ tsos, ...item }) => {
+    return list.map(({ tsos, ...item }) => {
         return {
             ...item,
             ...{
