@@ -507,11 +507,11 @@ const ProcessesConfigurationDialog = ({ open, onClose, matchProcess }) => {
         <>
             <Dialog
                 open={open}
-                onClose={onClose}
+                onClose={cancel}
                 maxWidth={'lg'}
                 fullWidth={true}
             >
-                <CustomDialogTitle id="form-dialog-title" onClose={onClose}>
+                <CustomDialogTitle id="form-dialog-title" onClose={cancel}>
                     {confirmSave ? (
                         <FormattedMessage id="deletionProcessesTitle" />
                     ) : (
