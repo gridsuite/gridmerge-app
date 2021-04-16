@@ -19,11 +19,10 @@ import TextField from '@material-ui/core/TextField';
 import Grid from '@material-ui/core/Grid';
 import DeleteIcon from '@material-ui/icons/Delete';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
-import { useIntl } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 
-import { withStyles, makeStyles } from '@material-ui/core/styles';
-import { FormattedMessage } from 'react-intl';
+import { makeStyles, withStyles } from '@material-ui/core/styles';
 import {
     createProcess,
     deleteProcess,
@@ -110,13 +109,13 @@ const ProcessTsos = ({ tsosList, processIndex, handleProcessTsosChanged }) => {
 
     const handleTsoSourcingActorChanged = (newValue, index) => {
         const processTsosCopy = [...tsosList];
-        processTsosCopy[index] = newValue;
+        processTsosCopy[index].name = newValue;
         handleProcessTsosChanged(processIndex, processTsosCopy);
     };
 
     const handleAddProcessTso = () => {
         const processTsosCopy = [...tsosList];
-        processTsosCopy.push('');
+        processTsosCopy.push({ name: '', reactKey: keyGenerator() });
         handleProcessTsosChanged(processIndex, processTsosCopy);
     };
 
@@ -129,11 +128,11 @@ const ProcessTsos = ({ tsosList, processIndex, handleProcessTsosChanged }) => {
     return (
         <>
             {tsosList.map((tso, index) => (
-                <Grid container spacing={2} key={tso || index}>
+                <Grid container spacing={2} key={tso.reactKey}>
                     <Grid item xs={12} sm={10}>
                         <Autocomplete
                             id="select_tsos_process"
-                            value={tsosCodesList.indexOf(tso)}
+                            value={tsosCodesList.indexOf(tso.name)}
                             disableClearable
                             autoHighlight
                             onChange={(event, newValue) => {
@@ -191,10 +190,10 @@ const ProcessesContainer = ({ handleProcessesChanged, currentProcess }) => {
     function handleAddProcess() {
         const currentProcessesCopy = [...currentProcess];
         currentProcessesCopy.push({
-            id: keyGenerator(),
+            reactKey: keyGenerator(),
             process: '',
             businessProcess: '',
-            tsos: [''],
+            tsos: [{ name: '', reactKey: keyGenerator() }],
             runBalancesAdjustment: false,
         });
         handleProcessesChanged(currentProcessesCopy);
@@ -257,7 +256,7 @@ const ProcessesContainer = ({ handleProcessesChanged, currentProcess }) => {
                     container
                     spacing={1}
                     className={classes.addNewTso}
-                    key={process.id || 'process' + index}
+                    key={process.reactKey}
                 >
                     {/* Process input*/}
                     <Grid container item xs={12} sm={5}>
@@ -366,6 +365,23 @@ const ProcessesContainer = ({ handleProcessesChanged, currentProcess }) => {
     );
 };
 
+function addReactKeyToProcesses(list) {
+    return [...list].map(({ tsos, ...item }) => {
+        return {
+            ...item,
+            ...{
+                reactKey: keyGenerator(),
+                tsos: tsos.map((tso) => {
+                    return {
+                        name: tso,
+                        reactKey: keyGenerator(),
+                    };
+                }),
+            },
+        };
+    });
+}
+
 const ProcessesConfigurationDialog = ({ open, onClose, matchProcess }) => {
     const configs = useSelector((state) => state.configs);
     const [processes, setProcesses] = useState([]);
@@ -377,7 +393,7 @@ const ProcessesConfigurationDialog = ({ open, onClose, matchProcess }) => {
         setConfirmSave(false);
     }, [open]);
 
-    useEffect(() => setProcesses(configs), [configs]);
+    useEffect(() => setProcesses(addReactKeyToProcesses(configs)), [configs]);
 
     const saveButtonClicked = () => {
         if (processesToBeDeleted().length === 0) {
@@ -407,13 +423,15 @@ const ProcessesConfigurationDialog = ({ open, onClose, matchProcess }) => {
             process: process.process,
             businessProcess: process.businessProcess,
             runBalancesAdjustment: process.runBalancesAdjustment,
-            tsos: process.tsos,
+            tsos: process.tsos.map((tso) => tso.name),
         };
     };
 
     const areDifferent = (initialProcess, currentProcess) => {
         const initialsTSOs = new Set(initialProcess.tsos);
-        const currentTSOs = new Set(currentProcess.tsos);
+        const currentTSOs = new Set(
+            [...currentProcess.tsos].map((tso) => tso.name)
+        );
         const areTsoListsIdentical =
             initialsTSOs.size === currentTSOs.size &&
             [...currentTSOs].every((tso) => initialsTSOs.has(tso));
@@ -481,7 +499,7 @@ const ProcessesConfigurationDialog = ({ open, onClose, matchProcess }) => {
     };
 
     const cancel = () => {
-        setProcesses(configs);
+        setProcesses(addReactKeyToProcesses(configs));
         onClose();
     };
 
