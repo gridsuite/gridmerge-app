@@ -87,17 +87,13 @@ const keyGenerator = (() => {
     return () => key++;
 })();
 
-const ProcessTsos = ({ tsosList, processIndex, handleProcessTsosChanged }) => {
+const ProcessTsos = ({
+    tsosList,
+    processIndex,
+    handleProcessTsosChanged,
+    authorizedTsosCodes,
+}) => {
     const intl = useIntl();
-
-    const [tsosCodesList, setTsosCodesList] = useState([]);
-
-    useEffect(() => {
-        // fetching list of authorized tsos
-        fetchTsosList().then((res) => {
-            setTsosCodesList(res);
-        });
-    }, []);
 
     const handleTsoSourcingActorChanged = (newValue, index) => {
         const processTsosCopy = [...tsosList];
@@ -124,18 +120,18 @@ const ProcessTsos = ({ tsosList, processIndex, handleProcessTsosChanged }) => {
                     <Grid item xs={12} sm={10}>
                         <Autocomplete
                             id="select_tsos_process"
-                            value={tsosCodesList.indexOf(tso.name)}
+                            value={authorizedTsosCodes.indexOf(tso.name)}
                             disableClearable
                             autoHighlight
                             onChange={(event, newValue) => {
                                 handleTsoSourcingActorChanged(
-                                    tsosCodesList[newValue],
+                                    authorizedTsosCodes[newValue],
                                     index
                                 );
                             }}
-                            options={Object.keys(tsosCodesList)}
+                            options={Object.keys(authorizedTsosCodes)}
                             getOptionLabel={(code) =>
-                                code !== -1 ? tsosCodesList[code] : ''
+                                code !== -1 ? authorizedTsosCodes[code] : ''
                             }
                             getOptionSelected={(option, value) =>
                                 option.value === value.value
@@ -179,7 +175,11 @@ const ProcessesContainer = ({ handleProcessesChanged, currentProcess }) => {
     const classes = useStyles();
     const intl = useIntl();
 
-    const [businessProcessList, setBusinessProcessList] = useState([]);
+    const [authorizedTsosCodes, setAuthorizedTsosCodes] = useState([]);
+    const [
+        authorizedBusinessProcesses,
+        setAuthorizedBusinessProcesses,
+    ] = useState([]);
 
     function handleAddProcess() {
         const currentProcessesCopy = [...currentProcess];
@@ -236,9 +236,12 @@ const ProcessesContainer = ({ handleProcessesChanged, currentProcess }) => {
     }
 
     useEffect(() => {
-        // fetching list of authorized business processes
+        // fetching list of authorized business processes and tsos codes
         fetchBusinessProcessesList().then((res) => {
-            setBusinessProcessList(res);
+            setAuthorizedBusinessProcesses(res);
+        });
+        fetchTsosList().then((res) => {
+            setAuthorizedTsosCodes(res);
         });
     }, []);
 
@@ -277,22 +280,26 @@ const ProcessesContainer = ({ handleProcessesChanged, currentProcess }) => {
                             />
                             <Autocomplete
                                 id="select_business_process"
-                                value={businessProcessList.indexOf(
+                                value={authorizedBusinessProcesses.indexOf(
                                     process.businessProcess
                                 )}
                                 disableClearable
                                 autoHighlight
                                 onChange={(event, newValue) => {
                                     handleBusinessProcessChanged(
-                                        businessProcessList[newValue],
+                                        authorizedBusinessProcesses[newValue],
                                         index
                                     );
                                 }}
-                                options={Object.keys(businessProcessList)}
+                                options={Object.keys(
+                                    authorizedBusinessProcesses
+                                )}
                                 size="small"
                                 style={{ marginTop: 15, marginBottom: 5 }}
                                 getOptionLabel={(code) =>
-                                    code !== -1 ? businessProcessList[code] : ''
+                                    code !== -1
+                                        ? authorizedBusinessProcesses[code]
+                                        : ''
                                 }
                                 getOptionSelected={(option, value) =>
                                     option.value === value.value
@@ -346,6 +353,7 @@ const ProcessesContainer = ({ handleProcessesChanged, currentProcess }) => {
                             tsosList={process.tsos}
                             processIndex={index}
                             handleProcessTsosChanged={handleProcessTsosChanged}
+                            authorizedTsosCodes={authorizedTsosCodes}
                         />
                     </Grid>
                 </Grid>
