@@ -19,11 +19,10 @@ import TextField from '@material-ui/core/TextField';
 import Grid from '@material-ui/core/Grid';
 import DeleteIcon from '@material-ui/icons/Delete';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
-import { useIntl } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 
-import { withStyles, makeStyles } from '@material-ui/core/styles';
-import { FormattedMessage } from 'react-intl';
+import { makeStyles, withStyles } from '@material-ui/core/styles';
 import {
     createProcess,
     deleteProcess,
@@ -105,61 +104,35 @@ const keyGenerator = (() => {
     return () => key++;
 })();
 
-const ProcessTsos = ({
-    initialTsos,
-    processIndex,
-    handleProcessTsosChanged,
-}) => {
+const ProcessTsos = ({ tsosList, processIndex, handleProcessTsosChanged }) => {
     const intl = useIntl();
-    // processTsos copies will be deleted in an upcoming PR
-    const [processTsos, setProcessTsos] = useState(
-        initialTsos.map((e) => {
-            return {
-                id: keyGenerator(),
-                sourcingActor: e,
-            };
-        })
-    );
-
-    useEffect(() => {
-        handleProcessTsosChanged(processIndex, processTsos);
-        // Do not add handleProcessTsosChanged as dependency to avoid infinite loop
-        // To be changed
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [processTsos]);
 
     const handleTsoSourcingActorChanged = (newValue, index) => {
-        const processTsosCopy = [...processTsos];
-        processTsosCopy[index] = {
-            id: processTsosCopy[index].id,
-            sourcingActor: newValue,
-        };
-        setProcessTsos(processTsosCopy);
+        const processTsosCopy = [...tsosList];
+        processTsosCopy[index].name = newValue;
+        handleProcessTsosChanged(processIndex, processTsosCopy);
     };
 
     const handleAddProcessTso = () => {
-        const processTsosCopy = [...processTsos];
-        processTsosCopy.push({
-            id: keyGenerator(),
-            sourcingActor: '',
-        });
-        setProcessTsos(processTsosCopy);
+        const processTsosCopy = [...tsosList];
+        processTsosCopy.push({ name: '', reactKey: keyGenerator() });
+        handleProcessTsosChanged(processIndex, processTsosCopy);
     };
 
     const handleRemoveProcessTso = (index) => {
-        const processTsosCopy = [...processTsos];
+        const processTsosCopy = [...tsosList];
         processTsosCopy.splice(index, 1);
-        setProcessTsos(processTsosCopy);
+        handleProcessTsosChanged(processIndex, processTsosCopy);
     };
 
     return (
         <>
-            {processTsos.map((tso, index) => (
-                <Grid container spacing={2} key={tso.id}>
+            {tsosList.map((tso, index) => (
+                <Grid container spacing={2} key={tso.reactKey}>
                     <Grid item xs={12} sm={10}>
                         <Autocomplete
                             id="select_tsos_process"
-                            value={tsosCodesList.indexOf(tso.sourcingActor)}
+                            value={tsosCodesList.indexOf(tso.name)}
                             disableClearable
                             autoHighlight
                             onChange={(event, newValue) => {
@@ -210,97 +183,63 @@ const ProcessTsos = ({
     );
 };
 
-const ProcessesContainer = ({ handleProcessesChanged, initialConfigs }) => {
+const ProcessesContainer = ({ handleProcessesChanged, currentProcess }) => {
     const classes = useStyles();
     const intl = useIntl();
 
-    const [currentProcesses, setCurrentProcesses] = useState([
-        ...initialConfigs.map((e) => {
-            return { id: keyGenerator(), ...e };
-        }),
-        {
-            id: keyGenerator(),
-            process: '',
-            businessProcess: '',
-            tsos: [''],
-            runBalancesAdjustment: false,
-        },
-    ]);
-
     function handleAddProcess() {
-        const currentProcessesCopy = [...currentProcesses];
+        const currentProcessesCopy = [...currentProcess];
         currentProcessesCopy.push({
-            id: keyGenerator(),
+            reactKey: keyGenerator(),
             process: '',
             businessProcess: '',
-            tsos: [''],
+            tsos: [{ name: '', reactKey: keyGenerator() }],
             runBalancesAdjustment: false,
         });
-        setCurrentProcesses(currentProcessesCopy);
+        handleProcessesChanged(currentProcessesCopy);
     }
 
     function handleProcessNameChanged(e, index) {
-        const currentProcessesCopy = [...currentProcesses];
+        const currentProcessesCopy = [...currentProcess];
         currentProcessesCopy[index] = {
-            id: currentProcessesCopy[index].id,
-            process: e.target.value,
-            businessProcess: currentProcessesCopy[index].businessProcess,
-            tsos: currentProcessesCopy[index].tsos,
-            runBalancesAdjustment:
-                currentProcessesCopy[index].runBalancesAdjustment,
+            ...currentProcessesCopy[index],
+            ...{ process: e.target.value },
         };
-        setCurrentProcesses(currentProcessesCopy);
+        handleProcessesChanged(currentProcessesCopy);
     }
 
     function handleBusinessProcessChanged(newValue, index) {
-        const currentProcessesCopy = [...currentProcesses];
+        const currentProcessesCopy = [...currentProcess];
         currentProcessesCopy[index] = {
-            id: currentProcessesCopy[index].id,
-            process: currentProcessesCopy[index].process,
-            businessProcess: newValue,
-            tsos: currentProcessesCopy[index].tsos,
-            runBalancesAdjustment:
-                currentProcessesCopy[index].runBalancesAdjustment,
+            ...currentProcessesCopy[index],
+            ...{ businessProcess: newValue },
         };
-        setCurrentProcesses(currentProcessesCopy);
+        handleProcessesChanged(currentProcessesCopy);
     }
 
     function handleProcessAlgorithmChanged(e, index) {
-        const currentProcessesCopy = [...currentProcesses];
+        const currentProcessesCopy = [...currentProcess];
         currentProcessesCopy[index] = {
-            id: currentProcessesCopy[index].id,
-            process: currentProcessesCopy[index].process,
-            businessProcess: currentProcessesCopy[index].businessProcess,
-            tsos: currentProcessesCopy[index].tsos,
-            runBalancesAdjustment: e.target.value,
+            ...currentProcessesCopy[index],
+            ...{ runBalancesAdjustment: e.target.value },
         };
-        setCurrentProcesses(currentProcessesCopy);
+        handleProcessesChanged(currentProcessesCopy);
     }
 
     function handleDeleteProcess(index) {
-        const currentProcessesCopy = [...currentProcesses];
+        const currentProcessesCopy = [...currentProcess];
         currentProcessesCopy.splice(index, 1);
-        setCurrentProcesses(currentProcessesCopy);
+        handleProcessesChanged(currentProcessesCopy);
     }
 
     function handleProcessTsosChanged(index, tsosList) {
-        const currentProcessesCopy = [...currentProcesses];
+        const currentProcessesCopy = [...currentProcess];
         currentProcessesCopy[index] = {
-            id: currentProcessesCopy[index].id,
-            process: currentProcessesCopy[index].process,
-            businessProcess: currentProcessesCopy[index].businessProcess,
-            tsos: tsosList.map((tso) => {
-                return tso.sourcingActor;
-            }),
-            runBalancesAdjustment:
-                currentProcessesCopy[index].runBalancesAdjustment,
+            ...currentProcessesCopy[index],
+            ...{ tsos: tsosList },
         };
-        setCurrentProcesses(currentProcessesCopy);
+        handleProcessesChanged(currentProcessesCopy);
     }
-
-    useEffect(() => {
-        handleProcessesChanged(currentProcesses);
-    }, [handleProcessesChanged, currentProcesses]);
 
     return (
         <div>
@@ -312,12 +251,12 @@ const ProcessesContainer = ({ handleProcessesChanged, initialConfigs }) => {
                     <FormattedMessage id="tsos" />
                 </Grid>
             </Grid>
-            {currentProcesses.map((process, index) => (
+            {currentProcess.map((process, index) => (
                 <Grid
                     container
                     spacing={1}
                     className={classes.addNewTso}
-                    key={process.id}
+                    key={process.reactKey}
                 >
                     {/* Process input*/}
                     <Grid container item xs={12} sm={5}>
@@ -403,7 +342,7 @@ const ProcessesContainer = ({ handleProcessesChanged, initialConfigs }) => {
                     {/* Tso inputs */}
                     <Grid item xs={12} sm={7}>
                         <ProcessTsos
-                            initialTsos={process.tsos}
+                            tsosList={process.tsos}
                             processIndex={index}
                             handleProcessTsosChanged={handleProcessTsosChanged}
                         />
@@ -426,9 +365,26 @@ const ProcessesContainer = ({ handleProcessesChanged, initialConfigs }) => {
     );
 };
 
-const ProcessesConfiguration = ({ open, onClose, matchProcess }) => {
-    const [processes, setProcesses] = useState([]);
+function addReactKeyToProcesses(list) {
+    return list.map(({ tsos, ...item }) => {
+        return {
+            ...item,
+            ...{
+                reactKey: keyGenerator(),
+                tsos: tsos.map((tso) => {
+                    return {
+                        name: tso,
+                        reactKey: keyGenerator(),
+                    };
+                }),
+            },
+        };
+    });
+}
+
+const ProcessesConfigurationDialog = ({ open, onClose, matchProcess }) => {
     const configs = useSelector((state) => state.configs);
+    const [processes, setProcesses] = useState([]);
     const [confirmSave, setConfirmSave] = useState(false);
     const dispatch = useDispatch();
     const history = useHistory();
@@ -436,6 +392,8 @@ const ProcessesConfiguration = ({ open, onClose, matchProcess }) => {
     useEffect(() => {
         setConfirmSave(false);
     }, [open]);
+
+    useEffect(() => setProcesses(addReactKeyToProcesses(configs)), [configs]);
 
     const saveButtonClicked = () => {
         if (processesToBeDeleted().length === 0) {
@@ -465,38 +423,21 @@ const ProcessesConfiguration = ({ open, onClose, matchProcess }) => {
             process: process.process,
             businessProcess: process.businessProcess,
             runBalancesAdjustment: process.runBalancesAdjustment,
-            tsos: process.tsos,
+            tsos: process.tsos.map((tso) => tso.name),
         };
     };
 
     const areDifferent = (initialProcess, currentProcess) => {
-        let isDifferent = false;
-        let processTsosWithoutId = currentProcess.tsos;
-
-        processTsosWithoutId.every((e) => {
-            let index = initialProcess.tsos.findIndex((res) => res === e);
-            if (index === -1) {
-                isDifferent = true;
-                return false;
-            }
-            return true;
-        });
-
-        if (isDifferent) {
-            return true;
-        }
-
-        initialProcess.tsos.every((e) => {
-            let index = processTsosWithoutId.findIndex((res) => res === e);
-            if (index === -1) {
-                isDifferent = true;
-                return false;
-            }
-            return true;
-        });
+        const initialsTSOs = new Set(initialProcess.tsos);
+        const currentTSOs = new Set(
+            [...currentProcess.tsos].map((tso) => tso.name)
+        );
+        const areTsoListsIdentical =
+            initialsTSOs.size === currentTSOs.size &&
+            [...currentTSOs].every((tso) => initialsTSOs.has(tso));
 
         return (
-            isDifferent ||
+            !areTsoListsIdentical ||
             initialProcess.runBalancesAdjustment !==
                 currentProcess.runBalancesAdjustment ||
             initialProcess.businessProcess !== currentProcess.businessProcess
@@ -537,8 +478,9 @@ const ProcessesConfiguration = ({ open, onClose, matchProcess }) => {
             }
         }
 
-        Promise.all(promises).then(() => {
-            fetchMergeConfigs().then((configs) => {
+        Promise.all(promises)
+            .then(fetchMergeConfigs)
+            .then((configs) => {
                 dispatch(initProcesses(configs));
                 if (
                     matchProcess !== null &&
@@ -550,22 +492,26 @@ const ProcessesConfiguration = ({ open, onClose, matchProcess }) => {
                 }
                 onClose();
             });
-        });
     };
 
     const handleProcessesChanged = (processes) => {
         setProcesses(processes);
     };
 
+    const cancel = () => {
+        setProcesses(addReactKeyToProcesses(configs));
+        onClose();
+    };
+
     return (
         <>
             <Dialog
                 open={open}
-                onClose={onClose}
+                onClose={cancel}
                 maxWidth={'lg'}
                 fullWidth={true}
             >
-                <CustomDialogTitle id="form-dialog-title" onClose={onClose}>
+                <CustomDialogTitle id="form-dialog-title" onClose={cancel}>
                     {confirmSave ? (
                         <FormattedMessage id="deletionProcessesTitle" />
                     ) : (
@@ -579,7 +525,7 @@ const ProcessesConfiguration = ({ open, onClose, matchProcess }) => {
                         </h3>
                     ) : (
                         <ProcessesContainer
-                            initialConfigs={configs}
+                            currentProcess={processes}
                             handleProcessesChanged={handleProcessesChanged}
                         />
                     )}
@@ -587,7 +533,7 @@ const ProcessesConfiguration = ({ open, onClose, matchProcess }) => {
                         processesToBeDeleted().map((e) => <h3 key={e}>{e}</h3>)}
                 </DialogContent>
                 <DialogActions>
-                    <Button autoFocus size="small" onClick={onClose}>
+                    <Button autoFocus size="small" onClick={cancel}>
                         <FormattedMessage id="cancel" />
                     </Button>
                     <Button
@@ -603,9 +549,9 @@ const ProcessesConfiguration = ({ open, onClose, matchProcess }) => {
     );
 };
 
-ProcessesConfiguration.propTypes = {
+ProcessesConfigurationDialog.propTypes = {
     open: PropTypes.bool.isRequired,
     onClose: PropTypes.func.isRequired,
     matchProcess: PropTypes.object,
 };
-export default ProcessesConfiguration;
+export default ProcessesConfigurationDialog;
