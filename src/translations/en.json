@@ -36,6 +36,6 @@
     "balanceAdjustment": "Balance adjustment",
     "loadflow": "Loadflow",
     "replaceIGM": "Replace missing IGM",
-    "ReplacedWith": "Replaced With",
+    "ReplacedWith": "Replaced with",
     "noReplacingIGMAvailable": "No replacing IGM available"
 }

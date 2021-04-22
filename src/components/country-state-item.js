@@ -23,7 +23,7 @@ const useStyles = makeStyles((theme) => ({
     },
     textReplace: {
         flexGrow: 1,
-        width: 80,
+        width: 120,
         whiteSpace: 'nowrap',
     },
     stateIcon: {
@@ -49,10 +49,13 @@ const CountryStateItem = (props) => {
 
     const status = getIgmStatus(props.tso, props.merge);
     const color = tsoColor(status);
-    const replacingDate = status.replacingDate
-        ? new Date(status.replacingDate).toLocaleString()
-        : undefined;
 
+    let replacedWith = status.replacingBusinessProcess
+        ? status.replacingBusinessProcess + ' '
+        : '';
+    if (status.replacingDate) {
+        replacedWith += new Date(status.replacingDate).toLocaleString();
+    }
     return (
         <Box className={classes.listItem}>
             <Grid container>
@@ -71,7 +74,7 @@ const CountryStateItem = (props) => {
                             {detail.countryName}
                         </Typography>
                     </Box>
-                    {replacingDate && (
+                    {replacedWith && (
                         <Box className={classes.textReplace}>
                             <Typography
                                 variant="body1"
@@ -79,8 +82,11 @@ const CountryStateItem = (props) => {
                             >
                                 {intl.formatMessage({ id: 'ReplacedWith' })}
                             </Typography>
-                            <Typography variant="caption">
-                                {replacingDate}
+                            <Typography
+                                variant="body1"
+                                className={classes.smallText}
+                            >
+                                {replacedWith}
                             </Typography>
                         </Box>
                     )}
