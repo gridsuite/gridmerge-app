@@ -18,6 +18,7 @@ const PREFIX_ORCHESTRATOR_QUERIES =
 const PREFIX_CONFIG_NOTIFICATION_WS =
     process.env.REACT_APP_WS_GATEWAY + '/config-notification';
 const PREFIX_CONFIG_QUERIES = process.env.REACT_APP_API_GATEWAY + '/config';
+const PREFIX_BOUNDARY_QUERIES = process.env.REACT_APP_API_GATEWAY + '/boundary';
 
 function getToken() {
     const state = store.getState();
@@ -306,6 +307,21 @@ export function replaceIGM(process, date) {
     return backendFetch(getReplaceIGMUrl(process, date), {
         method: 'put',
     }).then((response) => (response ? response.json() : null));
+}
+
+export function fetchTsosList() {
+    console.info('Fetching list of authorized tsos...');
+    const fetchTsosListUrl = PREFIX_BOUNDARY_QUERIES + '/v1/tsos';
+    return backendFetch(fetchTsosListUrl).then((response) => response.json());
+}
+
+export function fetchBusinessProcessesList() {
+    console.info('Fetching list of authorized business processes...');
+    const fetchBusinessProcessesListUrl =
+        PREFIX_BOUNDARY_QUERIES + '/v1/business-processes';
+    return backendFetch(fetchBusinessProcessesListUrl).then((response) =>
+        response.json()
+    );
 }
 
 export const MergeType = PropTypes.shape({
