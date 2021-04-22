@@ -1,7 +1,6 @@
 {
     "parameters": "Parameters",
-    "General": "General",
-    "theme": "Theme: ",
+    "gui": "GUI",
     "close": "Close",
     "downloadCgm": "Download CGM",
     "igmReception": "IGM uploading",
