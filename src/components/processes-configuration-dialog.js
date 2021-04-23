@@ -27,6 +27,8 @@ import {
     createProcess,
     deleteProcess,
     fetchMergeConfigs,
+    fetchTsosList,
+    fetchBusinessProcessesList,
 } from '../utils/rest-api';
 import { initProcesses } from '../redux/actions';
 import { useDispatch, useSelector } from 'react-redux';
@@ -62,25 +64,6 @@ const styles = () => ({
     },
 });
 
-let businessProcessList;
-let tsosCodesList;
-
-fetch('business_processes.txt')
-    .then((data) => {
-        return data.text();
-    })
-    .then((data) => {
-        businessProcessList = data.split('\n').sort();
-    });
-
-fetch('tsos_codes.txt')
-    .then((data) => {
-        return data.text();
-    })
-    .then((data) => {
-        tsosCodesList = data.split('\n').sort();
-    });
-
 const CustomDialogTitle = withStyles(styles)((props) => {
     const { children, classes, onClose, ...other } = props;
     return (
@@ -104,7 +87,12 @@ const keyGenerator = (() => {
     return () => key++;
 })();
 
-const ProcessTsos = ({ tsosList, processIndex, handleProcessTsosChanged }) => {
+const ProcessTsos = ({
+    tsosList,
+    processIndex,
+    handleProcessTsosChanged,
+    authorizedTsosCodes,
+}) => {
     const intl = useIntl();
 
     const handleTsoSourcingActorChanged = (newValue, index) => {
@@ -132,18 +120,18 @@ const ProcessTsos = ({ tsosList, processIndex, handleProcessTsosChanged }) => {
                     <Grid item xs={12} sm={10}>
                         <Autocomplete
                             id="select_tsos_process"
-                            value={tsosCodesList.indexOf(tso.name)}
+                            value={authorizedTsosCodes.indexOf(tso.name)}
                             disableClearable
                             autoHighlight
                             onChange={(event, newValue) => {
                                 handleTsoSourcingActorChanged(
-                                    tsosCodesList[newValue],
+                                    authorizedTsosCodes[newValue],
                                     index
                                 );
                             }}
-                            options={Object.keys(tsosCodesList)}
+                            options={Object.keys(authorizedTsosCodes)}
                             getOptionLabel={(code) =>
-                                code !== -1 ? tsosCodesList[code] : ''
+                                code !== -1 ? authorizedTsosCodes[code] : ''
                             }
                             getOptionSelected={(option, value) =>
                                 option.value === value.value
@@ -186,6 +174,12 @@ const ProcessTsos = ({ tsosList, processIndex, handleProcessTsosChanged }) => {
 const ProcessesContainer = ({ handleProcessesChanged, currentProcess }) => {
     const classes = useStyles();
     const intl = useIntl();
+
+    const [authorizedTsosCodes, setAuthorizedTsosCodes] = useState([]);
+    const [
+        authorizedBusinessProcesses,
+        setAuthorizedBusinessProcesses,
+    ] = useState([]);
 
     function handleAddProcess() {
         const currentProcessesCopy = [...currentProcess];
@@ -241,6 +235,16 @@ const ProcessesContainer = ({ handleProcessesChanged, currentProcess }) => {
         handleProcessesChanged(currentProcessesCopy);
     }
 
+    useEffect(() => {
+        // fetching list of authorized business processes and tsos codes
+        fetchBusinessProcessesList().then((res) => {
+            setAuthorizedBusinessProcesses(res);
+        });
+        fetchTsosList().then((res) => {
+            setAuthorizedTsosCodes(res);
+        });
+    }, []);
+
     return (
         <div>
             <Grid container className={classes.newTsoContainerLabel}>
@@ -276,22 +280,26 @@ const ProcessesContainer = ({ handleProcessesChanged, currentProcess }) => {
                             />
                             <Autocomplete
                                 id="select_business_process"
-                                value={businessProcessList.indexOf(
+                                value={authorizedBusinessProcesses.indexOf(
                                     process.businessProcess
                                 )}
                                 disableClearable
                                 autoHighlight
                                 onChange={(event, newValue) => {
                                     handleBusinessProcessChanged(
-                                        businessProcessList[newValue],
+                                        authorizedBusinessProcesses[newValue],
                                         index
                                     );
                                 }}
-                                options={Object.keys(businessProcessList)}
+                                options={Object.keys(
+                                    authorizedBusinessProcesses
+                                )}
                                 size="small"
                                 style={{ marginTop: 15, marginBottom: 5 }}
                                 getOptionLabel={(code) =>
-                                    code !== -1 ? businessProcessList[code] : ''
+                                    code !== -1
+                                        ? authorizedBusinessProcesses[code]
+                                        : ''
                                 }
                                 getOptionSelected={(option, value) =>
                                     option.value === value.value
@@ -345,6 +353,7 @@ const ProcessesContainer = ({ handleProcessesChanged, currentProcess }) => {
                             tsosList={process.tsos}
                             processIndex={index}
                             handleProcessTsosChanged={handleProcessTsosChanged}
+                            authorizedTsosCodes={authorizedTsosCodes}
                         />
                     </Grid>
                 </Grid>
