@@ -214,6 +214,7 @@ export function getIgmStatus(tso, merge) {
                 };
 
             case 'FIRST_LOADFLOW_SUCCEED':
+            case 'LOADFLOW_SUCCEED': // for backward compatibility
                 return {
                     status: IgmStatus.MERGED,
                     cgmStatus: CgmStatus.VALID,
