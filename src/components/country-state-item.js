@@ -78,7 +78,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-const CountryStateIcon = (status) => {
+const CountryStateIcon = ({ status }) => {
     const classes = useStyles();
 
     const igmStatus = status.status;
