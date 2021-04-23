@@ -78,30 +78,30 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-const CountryStateIcon = (props) => {
+const CountryStateIcon = (status) => {
     const classes = useStyles();
 
-    const status = props.status.status;
-    const cgmStatus = props.status.cgmStatus;
+    const igmStatus = status.status;
+    const cgmStatus = status.cgmStatus;
 
     let colorClass = classes.success;
-    if (cgmStatus === CgmStatus.VALID_WARNING) {
+    if (cgmStatus === CgmStatus.VALID_WITH_WARNING) {
         colorClass = classes.warning;
     } else if (cgmStatus === CgmStatus.INVALID) {
         colorClass = classes.error;
     }
 
-    return status === IgmStatus.ABSENT ? (
+    return igmStatus === IgmStatus.ABSENT ? (
         <HourglassEmptyIcon
             className={`${classes.stateIcon} ${classes.waiting}`}
         />
-    ) : status === IgmStatus.AVAILABLE ? (
+    ) : igmStatus === IgmStatus.AVAILABLE ? (
         <LoopIcon className={`${classes.stateIcon} ${classes.loading}`} />
-    ) : status === IgmStatus.INVALID ? (
+    ) : igmStatus === IgmStatus.INVALID ? (
         <WarningIcon className={`${classes.stateIcon} ${classes.error}`} />
-    ) : status === IgmStatus.VALID ? (
+    ) : igmStatus === IgmStatus.VALID ? (
         <MergeIcon className={`${classes.stateIcon} ${classes.success}`} />
-    ) : status === IgmStatus.MERGED ? (
+    ) : igmStatus === IgmStatus.MERGED ? (
         <DoneIcon
             color="secondary"
             className={`${classes.stateIcon} ${colorClass}`}

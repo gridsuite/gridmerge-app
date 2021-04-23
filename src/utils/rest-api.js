@@ -181,7 +181,7 @@ export function removeTime(date) {
 
 export const CgmStatus = {
     VALID: 'valid',
-    VALID_WARNING: 'valid_with_warnings',
+    VALID_WITH_WARNING: 'valid_with_warnings',
     INVALID: 'invalid',
 };
 
@@ -225,7 +225,7 @@ export function getIgmStatus(tso, merge) {
             case 'THIRD_LOADFLOW_SUCCEED':
                 return {
                     status: IgmStatus.MERGED,
-                    cgmStatus: CgmStatus.VALID_WARNING,
+                    cgmStatus: CgmStatus.VALID_WITH_WARNING,
                     replacingDate: igm.replacingDate,
                     replacingBusinessProcess: igm.replacingBusinessProcess,
                 };
