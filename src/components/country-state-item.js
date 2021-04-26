@@ -9,7 +9,7 @@ import { Box, Divider, Grid, Typography } from '@material-ui/core';
 import LensIcon from '@material-ui/icons/Lens';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
-import { getIgmStatus, MergeType, CgmStatus } from '../utils/rest-api';
+import { getIgmStatus, MergeType } from '../utils/rest-api';
 import { getDetailsByCountryOrTso } from '../utils/tso-country-details';
 import { tsoColor } from './merge-map';
 import { useIntl } from 'react-intl';
