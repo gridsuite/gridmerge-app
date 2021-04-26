@@ -13,7 +13,12 @@ import WarningIcon from '@material-ui/icons/WarningOutlined';
 import MergeIcon from '@material-ui/icons/DoubleArrowOutlined';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
-import { getIgmStatus, IgmStatus, MergeType } from '../utils/rest-api';
+import {
+    getIgmStatus,
+    IgmStatus,
+    MergeType,
+    CgmStatus,
+} from '../utils/rest-api';
 import { getDetailsByCountryOrTso } from '../utils/tso-country-details';
 
 const useStyles = makeStyles((theme) => ({
@@ -30,6 +35,9 @@ const useStyles = makeStyles((theme) => ({
     },
     error: {
         color: '#D8404D',
+    },
+    warning: {
+        color: '#FFA500',
     },
     flagIcon: {
         marginTop: 14,
@@ -70,6 +78,39 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
+const CountryStateIcon = ({ status }) => {
+    const classes = useStyles();
+
+    const igmStatus = status.status;
+    const cgmStatus = status.cgmStatus;
+
+    let colorClass = classes.success;
+    if (cgmStatus === CgmStatus.VALID_WITH_WARNING) {
+        colorClass = classes.warning;
+    } else if (cgmStatus === CgmStatus.INVALID) {
+        colorClass = classes.error;
+    }
+
+    return igmStatus === IgmStatus.ABSENT ? (
+        <HourglassEmptyIcon
+            className={`${classes.stateIcon} ${classes.waiting}`}
+        />
+    ) : igmStatus === IgmStatus.AVAILABLE ? (
+        <LoopIcon className={`${classes.stateIcon} ${classes.loading}`} />
+    ) : igmStatus === IgmStatus.INVALID ? (
+        <WarningIcon className={`${classes.stateIcon} ${classes.error}`} />
+    ) : igmStatus === IgmStatus.VALID ? (
+        <MergeIcon className={`${classes.stateIcon} ${classes.success}`} />
+    ) : igmStatus === IgmStatus.MERGED ? (
+        <DoneIcon
+            color="secondary"
+            className={`${classes.stateIcon} ${colorClass}`}
+        />
+    ) : (
+        ''
+    );
+};
+
 const CountryStateItem = (props) => {
     const classes = useStyles();
 
@@ -85,30 +126,7 @@ const CountryStateItem = (props) => {
                     xs={12}
                     style={{ display: 'flex', width: '100%', padding: 8 }}
                 >
-                    {status.status === IgmStatus.ABSENT ? (
-                        <HourglassEmptyIcon
-                            className={`${classes.stateIcon} ${classes.waiting}`}
-                        />
-                    ) : status.status === IgmStatus.AVAILABLE ? (
-                        <LoopIcon
-                            className={`${classes.stateIcon} ${classes.loading}`}
-                        />
-                    ) : status.status === IgmStatus.INVALID ? (
-                        <WarningIcon
-                            className={`${classes.stateIcon} ${classes.error}`}
-                        />
-                    ) : status.status === IgmStatus.VALID ? (
-                        <MergeIcon
-                            className={`${classes.stateIcon} ${classes.success}`}
-                        />
-                    ) : status.status === IgmStatus.MERGED ? (
-                        <DoneIcon
-                            color="secondary"
-                            className={`${classes.stateIcon} ${classes.success}`}
-                        />
-                    ) : (
-                        ''
-                    )}
+                    <CountryStateIcon status={status} />
                     <Box className={classes.textColumn}>
                         <Typography variant="body1">
                             {detail.countryName}
