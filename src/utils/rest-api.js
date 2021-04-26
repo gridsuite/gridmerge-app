@@ -18,6 +18,7 @@ const PREFIX_ORCHESTRATOR_QUERIES =
 const PREFIX_CONFIG_NOTIFICATION_WS =
     process.env.REACT_APP_WS_GATEWAY + '/config-notification';
 const PREFIX_CONFIG_QUERIES = process.env.REACT_APP_API_GATEWAY + '/config';
+const PREFIX_BOUNDARY_QUERIES = process.env.REACT_APP_API_GATEWAY + '/boundary';
 
 function getToken() {
     const state = store.getState();
@@ -178,6 +179,12 @@ export function removeTime(date) {
     return new Date(date.toDateString());
 }
 
+export const CgmStatus = {
+    VALID: 'valid',
+    VALID_WITH_WARNING: 'valid_with_warnings',
+    INVALID: 'invalid',
+};
+
 export const IgmStatus = {
     ABSENT: 'absent',
     AVAILABLE: 'available',
@@ -199,15 +206,39 @@ export function getIgmStatus(tso, merge) {
     if (merge.status) {
         switch (merge.status) {
             case 'BALANCE_ADJUSTMENT_SUCCEED':
-            case 'LOADFLOW_SUCCEED':
                 return {
                     status: IgmStatus.MERGED,
+                    cgmStatus: CgmStatus.VALID,
                     replacingDate: igm.replacingDate,
                     replacingBusinessProcess: igm.replacingBusinessProcess,
                 };
 
-            case 'BALANCE_ADJUSTMENT_FAILED':
+            case 'FIRST_LOADFLOW_SUCCEED':
+            case 'LOADFLOW_SUCCEED': // for backward compatibility
+                return {
+                    status: IgmStatus.MERGED,
+                    cgmStatus: CgmStatus.VALID,
+                    replacingDate: igm.replacingDate,
+                    replacingBusinessProcess: igm.replacingBusinessProcess,
+                };
+
+            case 'SECOND_LOADFLOW_SUCCEED':
+            case 'THIRD_LOADFLOW_SUCCEED':
+                return {
+                    status: IgmStatus.MERGED,
+                    cgmStatus: CgmStatus.VALID_WITH_WARNING,
+                    replacingDate: igm.replacingDate,
+                    replacingBusinessProcess: igm.replacingBusinessProcess,
+                };
+
             case 'LOADFLOW_FAILED':
+                return {
+                    status: IgmStatus.MERGED,
+                    cgmStatus: CgmStatus.INVALID,
+                    replacingDate: igm.replacingDate,
+                    replacingBusinessProcess: igm.replacingBusinessProcess,
+                };
+
             default:
                 throw Error('Status not supported');
         }
@@ -277,6 +308,21 @@ export function replaceIGM(process, date) {
     return backendFetch(getReplaceIGMUrl(process, date), {
         method: 'put',
     }).then((response) => (response ? response.json() : null));
+}
+
+export function fetchTsosList() {
+    console.info('Fetching list of authorized tsos...');
+    const fetchTsosListUrl = PREFIX_BOUNDARY_QUERIES + '/v1/tsos';
+    return backendFetch(fetchTsosListUrl).then((response) => response.json());
+}
+
+export function fetchBusinessProcessesList() {
+    console.info('Fetching list of authorized business processes...');
+    const fetchBusinessProcessesListUrl =
+        PREFIX_BOUNDARY_QUERIES + '/v1/business-processes';
+    return backendFetch(fetchBusinessProcessesListUrl).then((response) =>
+        response.json()
+    );
 }
 
 export const MergeType = PropTypes.shape({

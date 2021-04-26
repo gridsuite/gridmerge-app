@@ -44,7 +44,7 @@ import { FormattedMessage } from 'react-intl';
 import Process from './process';
 
 import Parameters from './parameters';
-import ProcessesConfiguration from './processes-configuration';
+import ProcessesConfigurationDialog from './processes-configuration-dialog';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Button from '@material-ui/core/Button';
@@ -358,7 +358,7 @@ const App = () => {
                                 >
                                     <FormattedMessage id="configureProcesses" />
                                 </Button>
-                                <ProcessesConfiguration
+                                <ProcessesConfigurationDialog
                                     open={showConfigurationProcesses}
                                     onClose={() => {
                                         setShowConfigurationProcesses(false);
