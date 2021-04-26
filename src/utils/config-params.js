@@ -8,10 +8,10 @@
 export const COMMON_APP_NAME = 'common';
 export const APP_NAME = 'merge';
 
-export const PARAMS_THEME_KEY = 'theme';
-export const PARAMS_TIMELINE_DIAGONAL_LABELS = 'timelineDiagonalLabel';
+export const PARAM_THEME = 'theme';
+export const PARAM_TIMELINE_DIAGONAL_LABELS = 'timelineDiagonalLabel';
 
-const COMMON_CONFIG_PARAMS_NAMES = new Set([PARAMS_THEME_KEY]);
+const COMMON_CONFIG_PARAMS_NAMES = new Set([PARAM_THEME]);
 
 export function getAppName(paramName) {
     return COMMON_CONFIG_PARAMS_NAMES.has(paramName)

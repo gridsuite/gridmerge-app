@@ -19,20 +19,28 @@ import {
 import { SIGNIN_CALLBACK_ERROR, USER } from '@gridsuite/commons-ui';
 import { removeTime } from '../utils/rest-api';
 import { getLocalStorageTheme, saveLocalStorageTheme } from './local-storage';
+import {
+    PARAM_THEME,
+    PARAM_TIMELINE_DIAGONAL_LABELS,
+} from '../utils/config-params';
+
+const paramsInitialState = {
+    [PARAM_THEME]: getLocalStorageTheme(),
+    [PARAM_TIMELINE_DIAGONAL_LABELS]: true,
+};
 
 const initialState = {
-    theme: getLocalStorageTheme(),
-    timelineDiagonalLabels: true,
     user: null,
     signInCallbackError: null,
     configs: [],
     processes: [],
+    ...paramsInitialState,
 };
 
 export const reducer = createReducer(initialState, {
     [SELECT_THEME]: (state, action) => {
-        state.theme = action.theme;
-        saveLocalStorageTheme(state.theme);
+        state[PARAM_THEME] = action[PARAM_THEME];
+        saveLocalStorageTheme(state[PARAM_THEME]);
     },
 
     [USER]: (state, action) => {
@@ -71,6 +79,7 @@ export const reducer = createReducer(initialState, {
     },
 
     [TIMELINE_DIAGONAL_LABELS]: (state, action) => {
-        state.timelineDiagonalLabels = action.timelineDiagonalLabels;
+        state[PARAM_TIMELINE_DIAGONAL_LABELS] =
+            action[PARAM_TIMELINE_DIAGONAL_LABELS];
     },
 });

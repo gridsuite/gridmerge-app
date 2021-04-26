@@ -43,7 +43,7 @@ import { FormattedMessage } from 'react-intl';
 
 import Process from './process';
 
-import Parameters from './parameters';
+import Parameters, { useParameterState } from './parameters';
 import ProcessesConfigurationDialog from './processes-configuration-dialog';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
@@ -54,7 +54,6 @@ import {
     fetchConfigParameter,
     fetchConfigParameters,
     fetchMergeConfigs,
-    updateConfigParameter,
 } from '../utils/rest-api';
 
 import { ReactComponent as GridMergeLogoDark } from '../images/GridMerge_logo_dark.svg';
@@ -62,8 +61,8 @@ import { ReactComponent as GridMergeLogoLight } from '../images/GridMerge_logo_l
 import {
     APP_NAME,
     COMMON_APP_NAME,
-    PARAMS_THEME_KEY,
-    PARAMS_TIMELINE_DIAGONAL_LABELS,
+    PARAM_THEME,
+    PARAM_TIMELINE_DIAGONAL_LABELS,
 } from '../utils/config-params';
 
 const PREFIX_URL_PROCESSES = '/processes';
@@ -104,9 +103,9 @@ const noUserManager = { instance: null, error: null };
 const App = () => {
     const configs = useSelector((state) => state.configs);
 
-    const theme = useSelector((state) => state.theme);
-
     const user = useSelector((state) => state.user);
+
+    const [themeLocal, handleChangeTheme] = useParameterState(PARAM_THEME);
 
     const signInCallbackError = useSelector(
         (state) => state.signInCallbackError
@@ -129,7 +128,7 @@ const App = () => {
 
     const classes = useStyles();
 
-    const [appsAndUrls, setAppsAndUrls] = React.useState([]);
+    const [appsAndUrls, setAppsAndUrls] = useState([]);
 
     const matchProcess = useRouteMatch({
         path: PREFIX_URL_PROCESSES + '/:processName',
@@ -150,10 +149,10 @@ const App = () => {
             console.debug('received UI parameters : ', params);
             params.forEach((param) => {
                 switch (param.name) {
-                    case PARAMS_THEME_KEY:
+                    case PARAM_THEME:
                         dispatch(selectTheme(param.value));
                         break;
-                    case PARAMS_TIMELINE_DIAGONAL_LABELS:
+                    case PARAM_TIMELINE_DIAGONAL_LABELS:
                         dispatch(
                             selectTimelineDiagonalLabels(param.value === 'true')
                         );
@@ -297,16 +296,12 @@ const App = () => {
         );
     }
 
-    const handleThemeClick = (theme) => {
-        updateConfigParameter(PARAMS_THEME_KEY, theme);
-    };
-
     const showPopupConfigurationProcesses = () => {
         setShowConfigurationProcesses(true);
     };
 
     return (
-        <ThemeProvider theme={getMuiTheme(theme)}>
+        <ThemeProvider theme={getMuiTheme(themeLocal)}>
             <SnackbarProvider hideIconVariant={false}>
                 <React.Fragment>
                     <CssBaseline />
@@ -314,7 +309,7 @@ const App = () => {
                         appName="Merge"
                         appColor="#2D9BF0"
                         appLogo={
-                            theme === LIGHT_THEME ? (
+                            themeLocal === LIGHT_THEME ? (
                                 <GridMergeLogoLight />
                             ) : (
                                 <GridMergeLogoDark />
@@ -327,8 +322,8 @@ const App = () => {
                         onLogoClick={() => onLogoClicked()}
                         user={user}
                         appsAndUrls={appsAndUrls}
-                        onThemeClick={handleThemeClick}
-                        theme={theme}
+                        onThemeClick={handleChangeTheme}
+                        theme={themeLocal}
                         onAboutClick={() => console.debug('about')}
                     >
                         <Tabs

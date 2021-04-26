@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import React from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import { FormattedMessage } from 'react-intl';
 
@@ -25,7 +25,7 @@ import Typography from '@material-ui/core/Typography';
 import Switch from '@material-ui/core/Switch';
 
 import { updateConfigParameter } from '../utils/rest-api';
-import { PARAMS_TIMELINE_DIAGONAL_LABELS } from '../utils/config-params';
+import { PARAM_TIMELINE_DIAGONAL_LABELS } from '../utils/config-params';
 
 const useStyles = makeStyles((theme) => ({
     controlItem: {
@@ -36,21 +36,33 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
+export function useParameterState(paramName) {
+    const paramGlobalState = useSelector((state) => state[paramName]);
+    const [paramLocalState, setParamLocalState] = useState();
+
+    useEffect(() => {
+        setParamLocalState(paramGlobalState);
+    }, [paramGlobalState]);
+
+    const handleChangeParamLocalState = useCallback(
+        (value) => {
+            setParamLocalState(value);
+            updateConfigParameter(paramName, value);
+        },
+        [paramName, setParamLocalState]
+    );
+    return [paramLocalState, handleChangeParamLocalState];
+}
+
 const Parameters = ({ showParameters, hideParameters }) => {
     const classes = useStyles();
 
-    const [tabIndex, setTabIndex] = React.useState(0);
+    const [tabIndex, setTabIndex] = useState(0);
 
-    const displayTimelineDiagonalLabels = useSelector(
-        (state) => state.timelineDiagonalLabels
-    );
-
-    const onChangeSwitchTimelineDiagonalLabels = (event) => {
-        updateConfigParameter(
-            PARAMS_TIMELINE_DIAGONAL_LABELS,
-            event.target.value !== 'true'
-        );
-    };
+    const [
+        timelineDiagonalLabelLocal,
+        handleChangeTimelineDiagonalLabelLocal,
+    ] = useParameterState(PARAM_TIMELINE_DIAGONAL_LABELS);
 
     function TabPanel(props) {
         const { children, value, index, ...other } = props;
@@ -81,9 +93,13 @@ const Parameters = ({ showParameters, hideParameters }) => {
                 </Grid>
                 <Grid item container xs={4} className={classes.controlItem}>
                     <Switch
-                        checked={displayTimelineDiagonalLabels}
-                        onChange={onChangeSwitchTimelineDiagonalLabels}
-                        value={displayTimelineDiagonalLabels}
+                        checked={timelineDiagonalLabelLocal}
+                        onChange={(event) => {
+                            handleChangeTimelineDiagonalLabelLocal(
+                                event.target.value !== 'true'
+                            );
+                        }}
+                        value={timelineDiagonalLabelLocal}
                         color="primary"
                         inputProps={{ 'aria-label': 'primary checkbox' }}
                     />
