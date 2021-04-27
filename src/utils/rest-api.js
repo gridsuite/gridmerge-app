@@ -160,14 +160,14 @@ export function fetchAppsAndUrls() {
 /**
  * Function return list of merges by process name, date min and date max
  */
-export function fetchMergesByProcessAndDate(process, minDate, maxDate) {
+export function fetchMergesByProcessAndDate(processUuid, minDate, maxDate) {
     console.info(
         `Fetching merges from '${minDate.toISOString()}' to '${maxDate.toISOString()}'...`
     );
     const fetchConfigsUrl =
         PREFIX_ORCHESTRATOR_QUERIES +
         '/v1/' +
-        encodeURIComponent(process) +
+        encodeURIComponent(processUuid) +
         '/merges?minDate=' +
         minDate.toISOString() +
         '&maxDate=' +

@@ -69,7 +69,7 @@ const Process = (props) => {
             // load merges for the whole day so from 00:00 to 23:59
             const maxDate = new Date(date);
             maxDate.setMinutes(maxDate.getMinutes() + 60 * 24 - 1);
-            fetchMergesByProcessAndDate(config.process, date, maxDate)
+            fetchMergesByProcessAndDate(config.processUuid, date, maxDate)
                 .then((newMerges) => {
                     dispatch(updateMerges(props.index, newMerges));
                 })
@@ -79,7 +79,7 @@ const Process = (props) => {
                     });
                 });
         },
-        [dispatch, config.process, props.index, enqueueSnackbar]
+        [dispatch, config.processUuid, props.index, enqueueSnackbar]
     );
 
     const update = useCallback(
