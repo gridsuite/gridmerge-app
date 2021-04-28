@@ -17,6 +17,7 @@ import GetAppIcon from '@material-ui/icons/GetApp';
 import { ExportDialog } from '../utils/dialogs';
 import BuildIcon from '@material-ui/icons/Build';
 import {
+    CgmStatus,
     getExportMergeUrl,
     getIgmStatus,
     IgmStatus,
@@ -148,13 +149,7 @@ const StepperWithStatus = (props) => {
     const allStatusEqualValueArray = (arr) =>
         arr.every((v) => v.status === arr[0].status);
 
-    const enableDisabledAllSteps = (value) => {
-        setAvailableStep(value);
-        setValidStep(value);
-        setMergedStep(value);
-    };
-
-    const getStepsStatus = (available, valid, merge) => {
+    const setStepsStatus = (available, valid, merge) => {
         setAvailableStep(available);
         setValidStep(valid);
         setMergedStep(merge);
@@ -166,14 +161,15 @@ const StepperWithStatus = (props) => {
                 return getIgmStatus(tso, props.merge);
             });
             if (allStatusEqualValueArray(allStatus)) {
-                if (
-                    allStatus[allStatus.length - 1].status === IgmStatus.MERGED
-                ) {
-                    enableDisabledAllSteps(true);
-                } else if (
-                    allStatus[allStatus.length - 1].status === IgmStatus.VALID
-                ) {
-                    getStepsStatus(true, true, false);
+                let status = allStatus[allStatus.length - 1];
+                if (status.status === IgmStatus.MERGED) {
+                    setStepsStatus(
+                        true,
+                        true,
+                        status.cgmStatus !== CgmStatus.INVALID
+                    );
+                } else if (status.status === IgmStatus.VALID) {
+                    setStepsStatus(true, true, false);
                 }
             } else if (
                 allStatus.some(
@@ -182,7 +178,7 @@ const StepperWithStatus = (props) => {
                         s.status === IgmStatus.VALID
                 )
             ) {
-                getStepsStatus(true, false, false);
+                setStepsStatus(true, false, false);
             }
 
             if (
@@ -199,7 +195,7 @@ const StepperWithStatus = (props) => {
             }
             // TODO : error cases
         } else {
-            enableDisabledAllSteps(false);
+            setStepsStatus(false, false, false);
             setReplaceIGMEnabled(false);
         }
     }, [props.merge, props.tsos]);
