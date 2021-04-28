@@ -37,7 +37,7 @@ function backendFetch(url, init) {
     return fetch(url, initCopy);
 }
 
-export function connectNotificationsWebsocket(process, businessProcess) {
+export function connectNotificationsWebsocket(processUuid, businessProcess) {
     // The websocket API doesn't allow relative urls
     const wsbase = document.baseURI
         .replace(/^http:\/\//, 'ws://')
@@ -45,8 +45,8 @@ export function connectNotificationsWebsocket(process, businessProcess) {
     const wsadress =
         wsbase +
         PREFIX_NOTIFICATION_WS +
-        '/notify?process=' +
-        encodeURIComponent(process) +
+        '/notify?processUuid=' +
+        encodeURIComponent(processUuid) +
         '&businessProcess=' +
         encodeURIComponent(businessProcess);
     const wsaddressWithToken = wsadress + '&access_token=' + getToken();
@@ -132,11 +132,11 @@ function getUrlWithToken(baseUrl) {
     return baseUrl + '?access_token=' + getToken();
 }
 
-export function getExportMergeUrl(process, date, format) {
+export function getExportMergeUrl(processUuid, date, format) {
     const url =
         PREFIX_ORCHESTRATOR_QUERIES +
         '/v1/' +
-        process +
+        processUuid +
         '/' +
         date +
         '/export/' +
@@ -158,9 +158,9 @@ export function fetchAppsAndUrls() {
 }
 
 /**
- * Function return list of merges by process name, date min and date max
+ * Function return list of merges by process uuid, date min and date max
  */
-export function fetchMergesByProcessAndDate(processUuid, minDate, maxDate) {
+export function fetchMergesByProcessUuidAndDate(processUuid, minDate, maxDate) {
     console.info(
         `Fetching merges from '${minDate.toISOString()}' to '${maxDate.toISOString()}'...`
     );
@@ -283,29 +283,31 @@ export function createProcess(json) {
     });
 }
 
-export function deleteProcess(process) {
-    console.info('Deleting Process', process, ' ...');
+export function deleteProcess(processUuid) {
+    console.info('Deleting Process', processUuid, ' ...');
     const deleteProcessUrl =
-        PREFIX_ORCHESTRATOR_QUERIES + '/v1/configs/' + process;
+        PREFIX_ORCHESTRATOR_QUERIES + '/v1/configs/' + processUuid;
     return backendFetch(deleteProcessUrl, {
         method: 'delete',
     });
 }
 
-export function getReplaceIGMUrl(process, date) {
+export function getReplaceIGMUrl(processUuid, date) {
     const url =
         PREFIX_ORCHESTRATOR_QUERIES +
         '/v1/' +
-        process +
+        processUuid +
         '/' +
         date +
         '/replace-igms';
     return getUrlWithToken(url);
 }
 
-export function replaceIGM(process, date) {
-    console.info('replacing igm for process : ' + process + ' at : ' + date);
-    return backendFetch(getReplaceIGMUrl(process, date), {
+export function replaceIGM(processUuid, date) {
+    console.info(
+        'replacing igm for process : ' + processUuid + ' at : ' + date
+    );
+    return backendFetch(getReplaceIGMUrl(processUuid, date), {
         method: 'put',
     }).then((response) => (response ? response.json() : null));
 }

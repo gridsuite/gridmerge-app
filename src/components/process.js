@@ -14,7 +14,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import MergeMap from './merge-map';
 import {
     connectNotificationsWebsocket,
-    fetchMergesByProcessAndDate,
+    fetchMergesByProcessUuidAndDate,
     removeTime,
 } from '../utils/rest-api';
 import {
@@ -69,7 +69,7 @@ const Process = (props) => {
             // load merges for the whole day so from 00:00 to 23:59
             const maxDate = new Date(date);
             maxDate.setMinutes(maxDate.getMinutes() + 60 * 24 - 1);
-            fetchMergesByProcessAndDate(config.processUuid, date, maxDate)
+            fetchMergesByProcessUuidAndDate(config.processUuid, date, maxDate)
                 .then((newMerges) => {
                     dispatch(updateMerges(props.index, newMerges));
                 })
@@ -101,13 +101,13 @@ const Process = (props) => {
     );
 
     const connectNotifications = useCallback(
-        (processName, businessProcess) => {
+        (processUuid, businessProcess) => {
             console.info(
-                `Connecting to notifications for process : '${processName}' and business process : '${businessProcess}' ...`
+                `Connecting to notifications for process : '${processUuid}' and business process : '${businessProcess}' ...`
             );
 
             const ws = connectNotificationsWebsocket(
-                processName,
+                processUuid,
                 businessProcess
             );
             ws.onmessage = function (event) {
@@ -116,7 +116,7 @@ const Process = (props) => {
             };
             ws.onclose = function (event) {
                 console.info(
-                    `Disconnecting from notifications for process : '${processName}' and business process : '${businessProcess}' ...`
+                    `Disconnecting from notifications for process : '${processUuid}' and business process : '${businessProcess}' ...`
                 );
             };
             ws.onerror = function (event) {
@@ -133,7 +133,10 @@ const Process = (props) => {
     }, [config.process, date, loadMerges]);
 
     useEffect(() => {
-        const ws = connectNotifications(config.process, config.businessProcess);
+        const ws = connectNotifications(
+            config.processUuid,
+            config.businessProcess
+        );
 
         return function () {
             ws.close();
