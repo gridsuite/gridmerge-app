@@ -503,9 +503,10 @@ const ProcessesConfigurationDialog = ({ open, onClose, matchProcess }) => {
                 dispatch(initProcesses(configs));
                 if (
                     matchProcess !== null &&
-                    listProcessesToBeDeleted.includes(
+                    (listProcessesToBeDeleted.includes(
                         matchProcess.params.processName
-                    )
+                    ) ||
+                        !configs.includes(matchProcess.params.processName))
                 ) {
                     history.replace('/');
                 }

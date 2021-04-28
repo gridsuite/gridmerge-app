@@ -342,7 +342,7 @@ const App = () => {
                         >
                             {configs.map((config) => (
                                 <Tab
-                                    key={config.process}
+                                    key={config.processUuid}
                                     label={config.process}
                                     value={config.process}
                                 />
