@@ -141,7 +141,7 @@ const Process = (props) => {
         return function () {
             ws.close();
         };
-    }, [config.process, config.businessProcess, connectNotifications]);
+    }, [config.processUuid, config.businessProcess, connectNotifications]);
 
     const handleDateChange = (date) => {
         dispatch(updateProcessDate(props.index, removeTime(date)));
