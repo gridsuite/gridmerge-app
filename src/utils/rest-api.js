@@ -179,6 +179,12 @@ export function removeTime(date) {
     return new Date(date.toDateString());
 }
 
+export const CgmStatus = {
+    VALID: 'valid',
+    VALID_WITH_WARNING: 'valid_with_warnings',
+    INVALID: 'invalid',
+};
+
 export const IgmStatus = {
     ABSENT: 'absent',
     AVAILABLE: 'available',
@@ -200,15 +206,39 @@ export function getIgmStatus(tso, merge) {
     if (merge.status) {
         switch (merge.status) {
             case 'BALANCE_ADJUSTMENT_SUCCEED':
-            case 'LOADFLOW_SUCCEED':
                 return {
                     status: IgmStatus.MERGED,
+                    cgmStatus: CgmStatus.VALID,
                     replacingDate: igm.replacingDate,
                     replacingBusinessProcess: igm.replacingBusinessProcess,
                 };
 
-            case 'BALANCE_ADJUSTMENT_FAILED':
+            case 'FIRST_LOADFLOW_SUCCEED':
+            case 'LOADFLOW_SUCCEED': // for backward compatibility
+                return {
+                    status: IgmStatus.MERGED,
+                    cgmStatus: CgmStatus.VALID,
+                    replacingDate: igm.replacingDate,
+                    replacingBusinessProcess: igm.replacingBusinessProcess,
+                };
+
+            case 'SECOND_LOADFLOW_SUCCEED':
+            case 'THIRD_LOADFLOW_SUCCEED':
+                return {
+                    status: IgmStatus.MERGED,
+                    cgmStatus: CgmStatus.VALID_WITH_WARNING,
+                    replacingDate: igm.replacingDate,
+                    replacingBusinessProcess: igm.replacingBusinessProcess,
+                };
+
             case 'LOADFLOW_FAILED':
+                return {
+                    status: IgmStatus.MERGED,
+                    cgmStatus: CgmStatus.INVALID,
+                    replacingDate: igm.replacingDate,
+                    replacingBusinessProcess: igm.replacingBusinessProcess,
+                };
+
             default:
                 throw Error('Status not supported');
         }

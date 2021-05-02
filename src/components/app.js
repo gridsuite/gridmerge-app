@@ -29,6 +29,8 @@ import {
     LIGHT_THEME,
     selectTheme,
     selectTimelineDiagonalLabels,
+    selectLanguage,
+    selectComputedLanguage,
 } from '../redux/actions';
 
 import {
@@ -54,6 +56,7 @@ import {
     fetchConfigParameter,
     fetchConfigParameters,
     fetchMergeConfigs,
+    updateConfigParameter,
 } from '../utils/rest-api';
 
 import { ReactComponent as GridMergeLogoDark } from '../images/GridMerge_logo_dark.svg';
@@ -62,8 +65,10 @@ import {
     APP_NAME,
     COMMON_APP_NAME,
     PARAM_THEME,
+    PARAMS_LANGUAGE_KEY,
     PARAM_TIMELINE_DIAGONAL_LABELS,
 } from '../utils/config-params';
+import { getComputedLanguage } from '../utils/language';
 
 const PREFIX_URL_PROCESSES = '/processes';
 
@@ -102,6 +107,8 @@ const noUserManager = { instance: null, error: null };
 
 const App = () => {
     const configs = useSelector((state) => state.configs);
+
+    const language = useSelector((state) => state.language);
 
     const user = useSelector((state) => state.user);
 
@@ -155,6 +162,14 @@ const App = () => {
                     case PARAM_TIMELINE_DIAGONAL_LABELS:
                         dispatch(
                             selectTimelineDiagonalLabels(param.value === 'true')
+                        );
+                        break;
+                    case PARAMS_LANGUAGE_KEY:
+                        dispatch(selectLanguage(param.value));
+                        dispatch(
+                            selectComputedLanguage(
+                                getComputedLanguage(param.value)
+                            )
                         );
                         break;
                     default:
@@ -296,6 +311,10 @@ const App = () => {
         );
     }
 
+    const handleLanguageClick = (language) => {
+        updateConfigParameter(PARAMS_LANGUAGE_KEY, language);
+    };
+
     const showPopupConfigurationProcesses = () => {
         setShowConfigurationProcesses(true);
     };
@@ -325,6 +344,8 @@ const App = () => {
                         onThemeClick={handleChangeTheme}
                         theme={themeLocal}
                         onAboutClick={() => console.debug('about')}
+                        onLanguageClick={handleLanguageClick}
+                        language={language}
                     >
                         <Tabs
                             value={selectedTabId}

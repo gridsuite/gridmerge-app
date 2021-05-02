@@ -10,6 +10,8 @@ import { createReducer } from '@reduxjs/toolkit';
 import {
     INIT_PROCESSES,
     SELECT_THEME,
+    SELECT_LANGUAGE,
+    SELECT_COMPUTED_LANGUAGE,
     UPDATE_MERGES,
     UPDATE_PROCESS_DATE,
     UPDATE_SELECTED_MERGE_DATE,
@@ -18,7 +20,13 @@ import {
 
 import { SIGNIN_CALLBACK_ERROR, USER } from '@gridsuite/commons-ui';
 import { removeTime } from '../utils/rest-api';
-import { getLocalStorageTheme, saveLocalStorageTheme } from './local-storage';
+import {
+    getLocalStorageTheme,
+    saveLocalStorageTheme,
+    getLocalStorageLanguage,
+    saveLocalStorageLanguage,
+    getLocalStorageComputedLanguage,
+} from './local-storage';
 import {
     PARAM_THEME,
     PARAM_TIMELINE_DIAGONAL_LABELS,
@@ -30,6 +38,8 @@ const paramsInitialState = {
 };
 
 const initialState = {
+    language: getLocalStorageLanguage(),
+    computedLanguage: getLocalStorageComputedLanguage(),
     user: null,
     signInCallbackError: null,
     configs: [],
@@ -41,6 +51,15 @@ export const reducer = createReducer(initialState, {
     [SELECT_THEME]: (state, action) => {
         state[PARAM_THEME] = action[PARAM_THEME];
         saveLocalStorageTheme(state[PARAM_THEME]);
+    },
+
+    [SELECT_LANGUAGE]: (state, action) => {
+        state.language = action.language;
+        saveLocalStorageLanguage(state.language);
+    },
+
+    [SELECT_COMPUTED_LANGUAGE]: (state, action) => {
+        state.computedLanguage = action.computedLanguage;
     },
 
     [USER]: (state, action) => {
