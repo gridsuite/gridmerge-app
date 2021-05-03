@@ -25,6 +25,7 @@ import {
     top_bar_fr,
     login_fr,
     login_en,
+    SnackbarProvider,
 } from '@gridsuite/commons-ui';
 
 const messages = {
@@ -42,7 +43,9 @@ const ApplicationWrapper = () => {
             messages={messages[computedLanguage]}
         >
             <BrowserRouter basename={basename}>
-                <App />
+                <SnackbarProvider hideIconVariant={false}>
+                    <App />
+                </SnackbarProvider>
             </BrowserRouter>
         </IntlProvider>
     );

@@ -6,12 +6,12 @@
  */
 
 import {
+    PARAM_LANGUAGE,
     PARAM_THEME,
     PARAM_TIMELINE_DIAGONAL_LABELS,
 } from '../utils/config-params';
 
 export const SELECT_THEME = 'SELECT_THEME';
-export const DARK_THEME = 'Dark';
 export const LIGHT_THEME = 'Light';
 
 export function selectTheme(theme) {
@@ -21,7 +21,7 @@ export function selectTheme(theme) {
 export const SELECT_LANGUAGE = 'SELECT_LANGUAGE';
 
 export function selectLanguage(language) {
-    return { type: SELECT_LANGUAGE, language: language };
+    return { type: SELECT_LANGUAGE, [PARAM_LANGUAGE]: language };
 }
 
 export const SELECT_COMPUTED_LANGUAGE = 'SELECT_COMPUTED_LANGUAGE';

@@ -119,7 +119,7 @@ export function updateConfigParameter(name, value) {
         PREFIX_CONFIG_QUERIES +
         `/v1/applications/${appName}/parameters/${name}?value=` +
         encodeURIComponent(value);
-    backendFetch(updateParams, { method: 'put' }).then();
+    return backendFetch(updateParams, { method: 'put' });
 }
 
 export function fetchMergeConfigs() {
@@ -323,6 +323,17 @@ export function fetchBusinessProcessesList() {
     return backendFetch(fetchBusinessProcessesListUrl).then((response) =>
         response.json()
     );
+}
+
+export function handleServerError(response, enqueueSnackbar) {
+    return response.text().then((text) => {
+        enqueueSnackbar(text, {
+            variant: 'error',
+            persist: true,
+            style: { whiteSpace: 'pre-line' },
+        });
+        return Promise.reject();
+    });
 }
 
 export const MergeType = PropTypes.shape({
