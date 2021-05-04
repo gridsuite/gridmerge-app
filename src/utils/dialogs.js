@@ -33,7 +33,7 @@ const ExportDialog = ({
     open,
     onClose,
     onClick,
-    process,
+    processUuid,
     date,
     title,
     getDownloadUrl,
@@ -55,7 +55,7 @@ const ExportDialog = ({
         console.debug('Request for exporting in format: ' + selectedFormat);
         if (selectedFormat) {
             const url = getDownloadUrl(
-                process,
+                processUuid,
                 new Date(date).toISOString(),
                 selectedFormat
             );
