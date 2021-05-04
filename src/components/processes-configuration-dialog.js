@@ -468,8 +468,6 @@ const ProcessesConfigurationDialog = ({ open, onClose, matchProcess }) => {
         listProcessesToBeDeleted.forEach((p) => {
             promises.push(deleteProcess(p.processUuid));
         });
-        console.log(processes);
-        console.log(processes.length);
         for (let i = 0; i < processes.length; i++) {
             // ignore processes with no name
             if (
