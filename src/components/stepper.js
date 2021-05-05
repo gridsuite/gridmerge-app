@@ -123,7 +123,7 @@ const StepperWithStatus = (props) => {
     };
 
     const handleClickExport = (url) => {
-        console.info('Downloading merge ' + props.merge.process + '...');
+        console.info('Downloading merge ' + props.merge.processUuid + '...');
         window.open(url, DownloadIframe);
         handleCloseExport();
     };
@@ -133,8 +133,8 @@ const StepperWithStatus = (props) => {
     };
 
     const handleReplaceIGM = () => {
-        console.info('Replacing IGM ' + props.merge.process + '...');
-        replaceIGM(props.merge.process, props.merge.date).then((res) => {
+        console.info('Replacing IGM ' + props.merge.processUuid + '...');
+        replaceIGM(props.merge.processUuid, props.merge.date).then((res) => {
             if (res == null || Object.keys(res).length === 0) {
                 const errorMessage = intl.formatMessage({
                     id: 'noReplacingIGMAvailable',
@@ -281,7 +281,7 @@ const StepperWithStatus = (props) => {
                 open={openExportDialog}
                 onClose={handleCloseExport}
                 onClick={handleClickExport}
-                process={props.merge && props.merge.process}
+                processUuid={props.merge && props.merge.processUuid}
                 date={props.merge && props.merge.date}
                 title={intl.formatMessage({ id: 'exportNetwork' })}
                 getDownloadUrl={getExportMergeUrl}
@@ -294,7 +294,7 @@ const StepperWithStatus = (props) => {
 
 StepperWithStatus.propTypes = {
     merge: PropTypes.shape({
-        process: PropTypes.string.isRequired,
+        processUuid: PropTypes.string.isRequired,
         date: PropTypes.string.isRequired,
     }),
 };

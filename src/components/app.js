@@ -29,6 +29,8 @@ import {
     LIGHT_THEME,
     selectTheme,
     selectTimelineDiagonalLabels,
+    selectLanguage,
+    selectComputedLanguage,
 } from '../redux/actions';
 
 import {
@@ -64,7 +66,9 @@ import {
     COMMON_APP_NAME,
     PARAMS_THEME_KEY,
     PARAMS_TIMELINE_DIAGONAL_LABELS,
+    PARAMS_LANGUAGE_KEY,
 } from '../utils/config-params';
+import { getComputedLanguage } from '../utils/language';
 
 const PREFIX_URL_PROCESSES = '/processes';
 
@@ -105,6 +109,8 @@ const App = () => {
     const configs = useSelector((state) => state.configs);
 
     const theme = useSelector((state) => state.theme);
+
+    const language = useSelector((state) => state.language);
 
     const user = useSelector((state) => state.user);
 
@@ -156,6 +162,14 @@ const App = () => {
                     case PARAMS_TIMELINE_DIAGONAL_LABELS:
                         dispatch(
                             selectTimelineDiagonalLabels(param.value === 'true')
+                        );
+                        break;
+                    case PARAMS_LANGUAGE_KEY:
+                        dispatch(selectLanguage(param.value));
+                        dispatch(
+                            selectComputedLanguage(
+                                getComputedLanguage(param.value)
+                            )
                         );
                         break;
                     default:
@@ -301,6 +315,10 @@ const App = () => {
         updateConfigParameter(PARAMS_THEME_KEY, theme);
     };
 
+    const handleLanguageClick = (language) => {
+        updateConfigParameter(PARAMS_LANGUAGE_KEY, language);
+    };
+
     const showPopupConfigurationProcesses = () => {
         setShowConfigurationProcesses(true);
     };
@@ -330,6 +348,8 @@ const App = () => {
                         onThemeClick={handleThemeClick}
                         theme={theme}
                         onAboutClick={() => console.debug('about')}
+                        onLanguageClick={handleLanguageClick}
+                        language={language}
                     >
                         <Tabs
                             value={selectedTabId}
@@ -342,7 +362,7 @@ const App = () => {
                         >
                             {configs.map((config) => (
                                 <Tab
-                                    key={config.process}
+                                    key={config.processUuid}
                                     label={config.process}
                                     value={config.process}
                                 />

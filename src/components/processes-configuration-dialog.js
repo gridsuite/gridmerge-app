@@ -184,7 +184,7 @@ const ProcessesContainer = ({ handleProcessesChanged, currentProcess }) => {
     function handleAddProcess() {
         const currentProcessesCopy = [...currentProcess];
         currentProcessesCopy.push({
-            reactKey: keyGenerator(),
+            processUuid: keyGenerator(),
             process: '',
             businessProcess: '',
             tsos: [{ name: '', reactKey: keyGenerator() }],
@@ -260,7 +260,7 @@ const ProcessesContainer = ({ handleProcessesChanged, currentProcess }) => {
                     container
                     spacing={1}
                     className={classes.addNewTso}
-                    key={process.reactKey}
+                    key={process.processUuid}
                 >
                     {/* Process input*/}
                     <Grid container item xs={12} sm={5}>
@@ -378,15 +378,12 @@ function addReactKeyToProcesses(list) {
     return list.map(({ tsos, ...item }) => {
         return {
             ...item,
-            ...{
-                reactKey: keyGenerator(),
-                tsos: tsos.map((tso) => {
-                    return {
-                        name: tso,
-                        reactKey: keyGenerator(),
-                    };
-                }),
-            },
+            tsos: tsos.map((tso) => {
+                return {
+                    name: tso,
+                    reactKey: keyGenerator(),
+                };
+            }),
         };
     });
 }
@@ -413,14 +410,22 @@ const ProcessesConfigurationDialog = ({ open, onClose, matchProcess }) => {
     };
 
     const processesToBeDeleted = useCallback(() => {
-        const initialProcesses = configs.map((e) => e.process);
+        const initialProcesses = configs.map((e) => {
+            return { processUuid: e.processUuid, process: e.process };
+        });
         const currentProcesses = processes
             .filter((e) => e.process !== '')
-            .map((e) => e.process);
+            .map((e) => {
+                return { processUuid: e.processUuid, process: e.process };
+            });
         let toBeDeleted = [];
 
         for (let i = 0; i < initialProcesses.length; i++) {
-            if (!currentProcesses.includes(initialProcesses[i])) {
+            if (
+                !currentProcesses.find(
+                    (e) => e.processUuid === initialProcesses[i].processUuid
+                )
+            ) {
                 toBeDeleted.push(initialProcesses[i]);
             }
         }
@@ -429,6 +434,7 @@ const ProcessesConfigurationDialog = ({ open, onClose, matchProcess }) => {
 
     const processDto = (process) => {
         return {
+            processUuid: process.processUuid,
             process: process.process,
             businessProcess: process.businessProcess,
             runBalancesAdjustment: process.runBalancesAdjustment,
@@ -449,7 +455,8 @@ const ProcessesConfigurationDialog = ({ open, onClose, matchProcess }) => {
             !areTsoListsIdentical ||
             initialProcess.runBalancesAdjustment !==
                 currentProcess.runBalancesAdjustment ||
-            initialProcess.businessProcess !== currentProcess.businessProcess
+            initialProcess.businessProcess !== currentProcess.businessProcess ||
+            initialProcess.process !== currentProcess.process
         );
     };
 
@@ -459,9 +466,8 @@ const ProcessesConfigurationDialog = ({ open, onClose, matchProcess }) => {
 
         // DELETE PROCESSES
         listProcessesToBeDeleted.forEach((p) => {
-            promises.push(deleteProcess(p));
+            promises.push(deleteProcess(p.processUuid));
         });
-
         for (let i = 0; i < processes.length; i++) {
             // ignore processes with no name
             if (
@@ -472,12 +478,14 @@ const ProcessesConfigurationDialog = ({ open, onClose, matchProcess }) => {
             }
 
             let initialProcess = configs.find(
-                (element) => element.process === processes[i].process
+                (element) => element.processUuid === processes[i].processUuid
             );
 
             if (typeof initialProcess === 'undefined') {
+                let newProcess = processes[i];
+                newProcess.processUuid = null;
                 // ADD NEW PROCESSES
-                promises.push(createProcess(processDto(processes[i])));
+                promises.push(createProcess(processDto(newProcess)));
                 continue;
             }
 
@@ -493,9 +501,10 @@ const ProcessesConfigurationDialog = ({ open, onClose, matchProcess }) => {
                 dispatch(initProcesses(configs));
                 if (
                     matchProcess !== null &&
-                    listProcessesToBeDeleted.includes(
+                    (listProcessesToBeDeleted.includes(
                         matchProcess.params.processName
-                    )
+                    ) ||
+                        !configs.includes(matchProcess.params.processName))
                 ) {
                     history.replace('/');
                 }
@@ -539,7 +548,9 @@ const ProcessesConfigurationDialog = ({ open, onClose, matchProcess }) => {
                         />
                     )}
                     {confirmSave &&
-                        processesToBeDeleted().map((e) => <h3 key={e}>{e}</h3>)}
+                        processesToBeDeleted().map((e) => (
+                            <h3 key={e.processUuid}>{e.process}</h3>
+                        ))}
                 </DialogContent>
                 <DialogActions>
                     <Button autoFocus size="small" onClick={cancel}>

@@ -13,6 +13,21 @@ export function selectTheme(theme) {
     return { type: SELECT_THEME, theme: theme };
 }
 
+export const SELECT_LANGUAGE = 'SELECT_LANGUAGE';
+
+export function selectLanguage(language) {
+    return { type: SELECT_LANGUAGE, language: language };
+}
+
+export const SELECT_COMPUTED_LANGUAGE = 'SELECT_COMPUTED_LANGUAGE';
+
+export function selectComputedLanguage(computedLanguage) {
+    return {
+        type: SELECT_COMPUTED_LANGUAGE,
+        computedLanguage: computedLanguage,
+    };
+}
+
 export const INIT_PROCESSES = 'INIT_PROCESSES';
 
 export function initProcesses(configs) {
