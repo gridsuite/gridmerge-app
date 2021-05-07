@@ -35,7 +35,7 @@ import {
     logout,
     TopBar,
 } from '@gridsuite/commons-ui';
-import { FormattedMessage, useIntl } from 'react-intl';
+import { FormattedMessage } from 'react-intl';
 
 import Process from './process';
 
@@ -63,7 +63,7 @@ import {
 } from '../utils/config-params';
 import { getComputedLanguage } from '../utils/language';
 import { useSnackbar } from 'notistack';
-import { displayErrorMessageWithSnackbar } from '../utils/messages';
+import { displayErrorMessageWithSnackbar, useIntlRef } from '../utils/messages';
 
 const PREFIX_URL_PROCESSES = '/processes';
 
@@ -79,13 +79,15 @@ const useStyles = makeStyles(() => ({
 const noUserManager = { instance: null, error: null };
 
 const App = () => {
-    const intl = useIntl();
+    const intlRef = useIntlRef();
 
     const { enqueueSnackbar } = useSnackbar();
 
     const configs = useSelector((state) => state.configs);
 
     const user = useSelector((state) => state.user);
+
+    const theme = useSelector((state) => state[PARAM_THEME]);
 
     const [themeLocal, handleChangeTheme] = useParameterState(PARAM_THEME);
 
@@ -228,7 +230,7 @@ const App = () => {
                             errorMessage,
                             'paramsChangingError',
                             enqueueSnackbar,
-                            intl
+                            intlRef
                         )
                     );
             }
@@ -237,7 +239,7 @@ const App = () => {
             console.error('Unexpected Notification WebSocket error', event);
         };
         return ws;
-    }, [updateParams, enqueueSnackbar, intl]);
+    }, [updateParams, enqueueSnackbar, intlRef]);
 
     useEffect(() => {
         if (user !== null) {
@@ -248,7 +250,7 @@ const App = () => {
                         errorMessage,
                         'paramsChangingError',
                         enqueueSnackbar,
-                        intl
+                        intlRef
                     )
                 );
 
@@ -259,7 +261,7 @@ const App = () => {
                         errorMessage,
                         'paramsChangingError',
                         enqueueSnackbar,
-                        intl
+                        intlRef
                     )
                 );
 
@@ -274,7 +276,7 @@ const App = () => {
         updateParams,
         connectNotificationsUpdateConfig,
         enqueueSnackbar,
-        intl,
+        intlRef,
     ]);
 
     const selectedTabId = useMemo(() => {
@@ -328,7 +330,7 @@ const App = () => {
                 appName="Merge"
                 appColor="#2D9BF0"
                 appLogo={
-                    themeLocal === LIGHT_THEME ? (
+                    theme === LIGHT_THEME ? (
                         <GridMergeLogoLight />
                     ) : (
                         <GridMergeLogoDark />

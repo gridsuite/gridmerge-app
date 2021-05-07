@@ -7,7 +7,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 
-import { FormattedMessage, useIntl } from 'react-intl';
+import { FormattedMessage } from 'react-intl';
 
 import { useSelector } from 'react-redux';
 
@@ -27,7 +27,7 @@ import Switch from '@material-ui/core/Switch';
 import { updateConfigParameter } from '../utils/rest-api';
 import { PARAM_TIMELINE_DIAGONAL_LABELS } from '../utils/config-params';
 import { useSnackbar } from 'notistack';
-import { displayErrorMessageWithSnackbar } from '../utils/messages';
+import { displayErrorMessageWithSnackbar, useIntlRef } from '../utils/messages';
 
 const useStyles = makeStyles((theme) => ({
     controlItem: {
@@ -39,7 +39,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export function useParameterState(paramName) {
-    const intl = useIntl();
+    const intlRef = useIntlRef();
 
     const { enqueueSnackbar } = useSnackbar();
 
@@ -60,11 +60,17 @@ export function useParameterState(paramName) {
                     errorMessage,
                     'paramsChangingError',
                     enqueueSnackbar,
-                    intl
+                    intlRef
                 );
             });
         },
-        [paramName, enqueueSnackbar, intl, setParamLocalState, paramGlobalState]
+        [
+            paramName,
+            enqueueSnackbar,
+            intlRef,
+            setParamLocalState,
+            paramGlobalState,
+        ]
     );
 
     return [paramLocalState, handleChangeParamLocalState];
