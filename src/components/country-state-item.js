@@ -6,118 +6,56 @@
  */
 import React from 'react';
 import { Box, Divider, Grid, Typography } from '@material-ui/core';
-import DoneIcon from '@material-ui/icons/DoneOutlined';
-import LoopIcon from '@material-ui/icons/LoopOutlined';
-import HourglassEmptyIcon from '@material-ui/icons/HourglassEmptyOutlined';
-import WarningIcon from '@material-ui/icons/WarningOutlined';
-import MergeIcon from '@material-ui/icons/DoubleArrowOutlined';
+import LensIcon from '@material-ui/icons/Lens';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
-import {
-    getIgmStatus,
-    IgmStatus,
-    MergeType,
-    CgmStatus,
-} from '../utils/rest-api';
+import { getIgmStatus, MergeType } from '../utils/rest-api';
 import { getDetailsByCountryOrTso } from '../utils/tso-country-details';
+import { tsoColor } from './merge-map';
+import { useIntl } from 'react-intl';
 
 const useStyles = makeStyles((theme) => ({
-    textColumn: {
+    tsosColumn: {
         flexGrow: 1,
         width: 80,
         whiteSpace: 'nowrap',
-        overflow: 'hidden',
-        marginTop: 14,
-        marginLeft: 16,
+        marginLeft: 12,
     },
-    success: {
-        color: '#37AE4B',
-    },
-    error: {
-        color: '#D8404D',
-    },
-    warning: {
-        color: '#FFA500',
-    },
-    flagIcon: {
-        marginTop: 14,
-        marginBottom: 14,
-        verticalAlign: 'middle',
-        marginRight: 8,
+    textReplace: {
+        flexGrow: 1,
+        width: 120,
+        whiteSpace: 'nowrap',
     },
     stateIcon: {
-        backgroundColor: theme.palette.type === 'dark' ? '#303030' : '#FAFAFA',
-        borderRadius: '50%',
-        height: 48,
-        width: 48,
-        padding: 8,
-        marginTop: 4,
-        marginLeft: 4,
+        height: 32,
+        width: 32,
+        marginTop: 8,
     },
     listItem: {
         backgroundColor: theme.palette.background.paper,
-    },
-    loading: {
-        animation: '$spin 1000ms infinite',
-        color: '#009CD8',
-    },
-    '@keyframes spin': {
-        '0%': {
-            transform: 'rotate(0deg)',
-        },
-        '100%': {
-            transform: 'rotate(-360deg)',
-        },
-    },
-    waiting: {
-        color: '#02538B',
     },
     divider: {
         marginTop: 4,
         color: '#ECF5FD',
     },
+    smallText: theme.typography.caption,
 }));
-
-const CountryStateIcon = ({ status }) => {
-    const classes = useStyles();
-
-    const igmStatus = status.status;
-    const cgmStatus = status.cgmStatus;
-
-    let colorClass = classes.success;
-    if (cgmStatus === CgmStatus.VALID_WITH_WARNING) {
-        colorClass = classes.warning;
-    } else if (cgmStatus === CgmStatus.INVALID) {
-        colorClass = classes.error;
-    }
-
-    return igmStatus === IgmStatus.ABSENT ? (
-        <HourglassEmptyIcon
-            className={`${classes.stateIcon} ${classes.waiting}`}
-        />
-    ) : igmStatus === IgmStatus.AVAILABLE ? (
-        <LoopIcon className={`${classes.stateIcon} ${classes.loading}`} />
-    ) : igmStatus === IgmStatus.INVALID ? (
-        <WarningIcon className={`${classes.stateIcon} ${classes.error}`} />
-    ) : igmStatus === IgmStatus.VALID ? (
-        <MergeIcon className={`${classes.stateIcon} ${classes.success}`} />
-    ) : igmStatus === IgmStatus.MERGED ? (
-        <DoneIcon
-            color="secondary"
-            className={`${classes.stateIcon} ${colorClass}`}
-        />
-    ) : (
-        ''
-    );
-};
 
 const CountryStateItem = (props) => {
     const classes = useStyles();
+    const intl = useIntl();
 
     const detail = getDetailsByCountryOrTso(props.tso.toUpperCase());
 
     const status = getIgmStatus(props.tso, props.merge);
+    const color = tsoColor(status);
 
+    let replacedWith = status.replacingBusinessProcess
+        ? status.replacingBusinessProcess + ' '
+        : '';
+    if (status.replacingDate) {
+        replacedWith += new Date(status.replacingDate).toLocaleString();
+    }
     return (
         <Box className={classes.listItem}>
             <Grid container>
@@ -126,19 +64,32 @@ const CountryStateItem = (props) => {
                     xs={12}
                     style={{ display: 'flex', width: '100%', padding: 8 }}
                 >
-                    <CountryStateIcon status={status} />
-                    <Box className={classes.textColumn}>
-                        <Typography variant="body1">
+                    <LensIcon
+                        className={classes.stateIcon}
+                        style={{ color: color }}
+                    />
+                    <Box className={classes.tsosColumn}>
+                        <Typography variant="body1">{props.tso}</Typography>
+                        <Typography variant="caption">
                             {detail.countryName}
                         </Typography>
                     </Box>
-                    <img
-                        className={classes.flagIcon}
-                        alt="flag for country"
-                        height="23"
-                        width="32"
-                        src={detail.flagSrc}
-                    />
+                    {replacedWith && (
+                        <Box className={classes.textReplace}>
+                            <Typography
+                                variant="body1"
+                                className={classes.smallText}
+                            >
+                                {intl.formatMessage({ id: 'ReplacedWith' })}
+                            </Typography>
+                            <Typography
+                                variant="body1"
+                                className={classes.smallText}
+                            >
+                                {replacedWith}
+                            </Typography>
+                        </Box>
+                    )}
                 </Grid>
                 <Grid item xs={12}>
                     <Divider className={classes.divider} />

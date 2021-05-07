@@ -38,5 +38,6 @@
     "balanceAdjustment": "Équilibrage des bilans",
     "loadflow": "Calcul de répartition",
     "replaceIGM": "Remplacer IGM absent",
+    "ReplacedWith": "Remplacé par",
     "noReplacingIGMAvailable": "Aucun IGM de remplacement disponible"
 }

@@ -32,6 +32,56 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
+const LIGHT_BLUE_COLOR = '#009CD8';
+const LIGHT_YELLOW_COLOR = '#F8E67E';
+const DARK_BLUE_COLOR = '#02538B';
+const DARK_YELLOW_COLOR = '#F3D111';
+const LIGHT_RED_COLOR = '#FF6666';
+const DARK_RED_COLOR = '#FF3333';
+const GREEN_COLOR = '#00CC00';
+const LIGHT_GREEN_COLOR = '#00FF33';
+const ORANGE_COLOR = '#FF6600';
+const LIGHT_ORANGE_COLOR = '#FF9900';
+const RED_COLOR = '#FF0000';
+const GREY_COLOR = '#78899a';
+
+export function tsoColor(status) {
+    switch (status.status) {
+        case IgmStatus.AVAILABLE:
+            return status.replacingDate == null
+                ? LIGHT_BLUE_COLOR
+                : LIGHT_YELLOW_COLOR;
+        case IgmStatus.VALID:
+            return status.replacingDate == null
+                ? DARK_BLUE_COLOR
+                : DARK_YELLOW_COLOR;
+        case IgmStatus.INVALID:
+            return status.replacingDate == null
+                ? LIGHT_RED_COLOR
+                : DARK_RED_COLOR;
+        case IgmStatus.MERGED: {
+            switch (status.cgmStatus) {
+                case CgmStatus.VALID:
+                    return status.replacingDate == null
+                        ? GREEN_COLOR
+                        : LIGHT_GREEN_COLOR;
+                case CgmStatus.VALID_WITH_WARNING:
+                    return status.replacingDate == null
+                        ? ORANGE_COLOR
+                        : LIGHT_ORANGE_COLOR;
+                case CgmStatus.INVALID:
+                    return status.replacingDate == null
+                        ? RED_COLOR
+                        : LIGHT_RED_COLOR;
+                default:
+                    return GREY_COLOR;
+            }
+        }
+        default:
+            return GREY_COLOR;
+    }
+}
+
 const MergeMap = (props) => {
     const [data, setData] = useState({
         geographies: [],
@@ -42,19 +92,6 @@ const MergeMap = (props) => {
     const [tooltip, setTooltip] = useState('');
 
     const classes = useStyles();
-
-    const LIGHT_BLUE_COLOR = '#009CD8';
-    const LIGHT_YELLOW_COLOR = '#F8E67E';
-    const DARK_BLUE_COLOR = '#02538B';
-    const DARK_YELLOW_COLOR = '#F3D111';
-    const LIGHT_RED_COLOR = '#FF6666';
-    const DARK_RED_COLOR = '#FF3333';
-    const GREEN_COLOR = '#00CC00';
-    const LIGHT_GREEN_COLOR = '#00FF33';
-    const ORANGE_COLOR = '#FF6600';
-    const LIGHT_ORANGE_COLOR = '#FF9900';
-    const RED_COLOR = '#FF0000';
-    const GREY_COLOR = '#78899a';
 
     function computeBoundingBox(geoJsons) {
         const reducer = (oldBb, json) => {
@@ -83,43 +120,6 @@ const MergeMap = (props) => {
         // default projection
         const factor = Math.max(bb[2] - bb[0], bb[3] - bb[1]);
         return DEFAULT_SCALE / factor;
-    }
-
-    function tsoColor(status) {
-        switch (status.status) {
-            case IgmStatus.AVAILABLE:
-                return status.replacingDate == null
-                    ? LIGHT_BLUE_COLOR
-                    : LIGHT_YELLOW_COLOR;
-            case IgmStatus.VALID:
-                return status.replacingDate == null
-                    ? DARK_BLUE_COLOR
-                    : DARK_YELLOW_COLOR;
-            case IgmStatus.INVALID:
-                return status.replacingDate == null
-                    ? LIGHT_RED_COLOR
-                    : DARK_RED_COLOR;
-            case IgmStatus.MERGED: {
-                switch (status.cgmStatus) {
-                    case CgmStatus.VALID:
-                        return status.replacingDate == null
-                            ? GREEN_COLOR
-                            : LIGHT_GREEN_COLOR;
-                    case CgmStatus.VALID_WITH_WARNING:
-                        return status.replacingDate == null
-                            ? ORANGE_COLOR
-                            : LIGHT_ORANGE_COLOR;
-                    case CgmStatus.INVALID:
-                        return status.replacingDate == null
-                            ? RED_COLOR
-                            : LIGHT_RED_COLOR;
-                    default:
-                        return GREY_COLOR;
-                }
-            }
-            default:
-                return GREY_COLOR;
-        }
     }
 
     useEffect(() => {
