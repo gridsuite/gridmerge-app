@@ -14,6 +14,7 @@ import Slider from '@material-ui/core/Slider';
 import ClockIcon from '../images/clock.svg';
 import PropTypes from 'prop-types';
 import moment from 'moment';
+import { PARAM_TIMELINE_DIAGONAL_LABELS } from '../utils/config-params';
 
 const useStyles = makeStyles((theme) => ({
     customSlider: {
@@ -107,7 +108,7 @@ const Timeline = (props) => {
     const [value, setValue] = useState(null);
 
     const timelineDiagonalLabels = useSelector(
-        (state) => state.timelineDiagonalLabels
+        (state) => state[PARAM_TIMELINE_DIAGONAL_LABELS]
     );
 
     function findMergeIndex(value) {

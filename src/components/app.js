@@ -18,12 +18,7 @@ import {
     useRouteMatch,
 } from 'react-router-dom';
 
-import {
-    createMuiTheme,
-    makeStyles,
-    ThemeProvider,
-} from '@material-ui/core/styles';
-import CssBaseline from '@material-ui/core/CssBaseline';
+import { makeStyles } from '@material-ui/core/styles';
 import {
     initProcesses,
     LIGHT_THEME,
@@ -39,13 +34,12 @@ import {
     initializeAuthenticationProd,
     logout,
     TopBar,
-    SnackbarProvider,
 } from '@gridsuite/commons-ui';
 import { FormattedMessage } from 'react-intl';
 
 import Process from './process';
 
-import Parameters from './parameters';
+import Parameters, { useParameterState } from './parameters';
 import ProcessesConfigurationDialog from './processes-configuration-dialog';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
@@ -56,7 +50,6 @@ import {
     fetchConfigParameter,
     fetchConfigParameters,
     fetchMergeConfigs,
-    updateConfigParameter,
 } from '../utils/rest-api';
 
 import { ReactComponent as GridMergeLogoDark } from '../images/GridMerge_logo_dark.svg';
@@ -64,35 +57,15 @@ import { ReactComponent as GridMergeLogoLight } from '../images/GridMerge_logo_l
 import {
     APP_NAME,
     COMMON_APP_NAME,
-    PARAMS_THEME_KEY,
-    PARAMS_TIMELINE_DIAGONAL_LABELS,
-    PARAMS_LANGUAGE_KEY,
+    PARAM_THEME,
+    PARAM_LANGUAGE,
+    PARAM_TIMELINE_DIAGONAL_LABELS,
 } from '../utils/config-params';
 import { getComputedLanguage } from '../utils/language';
+import { useSnackbar } from 'notistack';
+import { displayErrorMessageWithSnackbar, useIntlRef } from '../utils/messages';
 
 const PREFIX_URL_PROCESSES = '/processes';
-
-const lightTheme = createMuiTheme({
-    palette: {
-        type: 'light',
-    },
-    mapboxStyle: 'mapbox://styles/mapbox/light-v9',
-});
-
-const darkTheme = createMuiTheme({
-    palette: {
-        type: 'dark',
-    },
-    mapboxStyle: 'mapbox://styles/mapbox/dark-v9',
-});
-
-const getMuiTheme = (theme) => {
-    if (theme === LIGHT_THEME) {
-        return lightTheme;
-    } else {
-        return darkTheme;
-    }
-};
 
 const useStyles = makeStyles(() => ({
     process: {
@@ -106,13 +79,21 @@ const useStyles = makeStyles(() => ({
 const noUserManager = { instance: null, error: null };
 
 const App = () => {
+    const intlRef = useIntlRef();
+
+    const { enqueueSnackbar } = useSnackbar();
+
     const configs = useSelector((state) => state.configs);
 
-    const theme = useSelector((state) => state.theme);
-
-    const language = useSelector((state) => state.language);
-
     const user = useSelector((state) => state.user);
+
+    const theme = useSelector((state) => state[PARAM_THEME]);
+
+    const [themeLocal, handleChangeTheme] = useParameterState(PARAM_THEME);
+
+    const [languageLocal, handleChangeLanguage] = useParameterState(
+        PARAM_LANGUAGE
+    );
 
     const signInCallbackError = useSelector(
         (state) => state.signInCallbackError
@@ -135,7 +116,7 @@ const App = () => {
 
     const classes = useStyles();
 
-    const [appsAndUrls, setAppsAndUrls] = React.useState([]);
+    const [appsAndUrls, setAppsAndUrls] = useState([]);
 
     const matchProcess = useRouteMatch({
         path: PREFIX_URL_PROCESSES + '/:processName',
@@ -156,15 +137,15 @@ const App = () => {
             console.debug('received UI parameters : ', params);
             params.forEach((param) => {
                 switch (param.name) {
-                    case PARAMS_THEME_KEY:
+                    case PARAM_THEME:
                         dispatch(selectTheme(param.value));
                         break;
-                    case PARAMS_TIMELINE_DIAGONAL_LABELS:
+                    case PARAM_TIMELINE_DIAGONAL_LABELS:
                         dispatch(
                             selectTimelineDiagonalLabels(param.value === 'true')
                         );
                         break;
-                    case PARAMS_LANGUAGE_KEY:
+                    case PARAM_LANGUAGE:
                         dispatch(selectLanguage(param.value));
                         dispatch(
                             selectComputedLanguage(
@@ -242,33 +223,61 @@ const App = () => {
         ws.onmessage = function (event) {
             let eventData = JSON.parse(event.data);
             if (eventData.headers && eventData.headers['parameterName']) {
-                fetchConfigParameter(eventData.headers['parameterName']).then(
-                    (param) => {
-                        updateParams([param]);
-                    }
-                );
+                fetchConfigParameter(eventData.headers['parameterName'])
+                    .then((param) => updateParams([param]))
+                    .catch((errorMessage) =>
+                        displayErrorMessageWithSnackbar(
+                            errorMessage,
+                            'paramsChangingError',
+                            enqueueSnackbar,
+                            intlRef
+                        )
+                    );
             }
         };
         ws.onerror = function (event) {
             console.error('Unexpected Notification WebSocket error', event);
         };
         return ws;
-    }, [updateParams]);
+    }, [updateParams, enqueueSnackbar, intlRef]);
 
     useEffect(() => {
         if (user !== null) {
-            fetchConfigParameters(COMMON_APP_NAME).then((params) => {
-                updateParams(params);
-            });
-            fetchConfigParameters(APP_NAME).then((params) => {
-                updateParams(params);
-            });
+            fetchConfigParameters(COMMON_APP_NAME)
+                .then((params) => updateParams(params))
+                .catch((errorMessage) =>
+                    displayErrorMessageWithSnackbar(
+                        errorMessage,
+                        'paramsChangingError',
+                        enqueueSnackbar,
+                        intlRef
+                    )
+                );
+
+            fetchConfigParameters(APP_NAME)
+                .then((params) => updateParams(params))
+                .catch((errorMessage) =>
+                    displayErrorMessageWithSnackbar(
+                        errorMessage,
+                        'paramsChangingError',
+                        enqueueSnackbar,
+                        intlRef
+                    )
+                );
+
             const ws = connectNotificationsUpdateConfig();
             return function () {
                 ws.close();
             };
         }
-    }, [user, dispatch, updateParams, connectNotificationsUpdateConfig]);
+    }, [
+        user,
+        dispatch,
+        updateParams,
+        connectNotificationsUpdateConfig,
+        enqueueSnackbar,
+        intlRef,
+    ]);
 
     const selectedTabId = useMemo(() => {
         let index =
@@ -311,138 +320,118 @@ const App = () => {
         );
     }
 
-    const handleThemeClick = (theme) => {
-        updateConfigParameter(PARAMS_THEME_KEY, theme);
-    };
-
-    const handleLanguageClick = (language) => {
-        updateConfigParameter(PARAMS_LANGUAGE_KEY, language);
-    };
-
     const showPopupConfigurationProcesses = () => {
         setShowConfigurationProcesses(true);
     };
 
     return (
-        <ThemeProvider theme={getMuiTheme(theme)}>
-            <SnackbarProvider hideIconVariant={false}>
-                <React.Fragment>
-                    <CssBaseline />
-                    <TopBar
-                        appName="Merge"
-                        appColor="#2D9BF0"
-                        appLogo={
-                            theme === LIGHT_THEME ? (
-                                <GridMergeLogoLight />
-                            ) : (
-                                <GridMergeLogoDark />
-                            )
-                        }
-                        onParametersClick={() => showParametersClicked()}
-                        onLogoutClick={() =>
-                            logout(dispatch, userManager.instance)
-                        }
-                        onLogoClick={() => onLogoClicked()}
-                        user={user}
-                        appsAndUrls={appsAndUrls}
-                        onThemeClick={handleThemeClick}
-                        theme={theme}
-                        onAboutClick={() => console.debug('about')}
-                        onLanguageClick={handleLanguageClick}
-                        language={language}
-                    >
-                        <Tabs
-                            value={selectedTabId}
-                            indicatorColor="primary"
-                            variant="scrollable"
-                            scrollButtons="auto"
-                            onChange={(event, newValue) => toggleTab(newValue)}
-                            aria-label="parameters"
-                            className={classes.process}
-                        >
-                            {configs.map((config) => (
-                                <Tab
-                                    key={config.processUuid}
-                                    label={config.process}
-                                    value={config.process}
-                                />
-                            ))}
-                        </Tabs>
-                        {user && (
-                            <>
-                                <Button
-                                    className={
-                                        classes.btnConfigurationProcesses
-                                    }
-                                    onClick={showPopupConfigurationProcesses}
-                                >
-                                    <FormattedMessage id="configureProcesses" />
-                                </Button>
-                                <ProcessesConfigurationDialog
-                                    open={showConfigurationProcesses}
-                                    onClose={() => {
-                                        setShowConfigurationProcesses(false);
-                                    }}
-                                    matchProcess={matchProcess}
-                                />
-                            </>
-                        )}
-                    </TopBar>
-                    <Parameters
-                        showParameters={showParameters}
-                        hideParameters={hideParameters}
-                    />
-                    {user !== null ? (
-                        <>
-                            <Switch>
-                                <Route exact path={'/'}>
-                                    {configs.length > 0 && (
-                                        <Redirect
-                                            to={
-                                                PREFIX_URL_PROCESSES +
-                                                '/' +
-                                                configs[0].process
-                                            }
-                                        />
-                                    )}
-                                </Route>
-                                <Route exact path="/sign-in-callback">
-                                    <Redirect to={getPreLoginPath() || '/'} />
-                                </Route>
-                                <Route exact path="/logout-callback">
-                                    <h1>
-                                        Error: logout failed; you are still
-                                        logged in.
-                                    </h1>
-                                </Route>
-                                <Route
-                                    exact
-                                    path={
-                                        PREFIX_URL_PROCESSES + '/:processName'
-                                    }
-                                    render={({ match }) =>
-                                        displayProcess(match.params.processName)
-                                    }
-                                />
-                                <Route>
-                                    <h1>
-                                        <FormattedMessage id="pageNotFound" />{' '}
-                                    </h1>
-                                </Route>
-                            </Switch>
-                        </>
+        <>
+            <TopBar
+                appName="Merge"
+                appColor="#2D9BF0"
+                appLogo={
+                    theme === LIGHT_THEME ? (
+                        <GridMergeLogoLight />
                     ) : (
-                        <AuthenticationRouter
-                            userManager={userManager}
-                            signInCallbackError={signInCallbackError}
-                            dispatch={dispatch}
-                            history={history}
-                            location={location}
+                        <GridMergeLogoDark />
+                    )
+                }
+                onParametersClick={() => showParametersClicked()}
+                onLogoutClick={() => logout(dispatch, userManager.instance)}
+                onLogoClick={() => onLogoClicked()}
+                user={user}
+                appsAndUrls={appsAndUrls}
+                onThemeClick={handleChangeTheme}
+                theme={themeLocal}
+                onAboutClick={() => console.debug('about')}
+                onLanguageClick={handleChangeLanguage}
+                language={languageLocal}
+            >
+                <Tabs
+                    value={selectedTabId}
+                    indicatorColor="primary"
+                    variant="scrollable"
+                    scrollButtons="auto"
+                    onChange={(event, newValue) => toggleTab(newValue)}
+                    aria-label="parameters"
+                    className={classes.process}
+                >
+                    {configs.map((config) => (
+                        <Tab
+                            key={config.processUuid}
+                            label={config.process}
+                            value={config.process}
                         />
-                    )}
-                </React.Fragment>
-            </SnackbarProvider>
-        </ThemeProvider>
+                    ))}
+                </Tabs>
+                {user && (
+                    <>
+                        <Button
+                            className={classes.btnConfigurationProcesses}
+                            onClick={showPopupConfigurationProcesses}
+                        >
+                            <FormattedMessage id="configureProcesses" />
+                        </Button>
+                        <ProcessesConfigurationDialog
+                            open={showConfigurationProcesses}
+                            onClose={() => {
+                                setShowConfigurationProcesses(false);
+                            }}
+                            matchProcess={matchProcess}
+                        />
+                    </>
+                )}
+            </TopBar>
+            <Parameters
+                showParameters={showParameters}
+                hideParameters={hideParameters}
+            />
+            {user !== null ? (
+                <>
+                    <Switch>
+                        <Route exact path={'/'}>
+                            {configs.length > 0 && (
+                                <Redirect
+                                    to={
+                                        PREFIX_URL_PROCESSES +
+                                        '/' +
+                                        configs[0].process
+                                    }
+                                />
+                            )}
+                        </Route>
+                        <Route exact path="/sign-in-callback">
+                            <Redirect to={getPreLoginPath() || '/'} />
+                        </Route>
+                        <Route exact path="/logout-callback">
+                            <h1>
+                                Error: logout failed; you are still logged in.
+                            </h1>
+                        </Route>
+                        <Route
+                            exact
+                            path={PREFIX_URL_PROCESSES + '/:processName'}
+                            render={({ match }) =>
+                                displayProcess(match.params.processName)
+                            }
+                        />
+                        <Route>
+                            <h1>
+                                <FormattedMessage id="pageNotFound" />{' '}
+                            </h1>
+                        </Route>
+                    </Switch>
+                </>
+            ) : (
+                <AuthenticationRouter
+                    userManager={userManager}
+                    signInCallbackError={signInCallbackError}
+                    dispatch={dispatch}
+                    history={history}
+                    location={location}
+                />
+            )}
+        </>
     );
 };
 

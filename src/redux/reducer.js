@@ -27,27 +27,36 @@ import {
     saveLocalStorageLanguage,
     getLocalStorageComputedLanguage,
 } from './local-storage';
+import {
+    PARAM_LANGUAGE,
+    PARAM_THEME,
+    PARAM_TIMELINE_DIAGONAL_LABELS,
+} from '../utils/config-params';
+
+const paramsInitialState = {
+    [PARAM_THEME]: getLocalStorageTheme(),
+    [PARAM_LANGUAGE]: getLocalStorageLanguage(),
+    [PARAM_TIMELINE_DIAGONAL_LABELS]: true,
+};
 
 const initialState = {
-    theme: getLocalStorageTheme(),
-    language: getLocalStorageLanguage(),
     computedLanguage: getLocalStorageComputedLanguage(),
-    timelineDiagonalLabels: true,
     user: null,
     signInCallbackError: null,
     configs: [],
     processes: [],
+    ...paramsInitialState,
 };
 
 export const reducer = createReducer(initialState, {
     [SELECT_THEME]: (state, action) => {
-        state.theme = action.theme;
-        saveLocalStorageTheme(state.theme);
+        state[PARAM_THEME] = action[PARAM_THEME];
+        saveLocalStorageTheme(state[PARAM_THEME]);
     },
 
     [SELECT_LANGUAGE]: (state, action) => {
-        state.language = action.language;
-        saveLocalStorageLanguage(state.language);
+        state[PARAM_LANGUAGE] = action[PARAM_LANGUAGE];
+        saveLocalStorageLanguage(state[PARAM_LANGUAGE]);
     },
 
     [SELECT_COMPUTED_LANGUAGE]: (state, action) => {
@@ -90,6 +99,7 @@ export const reducer = createReducer(initialState, {
     },
 
     [TIMELINE_DIAGONAL_LABELS]: (state, action) => {
-        state.timelineDiagonalLabels = action.timelineDiagonalLabels;
+        state[PARAM_TIMELINE_DIAGONAL_LABELS] =
+            action[PARAM_TIMELINE_DIAGONAL_LABELS];
     },
 });

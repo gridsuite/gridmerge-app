@@ -87,9 +87,11 @@ export function fetchConfigParameters(appName) {
     console.info('Fetching UI configuration params for app : ' + appName);
     const fetchParams =
         PREFIX_CONFIG_QUERIES + `/v1/applications/${appName}/parameters`;
-    return backendFetch(fetchParams).then((res) => {
-        return res.json();
-    });
+    return backendFetch(fetchParams).then((response) =>
+        response.ok
+            ? response.json()
+            : response.text().then((text) => Promise.reject(text))
+    );
 }
 
 export function fetchConfigParameter(name) {
@@ -102,9 +104,11 @@ export function fetchConfigParameter(name) {
     const fetchParams =
         PREFIX_CONFIG_QUERIES +
         `/v1/applications/${appName}/parameters/${name}`;
-    return backendFetch(fetchParams).then((res) => {
-        return res.json();
-    });
+    return backendFetch(fetchParams).then((response) =>
+        response.ok
+            ? response.json()
+            : response.text().then((text) => Promise.reject(text))
+    );
 }
 
 export function updateConfigParameter(name, value) {
@@ -119,7 +123,11 @@ export function updateConfigParameter(name, value) {
         PREFIX_CONFIG_QUERIES +
         `/v1/applications/${appName}/parameters/${name}?value=` +
         encodeURIComponent(value);
-    backendFetch(updateParams, { method: 'put' }).then();
+    return backendFetch(updateParams, { method: 'put' }).then((response) =>
+        response.ok
+            ? response
+            : response.text().then((text) => Promise.reject(text))
+    );
 }
 
 export function fetchMergeConfigs() {
