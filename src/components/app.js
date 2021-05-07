@@ -63,6 +63,7 @@ import {
 } from '../utils/config-params';
 import { getComputedLanguage } from '../utils/language';
 import { useSnackbar } from 'notistack';
+import { displayErrorMessageWithSnackbar } from '../utils/messages';
 
 const PREFIX_URL_PROCESSES = '/processes';
 
@@ -77,7 +78,7 @@ const useStyles = makeStyles(() => ({
 
 const noUserManager = { instance: null, error: null };
 
-const App = ({ onChangeTheme }) => {
+const App = () => {
     const intl = useIntl();
 
     const { enqueueSnackbar } = useSnackbar();
@@ -87,10 +88,6 @@ const App = ({ onChangeTheme }) => {
     const user = useSelector((state) => state.user);
 
     const [themeLocal, handleChangeTheme] = useParameterState(PARAM_THEME);
-
-    useEffect(() => {
-        onChangeTheme(themeLocal);
-    }, [onChangeTheme, themeLocal]);
 
     const [languageLocal, handleChangeLanguage] = useParameterState(
         PARAM_LANGUAGE
@@ -224,15 +221,16 @@ const App = ({ onChangeTheme }) => {
         ws.onmessage = function (event) {
             let eventData = JSON.parse(event.data);
             if (eventData.headers && eventData.headers['parameterName']) {
-                fetchConfigParameter(
-                    eventData.headers['parameterName'],
-                    enqueueSnackbar,
-                    intl.formatMessage({
-                        id: 'paramsRetrievingError',
-                    })
-                ).then((param) => {
-                    updateParams([param]);
-                });
+                fetchConfigParameter(eventData.headers['parameterName'])
+                    .then((param) => updateParams([param]))
+                    .catch((errorMessage) =>
+                        displayErrorMessageWithSnackbar(
+                            errorMessage,
+                            'paramsChangingError',
+                            enqueueSnackbar,
+                            intl
+                        )
+                    );
             }
         };
         ws.onerror = function (event) {
@@ -243,25 +241,27 @@ const App = ({ onChangeTheme }) => {
 
     useEffect(() => {
         if (user !== null) {
-            fetchConfigParameters(
-                COMMON_APP_NAME,
-                enqueueSnackbar,
-                intl.formatMessage({
-                    id: 'paramsRetrievingError',
-                })
-            ).then((params) => {
-                updateParams(params);
-            });
+            fetchConfigParameters(COMMON_APP_NAME)
+                .then((params) => updateParams(params))
+                .catch((errorMessage) =>
+                    displayErrorMessageWithSnackbar(
+                        errorMessage,
+                        'paramsChangingError',
+                        enqueueSnackbar,
+                        intl
+                    )
+                );
 
-            fetchConfigParameters(
-                APP_NAME,
-                enqueueSnackbar,
-                intl.formatMessage({
-                    id: 'paramsRetrievingError',
-                })
-            ).then((params) => {
-                updateParams(params);
-            });
+            fetchConfigParameters(APP_NAME)
+                .then((params) => updateParams(params))
+                .catch((errorMessage) =>
+                    displayErrorMessageWithSnackbar(
+                        errorMessage,
+                        'paramsChangingError',
+                        enqueueSnackbar,
+                        intl
+                    )
+                );
 
             const ws = connectNotificationsUpdateConfig();
             return function () {
