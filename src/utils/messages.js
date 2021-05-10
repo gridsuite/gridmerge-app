@@ -23,16 +23,24 @@ export function useIntlRef() {
     return intlRef;
 }
 
-export function displayErrorMessageWithSnackbar(
+export function displayErrorMessageWithSnackbar({
     errorMessage,
-    headerMessageId,
     enqueueSnackbar,
-    intl
-) {
-    let messageHeader = intl.current.formatMessage({
-        id: headerMessageId,
-    });
-    enqueueSnackbar(messageHeader + '\n\n' + errorMessage, {
+    headerMessage: { headerMessageId, headerMessageValues, intlRef } = {},
+}) {
+    let message;
+    if (headerMessageId) {
+        let messageHeader = intlRef.current.formatMessage(
+            {
+                id: headerMessageId,
+            },
+            headerMessageValues
+        );
+        message = messageHeader + '\n\n' + errorMessage;
+    } else {
+        message = errorMessage;
+    }
+    enqueueSnackbar(message, {
         variant: 'error',
         persist: true,
         style: { whiteSpace: 'pre-line' },
