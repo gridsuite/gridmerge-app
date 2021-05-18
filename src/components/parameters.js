@@ -56,12 +56,14 @@ export function useParameterState(paramName) {
             setParamLocalState(value);
             updateConfigParameter(paramName, value).catch((errorMessage) => {
                 setParamLocalState(paramGlobalState);
-                displayErrorMessageWithSnackbar(
-                    errorMessage,
-                    'paramsChangingError',
-                    enqueueSnackbar,
-                    intlRef
-                );
+                displayErrorMessageWithSnackbar({
+                    errorMessage: errorMessage,
+                    enqueueSnackbar: enqueueSnackbar,
+                    headerMessage: {
+                        headerMessageId: 'paramsChangingError',
+                        intlRef: intlRef,
+                    },
+                });
             });
         },
         [
