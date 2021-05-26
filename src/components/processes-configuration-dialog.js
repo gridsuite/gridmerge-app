@@ -29,6 +29,7 @@ import {
     fetchMergeConfigs,
     fetchTsosList,
     fetchBusinessProcessesList,
+    fetchBoundariesList,
 } from '../utils/rest-api';
 import { initProcesses } from '../redux/actions';
 import { useDispatch, useSelector } from 'react-redux';
@@ -171,6 +172,133 @@ const ProcessTsos = ({
     );
 };
 
+const ProcessBoundarySet = ({
+    process,
+    processIndex,
+    handleProcessUseBoundarySetChanged,
+    handleProcessEqBoundarySetChanged,
+    handleProcessTpBoundarySetChanged,
+    boundaries,
+}) => {
+    const intl = useIntl();
+
+    const [disabledBoundaries, setDisabledBoundaries] = useState(true);
+
+    useEffect(() => {
+        setDisabledBoundaries(process.useLastBoundarySet);
+    }, [process.useLastBoundarySet]);
+
+    return (
+        <>
+            <RadioGroup
+                row
+                aria-label="useBoundarySet"
+                name="useBoundarySet"
+                value={
+                    process.useLastBoundarySet !== null
+                        ? process.useLastBoundarySet + ''
+                        : 'true'
+                }
+                onChange={(e) => {
+                    handleProcessUseBoundarySetChanged(e, processIndex);
+                    setDisabledBoundaries(e.target.value === 'true');
+                }}
+            >
+                <FormControlLabel
+                    row="true"
+                    value="true"
+                    control={<Radio />}
+                    label={intl.formatMessage({
+                        id: 'lastBoundarySet',
+                    })}
+                />
+                <FormControlLabel
+                    row="true"
+                    value="false"
+                    control={<Radio />}
+                    label={intl.formatMessage({
+                        id: 'specificBoundarySet',
+                    })}
+                />
+            </RadioGroup>
+            <Grid container spacing={2}>
+                <Grid item xs={12} sm={10}>
+                    <Autocomplete
+                        disabled={disabledBoundaries}
+                        id="select_eq_boundary"
+                        value={
+                            process.eqBoundary !== null
+                                ? process.eqBoundary
+                                : null
+                        }
+                        disableClearable
+                        autoHighlight
+                        onChange={(event, newValue) => {
+                            handleProcessEqBoundarySetChanged(
+                                newValue,
+                                processIndex
+                            );
+                        }}
+                        options={boundaries.filter((b) =>
+                            b.filename.match(/^.*__ENTSOE_EQBD.*$/)
+                        )}
+                        getOptionLabel={(boundary) => boundary.filename}
+                        getOptionSelected={(option, value) =>
+                            option.filename === value.filename
+                        }
+                        size="small"
+                        renderInput={(props) => (
+                            <TextField
+                                {...props}
+                                variant="outlined"
+                                placeholder={intl.formatMessage({
+                                    id: 'eqBoundary',
+                                })}
+                            />
+                        )}
+                    />
+                </Grid>
+                <Grid item xs={12} sm={10}>
+                    <Autocomplete
+                        disabled={disabledBoundaries}
+                        id="select_tp_boundary"
+                        value={
+                            process.tpBoundary !== null
+                                ? process.tpBoundary
+                                : null
+                        }
+                        disableClearable
+                        autoHighlight
+                        onChange={(event, newValue) => {
+                            handleProcessTpBoundarySetChanged(
+                                newValue,
+                                processIndex
+                            );
+                        }}
+                        options={boundaries.filter((b) =>
+                            b.filename.match(/^.*__ENTSOE_TPBD.*$/)
+                        )}
+                        getOptionLabel={(boundary) => boundary.filename}
+                        getOptionSelected={(option, value) =>
+                            option.filename === value.filename
+                        }
+                        size="small"
+                        renderInput={(props) => (
+                            <TextField
+                                {...props}
+                                variant="outlined"
+                                placeholder={intl.formatMessage({
+                                    id: 'tpBoundary',
+                                })}
+                            />
+                        )}
+                    />
+                </Grid>
+            </Grid>
+        </>
+    );
+};
+
 const ProcessesContainer = ({ handleProcessesChanged, currentProcess }) => {
     const classes = useStyles();
     const intl = useIntl();
@@ -180,6 +308,7 @@ const ProcessesContainer = ({ handleProcessesChanged, currentProcess }) => {
         authorizedBusinessProcesses,
         setAuthorizedBusinessProcesses,
     ] = useState([]);
+    const [boundaries, setBoundaries] = useState([]);
 
     function handleAddProcess() {
         const currentProcessesCopy = [...currentProcess];
@@ -189,6 +318,7 @@ const ProcessesContainer = ({ handleProcessesChanged, currentProcess }) => {
             businessProcess: '',
             tsos: [{ name: '', reactKey: keyGenerator() }],
             runBalancesAdjustment: false,
+            useLastBoundarySet: true,
         });
         handleProcessesChanged(currentProcessesCopy);
     }
@@ -220,6 +350,33 @@ const ProcessesContainer = ({ handleProcessesChanged, currentProcess }) => {
         handleProcessesChanged(currentProcessesCopy);
     }
 
+    function handleProcessUseBoundarySetChanged(e, index) {
+        const currentProcessesCopy = [...currentProcess];
+        currentProcessesCopy[index] = {
+            ...currentProcessesCopy[index],
+            ...{ useLastBoundarySet: e.target.value === 'true' },
+        };
+        handleProcessesChanged(currentProcessesCopy);
+    }
+
+    function handleProcessEqBoundarySetChanged(value, index) {
+        const currentProcessesCopy = [...currentProcess];
+        currentProcessesCopy[index] = {
+            ...currentProcessesCopy[index],
+            ...{ eqBoundary: value },
+        };
+        handleProcessesChanged(currentProcessesCopy);
+    }
+
+    function handleProcessTpBoundarySetChanged(value, index) {
+        const currentProcessesCopy = [...currentProcess];
+        currentProcessesCopy[index] = {
+            ...currentProcessesCopy[index],
+            ...{ tpBoundary: value },
+        };
+        handleProcessesChanged(currentProcessesCopy);
+    }
+
     function handleDeleteProcess(index) {
         const currentProcessesCopy = [...currentProcess];
         currentProcessesCopy.splice(index, 1);
@@ -243,15 +400,19 @@ const ProcessesContainer = ({ handleProcessesChanged, currentProcess }) => {
         fetchTsosList().then((res) => {
             setAuthorizedTsosCodes(res);
         });
+        // fetching list of boundaries
+        fetchBoundariesList().then((res) => {
+            setBoundaries(res);
+        });
     }, []);
 
     return (
         <div>
             <Grid container className={classes.newTsoContainerLabel}>
-                <Grid item xs={12} sm={5}>
+                <Grid item xs={12} sm={7}>
                     <FormattedMessage id="processes" />
                 </Grid>
-                <Grid item xs={12} sm={7}>
+                <Grid item xs={12} sm={5}>
                     <FormattedMessage id="tsos" />
                 </Grid>
             </Grid>
@@ -263,7 +424,7 @@ const ProcessesContainer = ({ handleProcessesChanged, currentProcess }) => {
                     key={process.processUuid}
                 >
                     {/* Process input*/}
-                    <Grid container item xs={12} sm={5}>
+                    <Grid container item xs={12} sm={7}>
                         <Grid item xs={12} sm={8}>
                             <TextField
                                 fullWidth={true}
@@ -316,6 +477,7 @@ const ProcessesContainer = ({ handleProcessesChanged, currentProcess }) => {
                             />
 
                             <RadioGroup
+                                row
                                 aria-label="runBalancesAdjustment"
                                 name="runBalancesAdjustment"
                                 value={process.runBalancesAdjustment + ''}
@@ -338,6 +500,20 @@ const ProcessesContainer = ({ handleProcessesChanged, currentProcess }) => {
                                     })}
                                 />
                             </RadioGroup>
+                            <ProcessBoundarySet
+                                process={process}
+                                processIndex={index}
+                                handleProcessUseBoundarySetChanged={
+                                    handleProcessUseBoundarySetChanged
+                                }
+                                handleProcessEqBoundarySetChanged={
+                                    handleProcessEqBoundarySetChanged
+                                }
+                                handleProcessTpBoundarySetChanged={
+                                    handleProcessTpBoundarySetChanged
+                                }
+                                boundaries={boundaries}
+                            />
                         </Grid>
                         <Grid item xs={12} sm={4} align="center">
                             <IconButton
@@ -348,7 +524,7 @@ const ProcessesContainer = ({ handleProcessesChanged, currentProcess }) => {
                         </Grid>
                     </Grid>
                     {/* Tso inputs */}
-                    <Grid item xs={12} sm={7}>
+                    <Grid item xs={12} sm={5}>
                         <ProcessTsos
                             tsosList={process.tsos}
                             processIndex={index}
@@ -438,8 +614,24 @@ const ProcessesConfigurationDialog = ({ open, onClose, matchProcess }) => {
             process: process.process,
             businessProcess: process.businessProcess,
             runBalancesAdjustment: process.runBalancesAdjustment,
+            useLastBoundarySet: process.useLastBoundarySet,
+            eqBoundary: !process.useLastBoundarySet
+                ? process.eqBoundary
+                : undefined,
+            tpBoundary: !process.useLastBoundarySet
+                ? process.tpBoundary
+                : undefined,
             tsos: process.tsos.map((tso) => tso.name),
         };
+    };
+
+    const isBoundaryIdentical = (initialBoundary, currentBoundary) => {
+        return (
+            (initialBoundary == null && currentBoundary == null) ||
+            (initialBoundary !== null &&
+                currentBoundary !== null &&
+                initialBoundary.filename === currentBoundary.filename)
+        );
     };
 
     const areDifferent = (initialProcess, currentProcess) => {
@@ -451,8 +643,21 @@ const ProcessesConfigurationDialog = ({ open, onClose, matchProcess }) => {
             initialsTSOs.size === currentTSOs.size &&
             [...currentTSOs].every((tso) => initialsTSOs.has(tso));
 
+        const isEqBoundaryIdentical = isBoundaryIdentical(
+            initialProcess.eqBoundary,
+            currentProcess.eqBoundary
+        );
+        const isTpBoundaryIdentical = isBoundaryIdentical(
+            initialProcess.tpBoundary,
+            currentProcess.tpBoundary
+        );
+
         return (
             !areTsoListsIdentical ||
+            initialProcess.useLastBoundarySet !==
+                currentProcess.useLastBoundarySet ||
+            !isEqBoundaryIdentical ||
+            !isTpBoundaryIdentical ||
             initialProcess.runBalancesAdjustment !==
                 currentProcess.runBalancesAdjustment ||
             initialProcess.businessProcess !== currentProcess.businessProcess ||
@@ -469,10 +674,13 @@ const ProcessesConfigurationDialog = ({ open, onClose, matchProcess }) => {
             promises.push(deleteProcess(p.processUuid));
         });
         for (let i = 0; i < processes.length; i++) {
-            // ignore processes with no name
+            // ignore processes with no name, and also processes using specific boundary and no EQ and TP boundary giver
             if (
                 processes[i].process === '' ||
-                processes[i].businessProcess === ''
+                processes[i].businessProcess === '' ||
+                (!processes[i].useLastBoundarySet &&
+                    (processes[i].eqBoundary == null ||
+                        processes[i].tpBoundary == null))
             ) {
                 continue;
             }
@@ -481,7 +689,7 @@ const ProcessesConfigurationDialog = ({ open, onClose, matchProcess }) => {
                 (element) => element.processUuid === processes[i].processUuid
             );
 
-            if (typeof initialProcess === 'undefined') {
+            if (initialProcess == null) {
                 let newProcess = processes[i];
                 newProcess.processUuid = null;
                 // ADD NEW PROCESSES
