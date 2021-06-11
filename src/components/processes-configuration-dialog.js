@@ -196,7 +196,7 @@ const ProcessBoundarySet = ({
                 name="useBoundarySet"
                 value={
                     process.useLastBoundarySet !== null
-                        ? process.useLastBoundarySet + ''
+                        ? process.useLastBoundarySet.toString()
                         : 'true'
                 }
                 onChange={(e) => {
@@ -226,11 +226,7 @@ const ProcessBoundarySet = ({
                     <Autocomplete
                         disabled={disabledBoundaries}
                         id="select_eq_boundary"
-                        value={
-                            process.eqBoundary !== null
-                                ? process.eqBoundary
-                                : null
-                        }
+                        value={process.eqBoundary}
                         disableClearable
                         autoHighlight
                         onChange={(event, newValue) => {
@@ -262,11 +258,7 @@ const ProcessBoundarySet = ({
                     <Autocomplete
                         disabled={disabledBoundaries}
                         id="select_tp_boundary"
-                        value={
-                            process.tpBoundary !== null
-                                ? process.tpBoundary
-                                : null
-                        }
+                        value={process.tpBoundary}
                         disableClearable
                         autoHighlight
                         onChange={(event, newValue) => {
@@ -626,12 +618,9 @@ const ProcessesConfigurationDialog = ({ open, onClose, matchProcess }) => {
     };
 
     const isBoundaryIdentical = (initialBoundary, currentBoundary) => {
-        return (
-            (initialBoundary == null && currentBoundary == null) ||
-            (initialBoundary !== null &&
-                currentBoundary !== null &&
-                initialBoundary.filename === currentBoundary.filename)
-        );
+        let initialFilename = initialBoundary ? initialBoundary.filename : null;
+        let currentFilename = currentBoundary ? currentBoundary.filename : null;
+        return initialFilename === currentFilename;
     };
 
     const areDifferent = (initialProcess, currentProcess) => {
@@ -689,7 +678,7 @@ const ProcessesConfigurationDialog = ({ open, onClose, matchProcess }) => {
                 (element) => element.processUuid === processes[i].processUuid
             );
 
-            if (initialProcess == null) {
+            if (!initialProcess) {
                 let newProcess = processes[i];
                 newProcess.processUuid = null;
                 // ADD NEW PROCESSES

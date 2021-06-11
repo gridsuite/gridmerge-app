@@ -88,7 +88,7 @@ const Process = (props) => {
             if (headers['date']) {
                 const mergeDate = new Date(headers['date']);
 
-                // we need to directly access the store to get current process date as the wensocket message handler cannot
+                // we need to directly access the store to get current process date as the websocket message handler cannot
                 // use react hooks
                 const state = store.getState();
                 const processDate = state.processes[props.index].date;
