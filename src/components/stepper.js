@@ -28,6 +28,7 @@ import {
 import PropTypes from 'prop-types';
 import { useSnackbar } from 'notistack';
 import { displayErrorMessageWithSnackbar } from '../utils/messages';
+import ReportViewer from './report-viewer/report-viewer';
 
 const useStyles = makeStyles((theme) => ({
     stepperGridContainer: {
@@ -101,9 +102,15 @@ const StepperWithStatus = (props) => {
     const { enqueueSnackbar } = useSnackbar();
 
     const [openExportDialog, setOpenExport] = React.useState(false);
+    const [openReportViewer, setOpenReportViewer] = React.useState(false);
+    const [report, setReport] = React.useState(null);
 
     const handleCloseExport = () => {
         setOpenExport(false);
+    };
+
+    const handleCloseReport = () => {
+        setOpenReportViewer(false);
     };
 
     const handleClickExport = (url) => {
@@ -119,7 +126,10 @@ const StepperWithStatus = (props) => {
     const handleClickShowReport = () => {
         console.info('Show report for : ' + props.merge.processUuid + '...');
         fetchReport(props.merge.processUuid, props.merge.date)
-            .then((report) => console.info('REPORT = ', report))
+            .then((report) => {
+                setReport(report);
+                setOpenReportViewer(true);
+            })
             .catch((errorMessage) =>
                 displayErrorMessageWithSnackbar({
                     errorMessage: errorMessage,
@@ -326,6 +336,14 @@ const StepperWithStatus = (props) => {
                 </span>
             </Grid>
             <Grid item xs={12} md={2} />
+            {report && (
+                <ReportViewer
+                    title={intl.formatMessage({ id: 'showReport' })}
+                    open={openReportViewer}
+                    onClose={handleCloseReport}
+                    report={report}
+                />
+            )}
             <ExportDialog
                 open={openExportDialog}
                 onClose={handleCloseExport}
