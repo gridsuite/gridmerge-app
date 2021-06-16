@@ -9,6 +9,7 @@
     "igmReception": "Réception des IGM",
     "imgMerged": "IGM mergés",
     "cgmValid": "CGM validé",
+    "showReport" : "Afficher logs",
 
     "exportNetwork": "Exporter le réseau",
     "export": "Exporter",
@@ -16,12 +17,10 @@
     "exportFormat": "Format de l'export",
     "exportStudyErrorMsg": "Le format de l'export n'est pas spécifié",
 
-    "cancel": "Annuler",
-
     "pageNotFound": "Page introuvable",
     "configureProcesses": "Configurer processus",
     "mergingProcessConfigurationTitle": "Configuration des processus de merge",
-    "cancel": "Retour",
+    "cancel": "Annuler",
     "save": "Enregistrer",
     "confirm": "Confirmer",
     "confirmMessage": "Confirmer vous la suppression des processus suivants ?",

@@ -300,14 +300,15 @@ export function deleteProcess(processUuid) {
     });
 }
 
-export function getReplaceIGMUrl(processUuid, date) {
+function getMergeUrl(processUuid, date, uri) {
     const url =
         PREFIX_ORCHESTRATOR_QUERIES +
         '/v1/' +
         processUuid +
         '/' +
         date +
-        '/replace-igms';
+        '/' +
+        uri;
     return getUrlWithToken(url);
 }
 
@@ -315,9 +316,20 @@ export function replaceIGM(processUuid, date) {
     console.info(
         'replacing igm for process : ' + processUuid + ' at : ' + date
     );
-    return backendFetch(getReplaceIGMUrl(processUuid, date), {
+    return backendFetch(getMergeUrl(processUuid, date, 'replace-igms'), {
         method: 'put',
     }).then((response) => (response ? response.json() : null));
+}
+
+export function fetchReport(processUuid, date) {
+    console.info('get report for process : ' + processUuid + ' at : ' + date);
+    return backendFetch(
+        getMergeUrl(processUuid, date, 'report')
+    ).then((response) =>
+        response.ok
+            ? response.json()
+            : response.text().then((text) => Promise.reject(text))
+    );
 }
 
 export function fetchTsosList() {

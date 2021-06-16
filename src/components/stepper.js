@@ -14,10 +14,12 @@ import IconButton from '@material-ui/core/IconButton';
 import Grid from '@material-ui/core/Grid';
 import { FormattedMessage, useIntl } from 'react-intl';
 import GetAppIcon from '@material-ui/icons/GetApp';
+import AccountTreeIcon from '@material-ui/icons/AccountTree';
 import { ExportDialog } from '../utils/dialogs';
 import BuildIcon from '@material-ui/icons/Build';
 import {
     CgmStatus,
+    fetchReport,
     getExportMergeUrl,
     getIgmStatus,
     IgmStatus,
@@ -25,36 +27,40 @@ import {
 } from '../utils/rest-api';
 import PropTypes from 'prop-types';
 import { useSnackbar } from 'notistack';
+import { displayErrorMessageWithSnackbar } from '../utils/messages';
 
 const useStyles = makeStyles((theme) => ({
-    stepperContainer: {
+    stepperGridContainer: {
         position: 'absolute',
         bottom: '15px',
     },
-    downloadLabelDisabled: {
+    stepperGridMargins: {
+        marginLeft: '2px',
+        marginRight: '2px',
+    },
+    stepperButtonContainer: {
+        textAlign: 'center',
+        backgroundColor: theme.palette.background.paper,
+    },
+    stepperButton: {
+        padding: '3px',
+    },
+    stepperButtonIcon: {
+        fontSize: '50px',
+    },
+    buttonLabelDisabled: {
         color: '#b5b5b5',
         display: 'block',
         fontSize: '14px',
         lineHeight: '1',
     },
-    downloadLabelEnable: {
+    buttonLabelEnabled: {
         display: 'block',
         fontSize: '14px',
         lineHeight: '1',
     },
-    downloadContainer: {
-        textAlign: 'center',
-        marginLeft: '5px',
-        backgroundColor: theme.palette.background.paper,
-    },
     stepLabel: {
         fontSize: '16px',
-    },
-    downloadIcon: {
-        fontSize: '50px',
-    },
-    downloadButton: {
-        padding: '3px',
     },
     iframe: {
         visibility: 'hidden',
@@ -68,28 +74,6 @@ const useStyles = makeStyles((theme) => ({
         replaceIGMContainer: {
             minHeight: '120px',
         },
-    },
-    replaceIGMContainer: {
-        textAlign: 'center',
-        marginRight: '5px',
-        backgroundColor: theme.palette.background.paper,
-    },
-    replaceIGMButton: {
-        padding: '3px',
-    },
-    replaceIGMIcon: {
-        fontSize: '50px',
-    },
-    replaceIGMLabelDisabled: {
-        color: '#b5b5b5',
-        display: 'block',
-        fontSize: '14px',
-        lineHeight: '1',
-    },
-    replaceIGMLabelEnabled: {
-        display: 'block',
-        fontSize: '14px',
-        lineHeight: '1',
     },
 }));
 
@@ -130,6 +114,18 @@ const StepperWithStatus = (props) => {
 
     const handleOpenExport = () => {
         setOpenExport(true);
+    };
+
+    const handleClickShowReport = () => {
+        console.info('Show report for : ' + props.merge.processUuid + '...');
+        fetchReport(props.merge.processUuid, props.merge.date)
+            .then((report) => console.info('REPORT = ', report))
+            .catch((errorMessage) =>
+                displayErrorMessageWithSnackbar({
+                    errorMessage: errorMessage,
+                    enqueueSnackbar: enqueueSnackbar,
+                })
+            );
     };
 
     const handleReplaceIGM = () => {
@@ -205,31 +201,44 @@ const StepperWithStatus = (props) => {
     }, [stepper]);
 
     return (
-        <Grid container direction="row" className={classes.stepperContainer}>
-            <Grid item xs={12} md={2}></Grid>
-            <Grid item xs={12} md={1} className={classes.replaceIGMContainer}>
+        <Grid
+            container
+            direction="row"
+            className={classes.stepperGridContainer}
+        >
+            <Grid item xs={12} md={2} />
+            <Grid
+                item
+                xs={12}
+                md={1}
+                className={
+                    classes.stepperButtonContainer +
+                    ' ' +
+                    classes.stepperGridMargins
+                }
+            >
                 <IconButton
                     aria-label="replace"
-                    className={classes.replaceIGMButton}
+                    className={classes.stepperButton}
                     onClick={handleReplaceIGM}
                     disabled={!replaceIGMEnabled}
                 >
                     <BuildIcon
                         fontSize="large"
-                        className={classes.replaceIGMIcon}
+                        className={classes.stepperButtonIcon}
                     />
                 </IconButton>
                 <span
                     className={
                         !replaceIGMEnabled
-                            ? classes.replaceIGMLabelDisabled
-                            : classes.replaceIGMLabelEnabled
+                            ? classes.buttonLabelDisabled
+                            : classes.buttonLabelEnabled
                     }
                 >
                     <FormattedMessage id="replaceIGM" />
                 </span>
             </Grid>
-            <Grid item xs={12} md={7}>
+            <Grid item xs={12} md={5} className={classes.stepperGridMargins}>
                 <CustomStepper>
                     <Step active={availableStep}>
                         <CustomStepLabel className={classes.stepLabel}>
@@ -248,16 +257,56 @@ const StepperWithStatus = (props) => {
                     </Step>
                 </CustomStepper>
             </Grid>
-            <Grid item xs={12} md={1} className={classes.downloadContainer}>
+            <Grid
+                item
+                xs={12}
+                md={1}
+                className={
+                    classes.stepperButtonContainer +
+                    ' ' +
+                    classes.stepperGridMargins
+                }
+            >
+                <IconButton
+                    aria-label="report"
+                    className={classes.stepperButton}
+                    onClick={handleClickShowReport}
+                    disabled={!mergedStep}
+                >
+                    <AccountTreeIcon
+                        fontSize="large"
+                        className={classes.stepperButtonIcon}
+                    />
+                </IconButton>
+                <span
+                    className={
+                        !mergedStep
+                            ? classes.buttonLabelDisabled
+                            : classes.buttonLabelEnabled
+                    }
+                >
+                    <FormattedMessage id="showReport" />
+                </span>
+            </Grid>
+            <Grid
+                item
+                xs={12}
+                md={1}
+                className={
+                    classes.stepperButtonContainer +
+                    ' ' +
+                    classes.stepperGridMargins
+                }
+            >
                 <IconButton
                     aria-label="download"
-                    className={classes.downloadButton}
+                    className={classes.stepperButton}
                     onClick={handleOpenExport}
                     disabled={!mergedStep}
                 >
                     <GetAppIcon
                         fontSize="large"
-                        className={classes.downloadIcon}
+                        className={classes.stepperButtonIcon}
                     />
                 </IconButton>
                 <iframe
@@ -269,14 +318,14 @@ const StepperWithStatus = (props) => {
                 <span
                     className={
                         !mergedStep
-                            ? classes.downloadLabelDisabled
-                            : classes.downloadLabelEnable
+                            ? classes.buttonLabelDisabled
+                            : classes.buttonLabelEnabled
                     }
                 >
                     <FormattedMessage id="downloadCgm" />
                 </span>
             </Grid>
-            <Grid item xs={12} md={2}></Grid>
+            <Grid item xs={12} md={2} />
             <ExportDialog
                 open={openExportDialog}
                 onClose={handleCloseExport}
