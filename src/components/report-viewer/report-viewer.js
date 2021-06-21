@@ -8,6 +8,8 @@ import ArrowRightIcon from '@material-ui/icons/ArrowRight';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogActions from '@material-ui/core/DialogActions';
 import Button from '@material-ui/core/Button';
+import FullscreenIcon from '@material-ui/icons/Fullscreen';
+import FullscreenExitIcon from '@material-ui/icons/FullscreenExit';
 import { FormattedMessage } from 'react-intl';
 import { Dialog, DialogContent } from '@material-ui/core';
 import ReportItem from './report-item';
@@ -15,8 +17,12 @@ import ReportItem from './report-item';
 const useStyles = makeStyles({
     treeView: {
         height: '100%',
-        //flexGrow: 'inherit',
-        //overflow: 'scroll',
+    },
+    fullScreenIcon: {
+        //bottom: 5,
+        //right: 5,
+        //position: 'absolute',
+        cursor: 'pointer',
     },
 });
 
@@ -94,11 +100,21 @@ export default function ReportViewer(props) {
         );
     }
 
+    const [fullScreen, setfullScreen] = React.useState(false);
+
+    const showFullScreen = () => {
+        setfullScreen(true);
+    };
+
+    const hideFullScreen = () => {
+        setfullScreen(false);
+    };
+
     return (
         <Dialog
             open={open}
             onClose={() => onClose()}
-            //fullScreen={true}
+            fullScreen={fullScreen}
             aria-labelledby="dialog-title-report"
         >
             <DialogTitle>{title}</DialogTitle>
@@ -115,6 +131,17 @@ export default function ReportViewer(props) {
                 </TreeView>
             </DialogContent>
             <DialogActions>
+                {fullScreen ? (
+                    <FullscreenExitIcon
+                        onClick={hideFullScreen}
+                        className={classes.fullScreenIcon}
+                    />
+                ) : (
+                    <FullscreenIcon
+                        onClick={showFullScreen}
+                        className={classes.fullScreenIcon}
+                    />
+                )}
                 <Button onClick={() => onClose()} variant="text">
                     <FormattedMessage id="close" />
                 </Button>
