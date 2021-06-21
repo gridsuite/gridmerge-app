@@ -13,9 +13,10 @@ import { Dialog, DialogContent } from '@material-ui/core';
 import ReportItem from './report-item';
 
 const useStyles = makeStyles({
-    root: {
-        height: 264,
-        flexGrow: 1,
+    treeView: {
+        height: '100%',
+        //flexGrow: 'inherit',
+        //overflow: 'scroll',
     },
 });
 
@@ -27,6 +28,10 @@ export default function ReportViewer(props) {
         let id = 1;
         return () => id++;
     })();
+
+    const getColorReporterItem = (id) => {
+        return id % 2 === 0 ? 'green' : 'red';
+    };
 
     const fillTemplate = (templateString, templateVars) => {
         return templateString.replace(/\${([^{}]*)}/g, function (a, b) {
@@ -50,6 +55,7 @@ export default function ReportViewer(props) {
                 key={id.toString()}
                 nodeId={id.toString()}
                 labelIcon={Label}
+                labelIconColor={getColorReporterItem(id)}
                 labelText={getFormattedMessage(
                     value.defaultName,
                     value.taskValues
@@ -74,6 +80,7 @@ export default function ReportViewer(props) {
                 key={id.toString()}
                 nodeId={id.toString()}
                 labelIcon={LocalOfferIcon}
+                labelIconColor={null}
                 labelText={
                     value.values.reportSeverity
                         ? value.values.reportSeverity.value
@@ -83,8 +90,6 @@ export default function ReportViewer(props) {
                     value.defaultMessage,
                     value.values
                 )}
-                color="#a250f5"
-                bgColor="#f3e8fd"
             />
         );
     }
@@ -93,12 +98,13 @@ export default function ReportViewer(props) {
         <Dialog
             open={open}
             onClose={() => onClose()}
+            //fullScreen={true}
             aria-labelledby="dialog-title-report"
         >
             <DialogTitle>{title}</DialogTitle>
             <DialogContent>
                 <TreeView
-                    className={classes.root}
+                    className={classes.treeView}
                     defaultCollapseIcon={<ArrowDropDownIcon />}
                     defaultExpandIcon={<ArrowRightIcon />}
                     defaultEndIcon={<div style={{ width: 24 }} />}

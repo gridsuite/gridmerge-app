@@ -338,7 +338,9 @@ const StepperWithStatus = (props) => {
             <Grid item xs={12} md={2} />
             {report && (
                 <ReportViewer
-                    title={intl.formatMessage({ id: 'showReport' })}
+                    title={
+                        'Logs : ' + props.processName + ' - ' + props.merge.date
+                    }
                     open={openReportViewer}
                     onClose={handleCloseReport}
                     report={report}

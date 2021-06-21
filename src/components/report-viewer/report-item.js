@@ -60,8 +60,7 @@ export default function ReportItem(props) {
         labelText,
         labelIcon: LabelIcon,
         labelInfo,
-        color,
-        bgColor,
+        labelIconColor,
         ...other
     } = props;
 
@@ -75,13 +74,12 @@ export default function ReportItem(props) {
                 group: classes.group,
                 label: classes.label,
             }}
-            style={{
-                '--tree-view-color': color,
-                '--tree-view-bg-color': bgColor,
-            }}
             label={
                 <div className={classes.labelRoot}>
-                    <LabelIcon color="inherit" className={classes.labelIcon} />
+                    <LabelIcon
+                        htmlColor={labelIconColor}
+                        className={classes.labelIcon}
+                    />
                     <Typography variant="body2" className={classes.labelText}>
                         {labelText}
                     </Typography>
