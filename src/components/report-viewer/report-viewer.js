@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2021, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import TreeView from '@material-ui/lab/TreeView';
@@ -13,73 +20,48 @@ import FullscreenExitIcon from '@material-ui/icons/FullscreenExit';
 import { FormattedMessage } from 'react-intl';
 import { Dialog, DialogContent } from '@material-ui/core';
 import ReportItem from './report-item';
+import LogReport from './log-report';
 
 const useStyles = makeStyles({
     treeView: {
         height: '100%',
     },
     fullScreenIcon: {
-        //bottom: 5,
-        //right: 5,
-        //position: 'absolute',
         cursor: 'pointer',
     },
 });
 
 export default function ReportViewer(props) {
     const classes = useStyles();
-    const { title, open, onClose, report } = props;
+    const { title, open, onClose, jsonReporter } = props;
 
+    const [fullScreen, setFullScreen] = React.useState(false);
+
+    const logReport = new LogReport(jsonReporter);
     const idGenerator = (() => {
         let id = 1;
         return () => id++;
     })();
 
-    const getColorReporterItem = (id) => {
-        return id % 2 === 0 ? 'green' : 'red';
-    };
-
-    const fillTemplate = (templateString, templateVars) => {
-        return templateString.replace(/\${([^{}]*)}/g, function (a, b) {
-            let r = templateVars[b];
-            return typeof r === 'string' || typeof r === 'number' ? r : a;
-        });
-    };
-
-    const getFormattedMessage = (templateString, values) => {
-        const templateVars = {};
-        for (const [key, value] of Object.entries(values)) {
-            templateVars[key] = value.value;
-        }
-        return fillTemplate(templateString, templateVars);
-    };
-
-    const createReporterItem = (value) => {
+    const createReporterItem = (logReport) => {
         let id = idGenerator();
         return (
             <ReportItem
                 key={id.toString()}
                 nodeId={id.toString()}
                 labelIcon={Label}
-                labelIconColor={getColorReporterItem(id)}
-                labelText={getFormattedMessage(
-                    value.defaultName,
-                    value.taskValues
-                )}
+                labelIconColor={logReport.getHighestSeverity().color}
+                labelText={logReport.getTitle()}
             >
-                {value.reports
-                    ? value.reports.map((value) => createReporItem(value))
-                    : ''}
-                {value.subReporters
-                    ? value.subReporters.map((value) =>
-                          createReporterItem(value)
-                      )
-                    : ''}
+                {logReport.getReports().map((value) => createReportItem(value))}
+                {logReport
+                    .getSubReports()
+                    .map((value) => createReporterItem(value))}
             </ReportItem>
         );
     };
 
-    function createReporItem(value) {
+    function createReportItem(logReportItem) {
         let id = idGenerator();
         return (
             <ReportItem
@@ -87,27 +69,18 @@ export default function ReportViewer(props) {
                 nodeId={id.toString()}
                 labelIcon={LocalOfferIcon}
                 labelIconColor={null}
-                labelText={
-                    value.values.reportSeverity
-                        ? value.values.reportSeverity.value
-                        : 'UNKNOW'
-                }
-                labelInfo={getFormattedMessage(
-                    value.defaultMessage,
-                    value.values
-                )}
+                labelText={logReportItem.getSeverityName()}
+                labelInfo={logReportItem.getLog()}
             />
         );
     }
 
-    const [fullScreen, setfullScreen] = React.useState(false);
-
     const showFullScreen = () => {
-        setfullScreen(true);
+        setFullScreen(true);
     };
 
     const hideFullScreen = () => {
-        setfullScreen(false);
+        setFullScreen(false);
     };
 
     return (
@@ -125,9 +98,9 @@ export default function ReportViewer(props) {
                     defaultExpandIcon={<ArrowRightIcon />}
                     defaultEndIcon={<div style={{ width: 24 }} />}
                 >
-                    {report.subReporters.map((value) =>
-                        createReporterItem(value)
-                    )}
+                    {logReport
+                        .getSubReports()
+                        .map((value) => createReporterItem(value))}
                 </TreeView>
             </DialogContent>
             <DialogActions>
