@@ -190,6 +190,13 @@ class MuiVirtualizedTable extends React.PureComponent {
             cellData
         );
 
+        let backgroundColor =
+            columnIndex === 0 &&
+            rows[rowIndex] !== undefined &&
+            rows[rowIndex].backgroundColor !== undefined
+                ? rows[rowIndex].backgroundColor
+                : '';
+
         return (
             <TableCell
                 component="div"
@@ -206,7 +213,10 @@ class MuiVirtualizedTable extends React.PureComponent {
                             columns[columnIndex].clickable),
                 })}
                 variant="body"
-                style={{ height: rowHeight }}
+                style={{
+                    height: rowHeight,
+                    backgroundColor: backgroundColor,
+                }}
                 align={
                     (columnIndex != null && columns[columnIndex].numeric) ||
                     false
@@ -267,7 +277,9 @@ class MuiVirtualizedTable extends React.PureComponent {
                 style={{ height: headerHeight }}
                 align={columns[columnIndex].numeric || false ? 'right' : 'left'}
             >
-                <span>{label}</span>
+                <span>
+                    <b>{label.toUpperCase()}</b>
+                </span>
             </TableCell>
         );
     };

@@ -7,26 +7,31 @@
 
 import React from 'react';
 import VirtualizedTable from './virtualized-table';
+import { useIntl } from 'react-intl';
 
 const SEVERITY_COLUMN_FIXED_WIDTH = 100;
 
-const COLUMNS_DEFINITIONS = [
-    {
-        label: 'Severity',
-        id: 'severity',
-        dataKey: 'severity',
-        width: SEVERITY_COLUMN_FIXED_WIDTH,
-    },
-    {
-        label: 'Message',
-        id: 'message',
-        dataKey: 'message',
-    },
-];
-
 export const LogTable = ({ logs }) => {
+    const intl = useIntl();
+
+    const COLUMNS_DEFINITIONS = [
+        {
+            label: intl.formatMessage({ id: 'severity' }),
+            id: 'severity',
+            dataKey: 'severity',
+            width: SEVERITY_COLUMN_FIXED_WIDTH,
+        },
+        {
+            label: intl.formatMessage({ id: 'message' }),
+            id: 'message',
+            dataKey: 'message',
+        },
+    ];
+
     const generateTableColumns = () => {
         return Object.values(COLUMNS_DEFINITIONS).map((c) => {
+            c.headerStyle = { display: '' };
+            c.style = { display: '' };
             return c;
         });
     };
@@ -36,6 +41,7 @@ export const LogTable = ({ logs }) => {
             return {
                 severity: log.getSeverityName(),
                 message: log.getLog(),
+                backgroundColor: log.getColorName(),
             };
         });
     };

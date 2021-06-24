@@ -46,6 +46,10 @@ export default class LogReportItem {
         return this.severity.name;
     }
 
+    getColorName() {
+        return this.severity.color;
+    }
+
     initSeverity(jsonSeverity) {
         let severity = LogReportItem.SEVERITY.UNKNOWN;
         if (!jsonSeverity) return severity;
