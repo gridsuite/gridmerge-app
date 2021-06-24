@@ -31,6 +31,12 @@ export default class LogReport {
         return this.reports;
     }
 
+    getAllReports() {
+        return this.getReports().concat(
+            this.getSubReports().flatMap((r) => r.getAllReports())
+        );
+    }
+
     init(jsonReporter) {
         jsonReporter.subReporters.map((value) =>
             this.subReports.push(new LogReport(value))

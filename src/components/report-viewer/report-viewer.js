@@ -9,7 +9,6 @@ import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import TreeView from '@material-ui/lab/TreeView';
 import Label from '@material-ui/icons/Label';
-import LocalOfferIcon from '@material-ui/icons/LocalOffer';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import ArrowRightIcon from '@material-ui/icons/ArrowRight';
 import DialogTitle from '@material-ui/core/DialogTitle';
@@ -21,10 +20,24 @@ import { FormattedMessage } from 'react-intl';
 import { Dialog, DialogContent } from '@material-ui/core';
 import ReportItem from './report-item';
 import LogReport from './log-report';
+import { LogTable } from './log-table';
 
 const useStyles = makeStyles({
+    reportViewer: {
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'baseline',
+        width: '100%',
+        //height: '100%',
+        overflow: 'hidden',
+    },
     treeView: {
         height: '100%',
+        overflow: 'scroll',
+    },
+    logTable: {
+        //height: '100%',
+        //overflow: 'scroll',
     },
     fullScreenIcon: {
         cursor: 'pointer',
@@ -53,27 +66,13 @@ export default function ReportViewer(props) {
                 labelIconColor={logReport.getHighestSeverity().color}
                 labelText={logReport.getTitle()}
             >
-                {logReport.getReports().map((value) => createReportItem(value))}
+                {/*{logReport.getReports().map((value) => createReportItem(value))}*/}
                 {logReport
                     .getSubReports()
                     .map((value) => createReporterItem(value))}
             </ReportItem>
         );
     };
-
-    function createReportItem(logReportItem) {
-        let id = idGenerator();
-        return (
-            <ReportItem
-                key={id.toString()}
-                nodeId={id.toString()}
-                labelIcon={LocalOfferIcon}
-                labelIconColor={null}
-                labelText={logReportItem.getSeverityName()}
-                labelInfo={logReportItem.getLog()}
-            />
-        );
-    }
 
     const showFullScreen = () => {
         setFullScreen(true);
@@ -91,7 +90,7 @@ export default function ReportViewer(props) {
             aria-labelledby="dialog-title-report"
         >
             <DialogTitle>{title}</DialogTitle>
-            <DialogContent>
+            <DialogContent className={classes.reportViewer} dividers={true}>
                 <TreeView
                     className={classes.treeView}
                     defaultCollapseIcon={<ArrowDropDownIcon />}
@@ -102,6 +101,10 @@ export default function ReportViewer(props) {
                         .getSubReports()
                         .map((value) => createReporterItem(value))}
                 </TreeView>
+                <LogTable
+                    className={classes.logTable}
+                    logs={logReport.getAllReports()}
+                />
             </DialogContent>
             <DialogActions>
                 {fullScreen ? (

@@ -50,9 +50,6 @@ export default class LogReportItem {
         let severity = LogReportItem.SEVERITY.UNKNOWN;
         if (!jsonSeverity) return severity;
 
-        /*        for (const [key, value] of Object.entries(LogReportItem.SEVERITY)) {
-            if (jsonValue.includes(value.name)) return value;
-        }*/
         Object.values(LogReportItem.SEVERITY).some((value) => {
             let severityFound = jsonSeverity.value.includes(value.name);
             if (severityFound) severity = value;
