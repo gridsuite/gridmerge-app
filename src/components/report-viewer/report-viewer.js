@@ -21,23 +21,15 @@ import { Dialog, DialogContent } from '@material-ui/core';
 import ReportItem from './report-item';
 import LogReport from './log-report';
 import { LogTable } from './log-table';
+import Grid from '@material-ui/core/Grid';
 
 const useStyles = makeStyles({
-    reportViewer: {
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'baseline',
-        width: '100%',
-        //height: '100%',
-        overflow: 'hidden',
-    },
     treeView: {
         height: '100%',
         overflow: 'scroll',
     },
-    logTable: {
-        //height: '100%',
-        //overflow: 'scroll',
+    treeItem: {
+        whiteSpace: 'nowrap',
     },
     fullScreenIcon: {
         cursor: 'pointer',
@@ -61,12 +53,12 @@ export default function ReportViewer(props) {
         return (
             <ReportItem
                 key={id.toString()}
+                className={classes.treeItem}
                 nodeId={id.toString()}
                 labelIcon={Label}
                 labelIconColor={logReport.getHighestSeverity().color}
                 labelText={logReport.getTitle()}
             >
-                {/*{logReport.getReports().map((value) => createReportItem(value))}*/}
                 {logReport
                     .getSubReports()
                     .map((value) => createReporterItem(value))}
@@ -90,21 +82,32 @@ export default function ReportViewer(props) {
             aria-labelledby="dialog-title-report"
         >
             <DialogTitle>{title}</DialogTitle>
-            <DialogContent className={classes.reportViewer} dividers={true}>
-                <TreeView
-                    className={classes.treeView}
-                    defaultCollapseIcon={<ArrowDropDownIcon />}
-                    defaultExpandIcon={<ArrowRightIcon />}
-                    defaultEndIcon={<div style={{ width: 24 }} />}
-                >
-                    {logReport
-                        .getSubReports()
-                        .map((value) => createReporterItem(value))}
-                </TreeView>
-                <LogTable
-                    className={classes.logTable}
-                    logs={logReport.getAllReports()}
-                />
+            <DialogContent dividers={true}>
+                <Grid container style={{ height: '100%' }}>
+                    <Grid
+                        item
+                        xs={12}
+                        sm={2}
+                        style={{
+                            maxHeight: '100%',
+                            borderRight: '1px solid rgba(81, 81, 81, 1)',
+                        }}
+                    >
+                        <TreeView
+                            className={classes.treeView}
+                            defaultCollapseIcon={<ArrowDropDownIcon />}
+                            defaultExpandIcon={<ArrowRightIcon />}
+                            defaultEndIcon={<div style={{ width: 24 }} />}
+                        >
+                            {logReport
+                                .getSubReports()
+                                .map((value) => createReporterItem(value))}
+                        </TreeView>
+                    </Grid>
+                    <Grid item xs={12} sm={10}>
+                        <LogTable logs={logReport.getAllReports()} />
+                    </Grid>
+                </Grid>
             </DialogContent>
             <DialogActions>
                 {fullScreen ? (
