@@ -6,23 +6,64 @@
  */
 
 import React from 'react';
-import VirtualizedTable from './virtualized-table';
 import { useIntl } from 'react-intl';
+import { MuiVirtualizedTable } from '@gridsuite/commons-ui';
+import { withStyles } from '@material-ui/core/styles';
+import TableCell from '@material-ui/core/TableCell';
 
 const SEVERITY_COLUMN_FIXED_WIDTH = 100;
+
+const styles = (theme) => ({
+    flexContainer: {
+        display: 'flex',
+        alignItems: 'center',
+        boxSizing: 'border-box',
+    },
+    table: {
+        // temporary right-to-left patch, waiting for
+        // https://github.com/bvaughn/react-virtualized/issues/454
+        '& .ReactVirtualized__Table__headerRow': {
+            flip: false,
+            paddingRight:
+                theme.direction === 'rtl' ? '0 !important' : undefined,
+        },
+    },
+    header: { variant: 'header' },
+});
+
+const VirtualizedTable = withStyles(styles)(MuiVirtualizedTable);
 
 export const LogTable = ({ logs }) => {
     const intl = useIntl();
 
+    const severityCellRender = (cellData) => {
+        return (
+            <TableCell
+                component="div"
+                variant="body"
+                style={{
+                    display: 'flex',
+                    flex: '1',
+                    backgroundColor: cellData.rowData.backgroundColor,
+                }}
+                align="center"
+            >
+                {cellData.rowData.severity}
+            </TableCell>
+        );
+    };
+
     const COLUMNS_DEFINITIONS = [
         {
-            label: intl.formatMessage({ id: 'severity' }),
+            label: intl.formatMessage({ id: 'severity' }).toUpperCase(),
             id: 'severity',
             dataKey: 'severity',
             width: SEVERITY_COLUMN_FIXED_WIDTH,
+            maxWidth: SEVERITY_COLUMN_FIXED_WIDTH,
+            cellRenderer: severityCellRender,
         },
         {
-            label: intl.formatMessage({ id: 'message' }),
+            label: intl.formatMessage({ id: 'message' }).toUpperCase(),
             id: 'message',
             dataKey: 'message',
         },
@@ -30,8 +71,6 @@ export const LogTable = ({ logs }) => {
 
     const generateTableColumns = () => {
         return Object.values(COLUMNS_DEFINITIONS).map((c) => {
-            c.headerStyle = { display: '' };
-            c.style = { display: '' };
             return c;
         });
     };
