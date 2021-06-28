@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import TreeView from '@material-ui/lab/TreeView';
 import Label from '@material-ui/icons/Label';
@@ -34,27 +34,30 @@ const useStyles = makeStyles({
     fullScreenIcon: {
         cursor: 'pointer',
     },
+    paperFullWidth: {
+        height: '100%',
+    },
 });
 
 export default function ReportViewer(props) {
     const classes = useStyles();
-    const { title, open, onClose, jsonReporter } = props;
+    const { title, open, onClose, jsonReport } = props;
 
-    const [fullScreen, setFullScreen] = React.useState(false);
+    const [fullScreen, setFullScreen] = useState(false);
 
-    const logReport = new LogReport(jsonReporter);
-    const idGenerator = (() => {
-        let id = 1;
-        return () => id++;
-    })();
+    const rootReport = useRef(new LogReport(jsonReport));
+
+    const [logs, setLogs] = useState(rootReport.current.getAllLogs());
+
+    const allReports = useRef({});
 
     const createReporterItem = (logReport) => {
-        let id = idGenerator();
+        allReports.current[logReport.getId()] = logReport;
         return (
             <ReportItem
-                key={id.toString()}
+                key={logReport.getId().toString()}
                 className={classes.treeItem}
-                nodeId={id.toString()}
+                nodeId={logReport.getId().toString()}
                 labelIcon={Label}
                 labelIconColor={logReport.getHighestSeverity().color}
                 labelText={logReport.getTitle()}
@@ -74,12 +77,21 @@ export default function ReportViewer(props) {
         setFullScreen(false);
     };
 
+    const onNodeSelection = (event, nodeId) => {
+        setLogs(allReports.current[nodeId].getAllLogs());
+    };
+
     return (
         <Dialog
             open={open}
             onClose={() => onClose()}
             fullScreen={fullScreen}
             aria-labelledby="dialog-title-report"
+            fullWidth={true}
+            maxWidth="lg"
+            classes={{
+                paperFullWidth: classes.paperFullWidth,
+            }}
         >
             <DialogTitle>{title}</DialogTitle>
             <DialogContent dividers={true}>
@@ -89,7 +101,7 @@ export default function ReportViewer(props) {
                         xs={12}
                         sm={2}
                         style={{
-                            maxHeight: '100%',
+                            height: '100%',
                             borderRight: '1px solid rgba(81, 81, 81, 1)',
                         }}
                     >
@@ -98,14 +110,15 @@ export default function ReportViewer(props) {
                             defaultCollapseIcon={<ArrowDropDownIcon />}
                             defaultExpandIcon={<ArrowRightIcon />}
                             defaultEndIcon={<div style={{ width: 24 }} />}
+                            onNodeSelect={onNodeSelection}
                         >
-                            {logReport
+                            {rootReport.current
                                 .getSubReports()
                                 .map((value) => createReporterItem(value))}
                         </TreeView>
                     </Grid>
-                    <Grid item xs={12} sm={10}>
-                        <LogTable logs={logReport.getAllReports()} />
+                    <Grid item xs={12} sm={10} style={{ height: '100%' }}>
+                        <LogTable logs={logs} />
                     </Grid>
                 </Grid>
             </DialogContent>

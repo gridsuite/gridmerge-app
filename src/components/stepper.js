@@ -110,6 +110,7 @@ const StepperWithStatus = (props) => {
     };
 
     const handleCloseReport = () => {
+        setReport(null);
         setOpenReportViewer(false);
     };
 
@@ -343,7 +344,7 @@ const StepperWithStatus = (props) => {
                     }
                     open={openReportViewer}
                     onClose={handleCloseReport}
-                    jsonReporter={report}
+                    jsonReport={report}
                 />
             )}
             <ExportDialog

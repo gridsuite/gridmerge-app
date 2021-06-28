@@ -7,16 +7,23 @@
 
 import LogReportItem from './log-report-item';
 
+const uuid4 = require('uuid/v4');
+
 export default class LogReport {
     constructor(jsonReporter) {
+        this.id = uuid4();
         this.key = jsonReporter.taskKey;
         this.title = LogReportItem.resolveTemplateMessage(
             jsonReporter.defaultName,
             jsonReporter.taskValues
         );
         this.subReports = [];
-        this.reports = [];
+        this.logs = [];
         this.init(jsonReporter);
+    }
+
+    getId() {
+        return this.id;
     }
 
     getTitle() {
@@ -27,13 +34,13 @@ export default class LogReport {
         return this.subReports;
     }
 
-    getReports() {
-        return this.reports;
+    getLogs() {
+        return this.logs;
     }
 
-    getAllReports() {
-        return this.getReports().concat(
-            this.getSubReports().flatMap((r) => r.getAllReports())
+    getAllLogs() {
+        return this.getLogs().concat(
+            this.getSubReports().flatMap((r) => r.getAllLogs())
         );
     }
 
@@ -42,14 +49,14 @@ export default class LogReport {
             this.subReports.push(new LogReport(value))
         );
         jsonReporter.reports.map((value) =>
-            this.reports.push(new LogReportItem(value))
+            this.logs.push(new LogReportItem(value))
         );
     }
 
     getHighestSeverity(currentSeverity = LogReportItem.SEVERITY.UNKNOWN) {
         let reduceFct = (p, c) => (p.level < c.level ? c : p);
 
-        let highestSeverity = this.getReports()
+        let highestSeverity = this.getLogs()
             .map((r) => r.getSeverity())
             .reduce(reduceFct, currentSeverity);
 
