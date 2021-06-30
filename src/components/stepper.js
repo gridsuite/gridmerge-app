@@ -15,6 +15,7 @@ import Grid from '@material-ui/core/Grid';
 import { FormattedMessage, useIntl } from 'react-intl';
 import GetAppIcon from '@material-ui/icons/GetApp';
 import AccountTreeIcon from '@material-ui/icons/AccountTree';
+import { ReportViewer } from '@gridsuite/commons-ui';
 import { ExportDialog } from '../utils/dialogs';
 import BuildIcon from '@material-ui/icons/Build';
 import {
@@ -28,7 +29,6 @@ import {
 import PropTypes from 'prop-types';
 import { useSnackbar } from 'notistack';
 import { displayErrorMessageWithSnackbar } from '../utils/messages';
-import ReportViewer from './report-viewer/report-viewer';
 
 const useStyles = makeStyles((theme) => ({
     stepperGridContainer: {
@@ -102,6 +102,7 @@ const StepperWithStatus = (props) => {
     const { enqueueSnackbar } = useSnackbar();
 
     const [openExportDialog, setOpenExport] = React.useState(false);
+
     const [openReportViewer, setOpenReportViewer] = React.useState(false);
     const [report, setReport] = React.useState(null);
 
