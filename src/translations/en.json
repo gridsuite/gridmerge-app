@@ -39,5 +39,11 @@
     "loadflow": "Loadflow",
     "replaceIGM": "Replace missing IGM",
     "ReplacedWith": "Replaced with",
-    "noReplacingIGMAvailable": "No replacing IGM available"
+    "noReplacingIGMAvailable": "No replacing IGM available",
+
+    "lastBoundarySet": "Last boundary set",
+    "specificBoundarySet": "Specific boundary set",
+    "eqBoundary": "EQ boundary",
+    "tpBoundary": "TP boundary"
+
 }

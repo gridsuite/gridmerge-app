@@ -85,19 +85,25 @@ const Process = (props) => {
     const update = useCallback(
         (message) => {
             const headers = message.headers;
-            const mergeDate = new Date(headers.date);
+            if (headers['date']) {
+                const mergeDate = new Date(headers['date']);
 
-            // we need to directly access the store to get current process date as the wensocket message handler cannot
-            // use react hooks
-            const state = store.getState();
-            const processDate = state.processes[props.index].date;
+                // we need to directly access the store to get current process date as the websocket message handler cannot
+                // use react hooks
+                const state = store.getState();
+                const processDate = state.processes[props.index].date;
 
-            // if same day as selected, reload merges from server
-            if (removeTime(mergeDate).getTime() === processDate.getTime()) {
-                loadMerges(processDate);
+                // if same day as selected, reload merges from server
+                if (removeTime(mergeDate).getTime() === processDate.getTime()) {
+                    loadMerges(processDate);
+                }
+            } else if (headers['error']) {
+                enqueueSnackbar(headers['error'], {
+                    variant: 'error',
+                });
             }
         },
-        [props.index, loadMerges]
+        [props.index, loadMerges, enqueueSnackbar]
     );
 
     const connectNotifications = useCallback(
