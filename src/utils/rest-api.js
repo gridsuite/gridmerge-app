@@ -347,6 +347,15 @@ export function fetchBusinessProcessesList() {
     );
 }
 
+export function fetchBoundariesList() {
+    console.info('Fetching list of boundaries...');
+    const fetchBoundariesListUrl =
+        PREFIX_BOUNDARY_QUERIES + '/v1/boundaries/infos';
+    return backendFetch(fetchBoundariesListUrl).then((response) =>
+        response.json()
+    );
+}
+
 export const MergeType = PropTypes.shape({
     status: PropTypes.string,
     igms: PropTypes.arrayOf(

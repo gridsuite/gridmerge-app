@@ -40,5 +40,11 @@
     "ReplacedWith": "Replaced with",
     "noReplacingIGMAvailable": "No replacing IGM available",
     "severity": "Severity",
-    "message": "Message"
+    "message": "Message",
+
+    "lastBoundarySet": "Last boundary set",
+    "specificBoundarySet": "Specific boundary set",
+    "eqBoundary": "EQ boundary",
+    "tpBoundary": "TP boundary"
+
 }
