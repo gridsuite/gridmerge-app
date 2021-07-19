@@ -15,7 +15,7 @@ import Grid from '@material-ui/core/Grid';
 import { FormattedMessage, useIntl } from 'react-intl';
 import GetAppIcon from '@material-ui/icons/GetApp';
 import AccountTreeIcon from '@material-ui/icons/AccountTree';
-import { ReportViewer } from '@gridsuite/commons-ui';
+import { ReportViewerDialog } from '@gridsuite/commons-ui';
 import { ExportDialog } from '../utils/dialogs';
 import BuildIcon from '@material-ui/icons/Build';
 import {
@@ -339,10 +339,13 @@ const StepperWithStatus = (props) => {
             </Grid>
             <Grid item xs={12} md={2} />
             {report && (
-                <ReportViewer
-                    title={
-                        'Logs : ' + props.processName + ' - ' + props.merge.date
-                    }
+                <ReportViewerDialog
+                    title={intl.formatMessage(
+                        { id: 'logsTitle' },
+                        {
+                            title: props.processName + ' - ' + props.merge.date,
+                        }
+                    )}
                     open={openReportViewer}
                     onClose={handleCloseReport}
                     jsonReport={report}
