@@ -9,7 +9,6 @@
     "igmReception": "Réception des IGM",
     "imgMerged": "IGM mergés",
     "cgmValid": "CGM validé",
-    "showReport" : "Afficher logs",
 
     "exportNetwork": "Exporter le réseau",
     "export": "Exporter",
@@ -39,11 +38,12 @@
     "replaceIGM": "Remplacer IGM absent",
     "ReplacedWith": "Remplacé par",
     "noReplacingIGMAvailable": "Aucun IGM de remplacement disponible",
-    "severity": "Sévérité",
-    "message": "Message",
 
     "lastBoundarySet": "Dernière boundary set",
     "specificBoundarySet": "Boundary set spécifique",
     "eqBoundary": "EQ boundary",
-    "tpBoundary": "TP boundary"
+    "tpBoundary": "TP boundary",
+
+    "logsTitle": "Logs : {title}",
+    "showReport" : "Afficher logs"
 }
