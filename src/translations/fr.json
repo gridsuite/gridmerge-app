@@ -44,8 +44,6 @@
     "eqBoundary": "EQ boundary",
     "tpBoundary": "TP boundary",
 
-    "logs": "Logs",
     "logsTitle": "Logs : {title}",
-    "showReport" : "Afficher logs",
-    "loadingReport": "Chargement des logs en cours..."
+    "showReport" : "Afficher logs"
 }
