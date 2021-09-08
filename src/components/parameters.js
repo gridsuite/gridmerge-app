@@ -83,10 +83,8 @@ const Parameters = ({ showParameters, hideParameters }) => {
 
     const [tabIndex, setTabIndex] = useState(0);
 
-    const [
-        timelineDiagonalLabelLocal,
-        handleChangeTimelineDiagonalLabelLocal,
-    ] = useParameterState(PARAM_TIMELINE_DIAGONAL_LABELS);
+    const [timelineDiagonalLabelLocal, handleChangeTimelineDiagonalLabelLocal] =
+        useParameterState(PARAM_TIMELINE_DIAGONAL_LABELS);
 
     function TabPanel(props) {
         const { children, value, index, ...other } = props;
