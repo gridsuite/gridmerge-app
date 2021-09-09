@@ -296,10 +296,8 @@ const ProcessesContainer = ({ handleProcessesChanged, currentProcess }) => {
     const intl = useIntl();
 
     const [authorizedTsosCodes, setAuthorizedTsosCodes] = useState([]);
-    const [
-        authorizedBusinessProcesses,
-        setAuthorizedBusinessProcesses,
-    ] = useState([]);
+    const [authorizedBusinessProcesses, setAuthorizedBusinessProcesses] =
+        useState([]);
     const [boundaries, setBoundaries] = useState([]);
 
     function handleAddProcess() {

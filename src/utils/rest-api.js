@@ -323,12 +323,11 @@ export function replaceIGM(processUuid, date) {
 
 export function fetchReport(processUuid, date) {
     console.info('get report for process : ' + processUuid + ' at : ' + date);
-    return backendFetch(
-        getMergeUrl(processUuid, date, 'report')
-    ).then((response) =>
-        response.ok
-            ? response.json()
-            : response.text().then((text) => Promise.reject(text))
+    return backendFetch(getMergeUrl(processUuid, date, 'report')).then(
+        (response) =>
+            response.ok
+                ? response.json()
+                : response.text().then((text) => Promise.reject(text))
     );
 }
 
