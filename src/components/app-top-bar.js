@@ -109,7 +109,7 @@ const AppTopBar = ({ user, userManager }) => {
         <>
             <TopBar
                 appName="Merge"
-                appColor="#2D9BF0"
+                appColor="#4795D1"
                 appLogo={
                     theme === LIGHT_THEME ? (
                         <GridMergeLogoLight />
