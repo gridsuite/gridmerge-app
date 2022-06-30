@@ -28,6 +28,7 @@ import {
 
 import {
     AuthenticationRouter,
+    CardErrorBoundary,
     getPreLoginPath,
     initializeAuthenticationProd,
 } from '@gridsuite/commons-ui';
@@ -244,6 +245,7 @@ const App = () => {
     return (
         <>
             <AppTopBar user={user} userManager={userManager} />
+            <CardErrorBoundary>
             {user !== null ? (
                 <>
                     <Routes>
@@ -303,6 +305,7 @@ const App = () => {
                     location={location}
                 />
             )}
+            </CardErrorBoundary>
         </>
     );
 };
