@@ -49,9 +49,10 @@ export function connectNotificationsWebsocket(processUuid, businessProcess) {
         encodeURIComponent(processUuid) +
         '&businessProcess=' +
         encodeURIComponent(businessProcess);
-    const wsaddressWithToken = wsadress + '&access_token=' + getToken();
 
-    const rws = new ReconnectingWebSocket(wsaddressWithToken);
+    const rws = new ReconnectingWebSocket(
+        () => wsadress + '&access_token=' + getToken()
+    );
     // don't log the token, it's private
     rws.onopen = function (event) {
         console.info('Connected Websocket ' + wsadress + ' ...');
@@ -69,11 +70,8 @@ export function connectNotificationsWsUpdateConfig() {
         '/notify?appName=' +
         APP_NAME;
 
-    let webSocketUrlWithToken;
-    webSocketUrlWithToken = webSocketUrl + '&access_token=' + getToken();
-
     const reconnectingWebSocket = new ReconnectingWebSocket(
-        webSocketUrlWithToken
+        () => webSocketUrl + '&access_token=' + getToken()
     );
     reconnectingWebSocket.onopen = function (event) {
         console.info(
