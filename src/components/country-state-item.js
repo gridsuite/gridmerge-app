@@ -5,10 +5,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 import React from 'react';
-import { Box, Divider, Grid, Typography } from '@material-ui/core';
-import LensIcon from '@material-ui/icons/Lens';
+import { Box, Divider, Grid, Typography } from '@mui/material';
+import LensIcon from '@mui/icons-material/Lens';
 import PropTypes from 'prop-types';
-import { makeStyles } from '@material-ui/core/styles';
+import makeStyles from '@mui/styles/makeStyles';
 import { getIgmStatus, MergeType } from '../utils/rest-api';
 import { getDetailsByCountryOrTso } from '../utils/tso-country-details';
 import { tsoColor } from './merge-map';

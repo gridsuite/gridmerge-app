@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 import React from 'react';
-import { List } from '@material-ui/core';
+import { List } from '@mui/material';
 import PropTypes from 'prop-types';
 import CountryStateItem from './country-state-item';
 import { MergeType } from '../utils/rest-api';

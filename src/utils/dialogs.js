@@ -5,20 +5,23 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import Dialog from '@material-ui/core/Dialog';
-import DialogTitle from '@material-ui/core/DialogTitle';
 import { FormattedMessage } from 'react-intl';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogActions from '@material-ui/core/DialogActions';
-import Button from '@material-ui/core/Button';
-import FormControl from '@material-ui/core/FormControl';
-import MenuItem from '@material-ui/core/MenuItem';
+import {
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    Button,
+    FormControl,
+    MenuItem,
+} from '@mui/material';
 import PropTypes from 'prop-types';
 import React from 'react';
-import Select from '@material-ui/core/Select';
-import InputLabel from '@material-ui/core/InputLabel';
-import makeStyles from '@material-ui/core/styles/makeStyles';
-import Alert from '@material-ui/lab/Alert';
+import { Select, InputLabel } from '@mui/material';
+
+import makeStyles from '@mui/styles/makeStyles';
+
+import Alert from '@mui/material/Alert';
 
 /**
  * Dialog to export the network case #TODO To be moved in the common-ui repository once it has been created

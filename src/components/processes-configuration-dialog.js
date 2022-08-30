@@ -7,22 +7,26 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 
-import Dialog from '@material-ui/core/Dialog';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogActions from '@material-ui/core/DialogActions';
-import Typography from '@material-ui/core/Typography';
-import IconButton from '@material-ui/core/IconButton';
-import CloseIcon from '@material-ui/icons/Close';
-import Button from '@material-ui/core/Button';
-import TextField from '@material-ui/core/TextField';
-import Grid from '@material-ui/core/Grid';
-import DeleteIcon from '@material-ui/icons/Delete';
-import AddCircleIcon from '@material-ui/icons/AddCircle';
+import {
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    Typography,
+    IconButton,
+    Button,
+    TextField,
+    Grid,
+} from '@mui/material';
+
+import CloseIcon from '@mui/icons-material/Close';
+import DeleteIcon from '@mui/icons-material/Delete';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { FormattedMessage, useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 
-import { makeStyles, withStyles } from '@material-ui/core/styles';
+import makeStyles from '@mui/styles/makeStyles';
+import withStyles from '@mui/styles/withStyles';
 import {
     createProcess,
     deleteProcess,
@@ -33,11 +37,11 @@ import {
 } from '../utils/rest-api';
 import { initProcesses } from '../redux/actions';
 import { useDispatch, useSelector } from 'react-redux';
-import RadioGroup from '@material-ui/core/RadioGroup';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Radio from '@material-ui/core/Radio';
-import { useHistory } from 'react-router-dom';
-import Autocomplete from '@material-ui/lab/Autocomplete';
+import RadioGroup from '@mui/material/RadioGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Radio from '@mui/material/Radio';
+import { useNavigate } from 'react-router-dom';
+import Autocomplete from '@mui/material/Autocomplete';
 
 const useStyles = makeStyles((theme) => ({
     addNewTso: {
@@ -559,7 +563,7 @@ const ProcessesConfigurationDialog = ({ open, onClose, matchProcess }) => {
     const [processes, setProcesses] = useState([]);
     const [confirmSave, setConfirmSave] = useState(false);
     const dispatch = useDispatch();
-    const history = useHistory();
+    const navigate = useNavigate();
 
     useEffect(() => {
         setConfirmSave(false);
@@ -701,7 +705,7 @@ const ProcessesConfigurationDialog = ({ open, onClose, matchProcess }) => {
                     ) ||
                         !configs.includes(matchProcess.params.processName))
                 ) {
-                    history.replace('/');
+                    navigate('/', { replace: true });
                 }
                 onClose();
             });

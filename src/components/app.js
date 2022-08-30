@@ -10,12 +10,13 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import {
-    Redirect,
+    Navigate,
+    Routes,
     Route,
-    Switch,
-    useHistory,
+    useNavigate,
     useLocation,
-    useRouteMatch,
+    useParams,
+    useMatch,
 } from 'react-router-dom';
 
 import {
@@ -54,6 +55,24 @@ import AppTopBar, { PREFIX_URL_PROCESSES } from './app-top-bar';
 
 const noUserManager = { instance: null, error: null };
 
+const ProcessRouteElement = () => {
+    const configs = useSelector((state) => state.configs);
+    const params = useParams();
+    const processName = params.processName;
+
+    function getProcessIndex(processName) {
+        return configs.findIndex((c) => c.process === processName);
+    }
+    let index = getProcessIndex(processName);
+    return index !== -1 ? (
+        <Process index={index} />
+    ) : (
+        <h1>
+            <FormattedMessage id="pageNotFound" />{' '}
+        </h1>
+    );
+};
+
 const App = () => {
     const intlRef = useIntlRef();
 
@@ -69,17 +88,16 @@ const App = () => {
 
     const [userManager, setUserManager] = useState(noUserManager);
 
-    const history = useHistory();
+    const navigate = useNavigate();
 
     const dispatch = useDispatch();
 
     const location = useLocation();
 
-    // Can't use lazy initializer because useRouteMatch is a hook
+    // Can't use lazy initializer because useMatch is a hook
     const [initialMatchSilentRenewCallbackUrl] = useState(
-        useRouteMatch({
+        useMatch({
             path: '/silent-renew-callback',
-            exact: true,
         })
     );
 
@@ -223,66 +241,65 @@ const App = () => {
         intlRef,
     ]);
 
-    function getProcessIndex(processName) {
-        return configs.findIndex((c) => c.process === processName);
-    }
-
-    function displayProcess(processName) {
-        let index = getProcessIndex(processName);
-        return index !== -1 ? (
-            <Process index={index} />
-        ) : (
-            <h1>
-                <FormattedMessage id="pageNotFound" />{' '}
-            </h1>
-        );
-    }
-
     return (
         <>
             <AppTopBar user={user} userManager={userManager} />
             {user !== null ? (
                 <>
-                    <Switch>
-                        <Route exact path={'/'}>
-                            {configs.length > 0 && (
-                                <Redirect
-                                    to={
-                                        PREFIX_URL_PROCESSES +
-                                        '/' +
-                                        configs[0].process
-                                    }
-                                />
-                            )}
-                        </Route>
-                        <Route exact path="/sign-in-callback">
-                            <Redirect to={getPreLoginPath() || '/'} />
-                        </Route>
-                        <Route exact path="/logout-callback">
-                            <h1>
-                                Error: logout failed; you are still logged in.
-                            </h1>
-                        </Route>
+                    <Routes>
                         <Route
-                            exact
-                            path={PREFIX_URL_PROCESSES + '/:processName'}
-                            render={({ match }) =>
-                                displayProcess(match.params.processName)
+                            path={'/'}
+                            element={
+                                configs.length > 0 && (
+                                    <Navigate
+                                        replace
+                                        to={
+                                            PREFIX_URL_PROCESSES +
+                                            '/' +
+                                            configs[0].process
+                                        }
+                                    />
+                                )
                             }
                         />
-                        <Route>
-                            <h1>
-                                <FormattedMessage id="pageNotFound" />{' '}
-                            </h1>
-                        </Route>
-                    </Switch>
+                        <Route
+                            path="/sign-in-callback"
+                            element={
+                                <Navigate
+                                    replace
+                                    to={getPreLoginPath() || '/'}
+                                />
+                            }
+                        />
+                        <Route
+                            path="/logout-callback"
+                            element={
+                                <h1>
+                                    Error: logout failed; you are still logged
+                                    in.
+                                </h1>
+                            }
+                        />
+                        <Route
+                            path={PREFIX_URL_PROCESSES + '/:processName'}
+                            element={<ProcessRouteElement />}
+                        />
+                        <Route
+                            path="*"
+                            element={
+                                <h1>
+                                    <FormattedMessage id="pageNotFound" />
+                                </h1>
+                            }
+                        />
+                    </Routes>
                 </>
             ) : (
                 <AuthenticationRouter
                     userManager={userManager}
                     signInCallbackError={signInCallbackError}
                     dispatch={dispatch}
-                    history={history}
+                    navigate={navigate}
                     location={location}
                 />
             )}

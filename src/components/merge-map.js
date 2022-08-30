@@ -9,7 +9,7 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { ComposableMap, Geographies, Geography } from 'react-simple-maps';
 
-import { makeStyles } from '@material-ui/core/styles';
+import makeStyles from '@mui/styles/makeStyles';
 import bbox from 'geojson-bbox';
 import {
     IgmStatus,
