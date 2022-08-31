@@ -242,21 +242,6 @@ const App = () => {
         intlRef,
     ]);
 
-    function getProcessIndex(processName) {
-        return configs.findIndex((c) => c.process === processName);
-    }
-
-    function displayProcess(processName) {
-        let index = getProcessIndex(processName);
-        return index !== -1 ? (
-            <Process index={index} />
-        ) : (
-            <h1>
-                <FormattedMessage id="pageNotFound" />{' '}
-            </h1>
-        );
-    }
-
     return (
         <>
             <AppTopBar user={user} userManager={userManager} />
