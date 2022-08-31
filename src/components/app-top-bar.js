@@ -11,15 +11,13 @@ import { PARAM_LANGUAGE, PARAM_THEME } from '../utils/config-params';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchAppsAndUrls, fetchMergeConfigs } from '../utils/rest-api';
 import PropTypes from 'prop-types';
-import { useHistory, useRouteMatch } from 'react-router-dom';
+import { useNavigate, useMatch } from 'react-router-dom';
 import { ReactComponent as GridMergeLogoLight } from '../images/GridMerge_logo_light.svg';
 import { ReactComponent as GridMergeLogoDark } from '../images/GridMerge_logo_dark.svg';
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
-import Button from '@material-ui/core/Button';
+import { Tabs, Tab, Button } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import ProcessesConfigurationDialog from './processes-configuration-dialog';
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@mui/styles';
 import { initProcesses } from '../redux/actions';
 
 export const PREFIX_URL_PROCESSES = '/processes';
@@ -34,7 +32,7 @@ const useStyles = makeStyles(() => ({
 }));
 
 const AppTopBar = ({ user, userManager }) => {
-    const history = useHistory();
+    const navigate = useNavigate();
 
     const dispatch = useDispatch();
 
@@ -69,10 +67,8 @@ const AppTopBar = ({ user, userManager }) => {
         // Note: dispatch doesn't change
     }, [dispatch, user]);
 
-    const matchProcess = useRouteMatch({
+    const matchProcess = useMatch({
         path: PREFIX_URL_PROCESSES + '/:processName',
-        exact: true,
-        sensitive: false,
     });
 
     const selectedTabId = useMemo(() => {
@@ -86,7 +82,7 @@ const AppTopBar = ({ user, userManager }) => {
     }, [configs, matchProcess]);
 
     function toggleTab(newTabValue) {
-        history.push(PREFIX_URL_PROCESSES + '/' + newTabValue);
+        navigate(PREFIX_URL_PROCESSES + '/' + newTabValue);
     }
 
     function showParametersClicked() {
@@ -98,7 +94,7 @@ const AppTopBar = ({ user, userManager }) => {
     }
 
     function onLogoClicked() {
-        history.replace('/');
+        navigate('/', { replace: true });
     }
 
     const showPopupConfigurationProcesses = () => {

@@ -26,24 +26,17 @@ import { store } from '../redux/store';
 import Timeline from './timeline';
 import StepperWithStatus from './stepper';
 import CountryStatesList from './country-state-list';
-import Grid from '@material-ui/core/Grid';
-import Chip from '@material-ui/core/Chip';
+import { Grid, Chip, TextField } from '@mui/material';
 
-import {
-    KeyboardDatePicker,
-    MuiPickersUtilsProvider,
-} from '@material-ui/pickers';
-import 'date-fns';
-import DateFnsUtils from '@date-io/date-fns';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { LocalizationProvider } from '@mui/x-date-pickers';
 import { useSnackbar } from 'notistack';
-import { makeStyles } from '@material-ui/core/styles';
+import makeStyles from '@mui/styles/makeStyles';
 
 const useStyles = makeStyles((theme) => ({
     itemBusinessProcess: {
         margin: '20px',
-    },
-    businessProcess: {
-        backgroundColor: theme.palette.background.paper,
     },
 }));
 
@@ -177,7 +170,12 @@ const Process = (props) => {
     return (
         <Grid container direction="row" justify="space-around">
             <Grid item xs={12} md={10} key="map">
-                <Grid container direction="row" justify="center">
+                <Grid
+                    container
+                    direction="row"
+                    justifyContent="center"
+                    alignItems="center"
+                >
                     <Grid
                         item
                         xs={12}
@@ -185,14 +183,11 @@ const Process = (props) => {
                         key="businessProcess"
                         className={classes.itemBusinessProcess}
                     >
-                        <Chip
-                            label={config.businessProcess}
-                            className={classes.businessProcess}
-                        />
+                        <Chip label={config.businessProcess} />
                     </Grid>
                     <Grid item xs={12} md={2} key="datePicker">
-                        <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                            <KeyboardDatePicker
+                        <LocalizationProvider dateAdapter={AdapterDateFns}>
+                            <DatePicker
                                 disableToolbar
                                 variant="inline"
                                 format="MM/dd/yyyy"
@@ -203,8 +198,11 @@ const Process = (props) => {
                                     'aria-label': 'change date',
                                 }}
                                 inputProps={{ readOnly: true }}
+                                renderInput={(props) => (
+                                    <TextField {...props} />
+                                )}
                             />
-                        </MuiPickersUtilsProvider>
+                        </LocalizationProvider>
                     </Grid>
                 </Grid>
                 <Timeline

@@ -11,18 +11,21 @@ import { FormattedMessage } from 'react-intl';
 
 import { useSelector } from 'react-redux';
 
-import Box from '@material-ui/core/Box';
-import Button from '@material-ui/core/Button';
-import Container from '@material-ui/core/Container';
-import Dialog from '@material-ui/core/Dialog';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import Grid from '@material-ui/core/Grid';
-import { makeStyles } from '@material-ui/core/styles';
-import Tab from '@material-ui/core/Tab';
-import Tabs from '@material-ui/core/Tabs';
-import Typography from '@material-ui/core/Typography';
-import Switch from '@material-ui/core/Switch';
+import {
+    Box,
+    Button,
+    Container,
+    Dialog,
+    DialogContent,
+    DialogTitle,
+    Grid,
+    Tab,
+    Tabs,
+    Typography,
+    Switch,
+} from '@mui/material';
+
+import makeStyles from '@mui/styles/makeStyles';
 
 import { updateConfigParameter } from '../utils/rest-api';
 import { PARAM_TIMELINE_DIAGONAL_LABELS } from '../utils/config-params';

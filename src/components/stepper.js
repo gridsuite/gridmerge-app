@@ -6,18 +6,14 @@
  */
 import React, { useCallback, useEffect, useState } from 'react';
 
-import { makeStyles, withStyles } from '@material-ui/core/styles';
-import Stepper from '@material-ui/core/Stepper';
-import Step from '@material-ui/core/Step';
-import StepLabel from '@material-ui/core/StepLabel';
-import IconButton from '@material-ui/core/IconButton';
-import Grid from '@material-ui/core/Grid';
+import { makeStyles, withStyles } from '@mui/styles';
+import { Stepper, Step, StepLabel, IconButton, Grid } from '@mui/material';
 import { FormattedMessage, useIntl } from 'react-intl';
-import GetAppIcon from '@material-ui/icons/GetApp';
-import AccountTreeIcon from '@material-ui/icons/AccountTree';
+import GetAppIcon from '@mui/icons-material/GetApp';
+import AccountTreeIcon from '@mui/icons-material/AccountTree';
+import BuildIcon from '@mui/icons-material/Build';
 import { ReportViewerDialog } from '@gridsuite/commons-ui';
 import { ExportDialog } from '../utils/dialogs';
-import BuildIcon from '@material-ui/icons/Build';
 import {
     CgmStatus,
     fetchReport,

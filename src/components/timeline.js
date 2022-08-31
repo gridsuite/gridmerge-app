@@ -9,8 +9,9 @@ import React, { useEffect, useState } from 'react';
 
 import { useSelector } from 'react-redux';
 
-import { makeStyles, withStyles } from '@material-ui/styles';
-import Slider from '@material-ui/core/Slider';
+import makeStyles from '@mui/styles/makeStyles';
+import withStyles from '@mui/styles/withStyles';
+import Slider from '@mui/material/Slider';
 import ClockIcon from '../images/clock.svg';
 import PropTypes from 'prop-types';
 import moment from 'moment';
