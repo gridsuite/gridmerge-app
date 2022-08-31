@@ -72,8 +72,10 @@ const styles = () => ({
 const CustomDialogTitle = withStyles(styles)((props) => {
     const { children, classes, onClose, ...other } = props;
     return (
-        <DialogTitle disableTypography className={classes.root} {...other}>
-            <Typography variant="h6">{children}</Typography>
+        <DialogTitle className={classes.root} {...other}>
+            <Typography variant="h6" component="span">
+                {children}
+            </Typography>
             {onClose && (
                 <IconButton
                     aria-label="close"
