@@ -28,6 +28,7 @@ import {
 
 import {
     AuthenticationRouter,
+    CardErrorBoundary,
     getPreLoginPath,
     initializeAuthenticationProd,
 } from '@gridsuite/commons-ui';
@@ -244,65 +245,67 @@ const App = () => {
     return (
         <>
             <AppTopBar user={user} userManager={userManager} />
-            {user !== null ? (
-                <>
-                    <Routes>
-                        <Route
-                            path={'/'}
-                            element={
-                                configs.length > 0 && (
+            <CardErrorBoundary>
+                {user !== null ? (
+                    <>
+                        <Routes>
+                            <Route
+                                path={'/'}
+                                element={
+                                    configs.length > 0 && (
+                                        <Navigate
+                                            replace
+                                            to={
+                                                PREFIX_URL_PROCESSES +
+                                                '/' +
+                                                configs[0].process
+                                            }
+                                        />
+                                    )
+                                }
+                            />
+                            <Route
+                                path="/sign-in-callback"
+                                element={
                                     <Navigate
                                         replace
-                                        to={
-                                            PREFIX_URL_PROCESSES +
-                                            '/' +
-                                            configs[0].process
-                                        }
+                                        to={getPreLoginPath() || '/'}
                                     />
-                                )
-                            }
-                        />
-                        <Route
-                            path="/sign-in-callback"
-                            element={
-                                <Navigate
-                                    replace
-                                    to={getPreLoginPath() || '/'}
-                                />
-                            }
-                        />
-                        <Route
-                            path="/logout-callback"
-                            element={
-                                <h1>
-                                    Error: logout failed; you are still logged
-                                    in.
-                                </h1>
-                            }
-                        />
-                        <Route
-                            path={PREFIX_URL_PROCESSES + '/:processName'}
-                            element={<ProcessRouteElement />}
-                        />
-                        <Route
-                            path="*"
-                            element={
-                                <h1>
-                                    <FormattedMessage id="pageNotFound" />
-                                </h1>
-                            }
-                        />
-                    </Routes>
-                </>
-            ) : (
-                <AuthenticationRouter
-                    userManager={userManager}
-                    signInCallbackError={signInCallbackError}
-                    dispatch={dispatch}
-                    navigate={navigate}
-                    location={location}
-                />
-            )}
+                                }
+                            />
+                            <Route
+                                path="/logout-callback"
+                                element={
+                                    <h1>
+                                        Error: logout failed; you are still
+                                        logged in.
+                                    </h1>
+                                }
+                            />
+                            <Route
+                                path={PREFIX_URL_PROCESSES + '/:processName'}
+                                element={<ProcessRouteElement />}
+                            />
+                            <Route
+                                path="*"
+                                element={
+                                    <h1>
+                                        <FormattedMessage id="pageNotFound" />
+                                    </h1>
+                                }
+                            />
+                        </Routes>
+                    </>
+                ) : (
+                    <AuthenticationRouter
+                        userManager={userManager}
+                        signInCallbackError={signInCallbackError}
+                        dispatch={dispatch}
+                        navigate={navigate}
+                        location={location}
+                    />
+                )}
+            </CardErrorBoundary>
         </>
     );
 };
