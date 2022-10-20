@@ -18,7 +18,12 @@ import {
     TIMELINE_DIAGONAL_LABELS,
 } from './actions';
 
-import { SIGNIN_CALLBACK_ERROR, USER } from '@gridsuite/commons-ui';
+import {
+    USER,
+    SIGNIN_CALLBACK_ERROR,
+    UNAUTHORIZED_USER_INFO,
+    SHOW_AUTH_INFO_LOGIN,
+} from '@gridsuite/commons-ui';
 import { removeTime } from '../utils/rest-api';
 import {
     getLocalStorageTheme,
@@ -43,6 +48,8 @@ const initialState = {
     computedLanguage: getLocalStorageComputedLanguage(),
     user: null,
     signInCallbackError: null,
+    unauthorizedUserInfo: null,
+    showAuthenticationRouterLogin: false,
     configs: [],
     processes: [],
     ...paramsInitialState,
@@ -69,6 +76,15 @@ export const reducer = createReducer(initialState, {
 
     [SIGNIN_CALLBACK_ERROR]: (state, action) => {
         state.signInCallbackError = action.signInCallbackError;
+    },
+
+    [UNAUTHORIZED_USER_INFO]: (state, action) => {
+        state.unauthorizedUserInfo = action.unauthorizedUserInfo;
+    },
+
+    [SHOW_AUTH_INFO_LOGIN]: (state, action) => {
+        state.showAuthenticationRouterLogin =
+            action.showAuthenticationRouterLogin;
     },
 
     [INIT_PROCESSES]: (state, action) => {
