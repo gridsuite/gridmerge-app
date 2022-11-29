@@ -23,8 +23,7 @@ import {
     replaceIGM,
 } from '../utils/rest-api';
 import PropTypes from 'prop-types';
-import { useSnackbar } from 'notistack';
-import { displayErrorMessageWithSnackbar } from '../utils/messages';
+import { useSnackMessage } from '@gridsuite/commons-ui';
 
 const useStyles = makeStyles((theme) => ({
     stepperGridContainer: {
@@ -95,7 +94,7 @@ const StepperWithStatus = (props) => {
     const [validStep, setValidStep] = useState(false);
     const [mergedStep, setMergedStep] = useState(false);
     const [replaceIGMEnabled, setReplaceIGMEnabled] = useState(false);
-    const { enqueueSnackbar } = useSnackbar();
+    const { snackError, snackInfo } = useSnackMessage();
 
     const [openExportDialog, setOpenExport] = React.useState(false);
 
@@ -129,9 +128,8 @@ const StepperWithStatus = (props) => {
                 setOpenReportViewer(true);
             })
             .catch((errorMessage) =>
-                displayErrorMessageWithSnackbar({
-                    errorMessage: errorMessage,
-                    enqueueSnackbar: enqueueSnackbar,
+                snackError({
+                    messageTxt: errorMessage,
                 })
             );
     };
@@ -143,8 +141,8 @@ const StepperWithStatus = (props) => {
                 const errorMessage = intl.formatMessage({
                     id: 'noReplacingIGMAvailable',
                 });
-                enqueueSnackbar(errorMessage, {
-                    variant: 'info',
+                snackInfo({
+                    messageTxt: errorMessage,
                 });
             }
         });
