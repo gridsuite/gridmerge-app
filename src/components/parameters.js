@@ -29,8 +29,7 @@ import makeStyles from '@mui/styles/makeStyles';
 
 import { updateConfigParameter } from '../utils/rest-api';
 import { PARAM_TIMELINE_DIAGONAL_LABELS } from '../utils/config-params';
-import { useSnackbar } from 'notistack';
-import { displayErrorMessageWithSnackbar, useIntlRef } from '../utils/messages';
+import { useSnackMessage } from '@gridsuite/commons-ui';
 
 const useStyles = makeStyles((theme) => ({
     controlItem: {
@@ -42,9 +41,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export function useParameterState(paramName) {
-    const intlRef = useIntlRef();
-
-    const { enqueueSnackbar } = useSnackbar();
+    const { snackError } = useSnackMessage();
 
     const paramGlobalState = useSelector((state) => state[paramName]);
 
@@ -59,23 +56,13 @@ export function useParameterState(paramName) {
             setParamLocalState(value);
             updateConfigParameter(paramName, value).catch((errorMessage) => {
                 setParamLocalState(paramGlobalState);
-                displayErrorMessageWithSnackbar({
-                    errorMessage: errorMessage,
-                    enqueueSnackbar: enqueueSnackbar,
-                    headerMessage: {
-                        headerMessageId: 'paramsChangingError',
-                        intlRef: intlRef,
-                    },
+                snackError({
+                    messageTxt: errorMessage,
+                    headerId: 'paramsChangingError',
                 });
             });
         },
-        [
-            paramName,
-            enqueueSnackbar,
-            intlRef,
-            setParamLocalState,
-            paramGlobalState,
-        ]
+        [paramName, snackError, setParamLocalState, paramGlobalState]
     );
 
     return [paramLocalState, handleChangeParamLocalState];
