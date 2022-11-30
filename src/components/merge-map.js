@@ -16,7 +16,6 @@ import {
     getIgmStatus,
     MergeType,
     CgmStatus,
-    backendFetch,
 } from '../utils/rest-api';
 import ReactTooltip from 'react-tooltip';
 import { getDetailsByCountryOrTso } from '../utils/tso-country-details';
@@ -134,7 +133,7 @@ const MergeMap = (props) => {
                 props.tsos.map((tso) => {
                     const { countryCode } = getDetailsByCountryOrTso(tso);
                     const url = countryCode.toLowerCase() + '.json';
-                    return backendFetch(url, true);
+                    return fetch(url).then((resp) => resp.json());
                 })
             ).then((jsons) => {
                 // compute geometries bounding box
