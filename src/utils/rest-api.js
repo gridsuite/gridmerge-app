@@ -27,7 +27,21 @@ function getToken() {
     return state.user.id_token;
 }
 
-function backendFetch(url, init) {
+function handleResponse(response, expectsJson) {
+    if (response.ok) {
+        return expectsJson ? response.json() : response;
+    } else {
+        return response.text().then((text) => {
+            return Promise.reject({
+                message: text ? text : response.statusText,
+                status: response.status,
+                statusText: response.statusText,
+            });
+        });
+    }
+}
+
+export function backendFetch(url, expectsJson, init, withAuth = true) {
     if (!(typeof init == 'undefined' || typeof init == 'object')) {
         throw new TypeError(
             'Argument 2 of backendFetch is not an object' + typeof init
@@ -35,8 +49,13 @@ function backendFetch(url, init) {
     }
     const initCopy = Object.assign({}, init);
     initCopy.headers = new Headers(initCopy.headers || {});
-    initCopy.headers.append('Authorization', 'Bearer ' + getToken());
-    return fetch(url, initCopy);
+    if (withAuth) {
+        initCopy.headers.append('Authorization', 'Bearer ' + getToken());
+    }
+
+    return fetch(url, initCopy).then((response) =>
+        handleResponse(response, expectsJson)
+    );
 }
 
 export function fetchValidateUser(user) {
@@ -53,17 +72,25 @@ export function fetchValidateUser(user) {
         PREFIX_USER_ADMIN_SERVER_QUERIES + `/v1/users/${sub}`;
     console.debug(CheckAccessUrl);
 
-    return fetch(CheckAccessUrl, {
-        method: 'head',
-        headers: {
-            Authorization: 'Bearer ' + user?.id_token,
+    return backendFetch(
+        CheckAccessUrl,
+        false,
+        {
+            method: 'head',
+            headers: {
+                Authorization: 'Bearer ' + user?.id_token,
+            },
         },
-    }).then((response) => {
-        if (response.status === 200) return true;
-        else if (response.status === 204 || response.status === 403)
-            return false;
-        else throw new Error(response.status + ' ' + response.statusText);
-    });
+        false
+    )
+        .then((response) => {
+            //if the response is ok, the responseCode will be either 200 or 204 otherwise it's an error and it will be caught
+            return response.status === 200 ? true : false;
+        })
+        .catch((error) => {
+            if (error.status === 403) return false;
+            else throw new Error(error.status + ' ' + error.statusText);
+        });
 }
 
 export function connectNotificationsWebsocket(processUuid, businessProcess) {
@@ -114,11 +141,7 @@ export function fetchConfigParameters(appName) {
     console.info('Fetching UI configuration params for app : ' + appName);
     const fetchParams =
         PREFIX_CONFIG_QUERIES + `/v1/applications/${appName}/parameters`;
-    return backendFetch(fetchParams).then((response) =>
-        response.ok
-            ? response.json()
-            : response.text().then((text) => Promise.reject(text))
-    );
+    return backendFetch(fetchParams, true);
 }
 
 export function fetchConfigParameter(name) {
@@ -131,11 +154,7 @@ export function fetchConfigParameter(name) {
     const fetchParams =
         PREFIX_CONFIG_QUERIES +
         `/v1/applications/${appName}/parameters/${name}`;
-    return backendFetch(fetchParams).then((response) =>
-        response.ok
-            ? response.json()
-            : response.text().then((text) => Promise.reject(text))
-    );
+    return backendFetch(fetchParams, true);
 }
 
 export function updateConfigParameter(name, value) {
@@ -150,17 +169,13 @@ export function updateConfigParameter(name, value) {
         PREFIX_CONFIG_QUERIES +
         `/v1/applications/${appName}/parameters/${name}?value=` +
         encodeURIComponent(value);
-    return backendFetch(updateParams, { method: 'put' }).then((response) =>
-        response.ok
-            ? response
-            : response.text().then((text) => Promise.reject(text))
-    );
+    return backendFetch(updateParams, false, { method: 'put' });
 }
 
 export function fetchMergeConfigs() {
     console.info('Fetching merge configs...');
     const fetchConfigsUrl = PREFIX_ORCHESTRATOR_QUERIES + '/v1/configs';
-    return backendFetch(fetchConfigsUrl).then((response) => response.json());
+    return backendFetch(fetchConfigsUrl, true);
 }
 
 function getUrlWithToken(baseUrl) {
@@ -181,15 +196,14 @@ export function getExportMergeUrl(processUuid, date, format) {
 
 export function fetchAppsAndUrls() {
     console.info(`Fetching apps and urls...`);
-    return fetch('env.json')
-        .then((res) => res.json())
-        .then((res) => {
-            return fetch(
-                res.appsMetadataServerUrl + '/apps-metadata.json'
-            ).then((response) => {
-                return response.json();
-            });
-        });
+    return backendFetch('env.json', true).then((res) => {
+        return backendFetch(
+            res.appsMetadataServerUrl + '/apps-metadata.json',
+            true,
+            undefined,
+            false
+        );
+    });
 }
 
 /**
@@ -207,7 +221,7 @@ export function fetchMergesByProcessUuidAndDate(processUuid, minDate, maxDate) {
         minDate.toISOString() +
         '&maxDate=' +
         maxDate.toISOString();
-    return backendFetch(fetchConfigsUrl).then((response) => response.json());
+    return backendFetch(fetchConfigsUrl, true);
 }
 
 export function removeTime(date) {
@@ -309,7 +323,7 @@ export function getIgmStatus(tso, merge) {
 export function createProcess(json) {
     console.info('Saving Process', json.process, ' ...');
     const addProcessUrl = PREFIX_ORCHESTRATOR_QUERIES + '/v1/configs';
-    return backendFetch(addProcessUrl, {
+    return backendFetch(addProcessUrl, false, {
         method: 'post',
         headers: {
             'Content-Type': 'application/json',
@@ -322,7 +336,7 @@ export function deleteProcess(processUuid) {
     console.info('Deleting Process', processUuid, ' ...');
     const deleteProcessUrl =
         PREFIX_ORCHESTRATOR_QUERIES + '/v1/configs/' + processUuid;
-    return backendFetch(deleteProcessUrl, {
+    return backendFetch(deleteProcessUrl, false, {
         method: 'delete',
     });
 }
@@ -343,43 +357,34 @@ export function replaceIGM(processUuid, date) {
     console.info(
         'replacing igm for process : ' + processUuid + ' at : ' + date
     );
-    return backendFetch(getMergeUrl(processUuid, date, 'replace-igms'), {
+    return backendFetch(getMergeUrl(processUuid, date, 'replace-igms'), true, {
         method: 'put',
-    }).then((response) => (response ? response.json() : null));
+    });
 }
 
 export function fetchReport(processUuid, date) {
     console.info('get report for process : ' + processUuid + ' at : ' + date);
-    return backendFetch(getMergeUrl(processUuid, date, 'report')).then(
-        (response) =>
-            response.ok
-                ? response.json()
-                : response.text().then((text) => Promise.reject(text))
-    );
+    return backendFetch(getMergeUrl(processUuid, date, 'report'), true);
 }
 
 export function fetchTsosList() {
     console.info('Fetching list of authorized tsos...');
     const fetchTsosListUrl = PREFIX_BOUNDARY_QUERIES + '/v1/tsos';
-    return backendFetch(fetchTsosListUrl).then((response) => response.json());
+    return backendFetch(fetchTsosListUrl, true);
 }
 
 export function fetchBusinessProcessesList() {
     console.info('Fetching list of authorized business processes...');
     const fetchBusinessProcessesListUrl =
         PREFIX_BOUNDARY_QUERIES + '/v1/business-processes';
-    return backendFetch(fetchBusinessProcessesListUrl).then((response) =>
-        response.json()
-    );
+    return backendFetch(fetchBusinessProcessesListUrl, true);
 }
 
 export function fetchBoundariesList() {
     console.info('Fetching list of boundaries...');
     const fetchBoundariesListUrl =
         PREFIX_BOUNDARY_QUERIES + '/v1/boundaries/infos';
-    return backendFetch(fetchBoundariesListUrl).then((response) =>
-        response.json()
-    );
+    return backendFetch(fetchBoundariesListUrl, true);
 }
 
 export const MergeType = PropTypes.shape({
