@@ -127,25 +127,31 @@ const StepperWithStatus = (props) => {
                 setReport(report);
                 setOpenReportViewer(true);
             })
-            .catch((errorMessage) =>
+            .catch((error) =>
                 snackError({
-                    messageTxt: errorMessage,
+                    messageTxt: error.message,
                 })
             );
     };
 
     const handleReplaceIGM = () => {
         console.info('Replacing IGM ' + props.merge.processUuid + '...');
-        replaceIGM(props.merge.processUuid, props.merge.date).then((res) => {
-            if (res == null || Object.keys(res).length === 0) {
-                const errorMessage = intl.formatMessage({
-                    id: 'noReplacingIGMAvailable',
+        replaceIGM(props.merge.processUuid, props.merge.date)
+            .then((res) => {
+                if (Object.keys(res).length === 0) {
+                    const errorMessage = intl.formatMessage({
+                        id: 'noReplacingIGMAvailable',
+                    });
+                    snackInfo({
+                        messageTxt: errorMessage,
+                    });
+                }
+            })
+            .catch((error) => {
+                snackError({
+                    messageTxt: error.message,
                 });
-                snackInfo({
-                    messageTxt: errorMessage,
-                });
-            }
-        });
+            });
     };
 
     const allStatusEqualValueArray = (arr) =>

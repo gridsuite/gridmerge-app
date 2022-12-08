@@ -27,7 +27,45 @@ function getToken() {
     return state.user.id_token;
 }
 
-function backendFetch(url, init) {
+function parseError(text) {
+    try {
+        return JSON.parse(text);
+    } catch (err) {
+        return null;
+    }
+}
+
+function handleError(response) {
+    return response.text().then((text) => {
+        const errorName = 'HttpResponseError : ';
+        let error;
+        const errorJson = parseError(text);
+        if (
+            errorJson &&
+            errorJson.status &&
+            errorJson.error &&
+            errorJson.message
+        ) {
+            error = new Error(
+                errorName +
+                    errorJson.status +
+                    ' ' +
+                    errorJson.error +
+                    ', message : ' +
+                    errorJson.message
+            );
+            error.status = errorJson.status;
+        } else {
+            error = new Error(
+                errorName + response.status + ' ' + response.statusText
+            );
+            error.status = response.status;
+        }
+        throw error;
+    });
+}
+
+function prepareRequest(init, token) {
     if (!(typeof init == 'undefined' || typeof init == 'object')) {
         throw new TypeError(
             'Argument 2 of backendFetch is not an object' + typeof init
@@ -35,8 +73,30 @@ function backendFetch(url, init) {
     }
     const initCopy = Object.assign({}, init);
     initCopy.headers = new Headers(initCopy.headers || {});
-    initCopy.headers.append('Authorization', 'Bearer ' + getToken());
-    return fetch(url, initCopy);
+    const tokenCopy = token ? token : getToken();
+    initCopy.headers.append('Authorization', 'Bearer ' + tokenCopy);
+    return initCopy;
+}
+
+function safeFetch(url, initCopy) {
+    return fetch(url, initCopy).then((response) =>
+        response.ok ? response : handleError(response)
+    );
+}
+
+export function backendFetch(url, init, token) {
+    const initCopy = prepareRequest(init, token);
+    return safeFetch(url, initCopy);
+}
+
+export function backendFetchText(url, init, token) {
+    const initCopy = prepareRequest(init, token);
+    return safeFetch(url, initCopy).then((safeResponse) => safeResponse.text());
+}
+
+export function backendFetchJson(url, init, token) {
+    const initCopy = prepareRequest(init, token);
+    return safeFetch(url, initCopy).then((safeResponse) => safeResponse.json());
 }
 
 export function fetchValidateUser(user) {
@@ -53,17 +113,21 @@ export function fetchValidateUser(user) {
         PREFIX_USER_ADMIN_SERVER_QUERIES + `/v1/users/${sub}`;
     console.debug(CheckAccessUrl);
 
-    return fetch(CheckAccessUrl, {
-        method: 'head',
-        headers: {
-            Authorization: 'Bearer ' + user?.id_token,
+    return backendFetch(
+        CheckAccessUrl,
+        {
+            method: 'head',
         },
-    }).then((response) => {
-        if (response.status === 200) return true;
-        else if (response.status === 204 || response.status === 403)
-            return false;
-        else throw new Error(response.status + ' ' + response.statusText);
-    });
+        user?.id_token
+    )
+        .then((response) => {
+            //if the response is ok, the responseCode will be either 200 or 204 otherwise it's a Http error and it will be caught
+            return response.status === 200;
+        })
+        .catch((error) => {
+            if (error.status === 403) return false;
+            else throw error;
+        });
 }
 
 export function connectNotificationsWebsocket(processUuid, businessProcess) {
@@ -114,11 +178,7 @@ export function fetchConfigParameters(appName) {
     console.info('Fetching UI configuration params for app : ' + appName);
     const fetchParams =
         PREFIX_CONFIG_QUERIES + `/v1/applications/${appName}/parameters`;
-    return backendFetch(fetchParams).then((response) =>
-        response.ok
-            ? response.json()
-            : response.text().then((text) => Promise.reject(text))
-    );
+    return backendFetchJson(fetchParams);
 }
 
 export function fetchConfigParameter(name) {
@@ -131,11 +191,7 @@ export function fetchConfigParameter(name) {
     const fetchParams =
         PREFIX_CONFIG_QUERIES +
         `/v1/applications/${appName}/parameters/${name}`;
-    return backendFetch(fetchParams).then((response) =>
-        response.ok
-            ? response.json()
-            : response.text().then((text) => Promise.reject(text))
-    );
+    return backendFetchJson(fetchParams);
 }
 
 export function updateConfigParameter(name, value) {
@@ -150,17 +206,13 @@ export function updateConfigParameter(name, value) {
         PREFIX_CONFIG_QUERIES +
         `/v1/applications/${appName}/parameters/${name}?value=` +
         encodeURIComponent(value);
-    return backendFetch(updateParams, { method: 'put' }).then((response) =>
-        response.ok
-            ? response
-            : response.text().then((text) => Promise.reject(text))
-    );
+    return backendFetch(updateParams, { method: 'put' });
 }
 
 export function fetchMergeConfigs() {
     console.info('Fetching merge configs...');
     const fetchConfigsUrl = PREFIX_ORCHESTRATOR_QUERIES + '/v1/configs';
-    return backendFetch(fetchConfigsUrl).then((response) => response.json());
+    return backendFetchJson(fetchConfigsUrl);
 }
 
 function getUrlWithToken(baseUrl) {
@@ -207,7 +259,7 @@ export function fetchMergesByProcessUuidAndDate(processUuid, minDate, maxDate) {
         minDate.toISOString() +
         '&maxDate=' +
         maxDate.toISOString();
-    return backendFetch(fetchConfigsUrl).then((response) => response.json());
+    return backendFetchJson(fetchConfigsUrl);
 }
 
 export function removeTime(date) {
@@ -343,43 +395,34 @@ export function replaceIGM(processUuid, date) {
     console.info(
         'replacing igm for process : ' + processUuid + ' at : ' + date
     );
-    return backendFetch(getMergeUrl(processUuid, date, 'replace-igms'), {
+    return backendFetchJson(getMergeUrl(processUuid, date, 'replace-igms'), {
         method: 'put',
-    }).then((response) => (response ? response.json() : null));
+    });
 }
 
 export function fetchReport(processUuid, date) {
     console.info('get report for process : ' + processUuid + ' at : ' + date);
-    return backendFetch(getMergeUrl(processUuid, date, 'report')).then(
-        (response) =>
-            response.ok
-                ? response.json()
-                : response.text().then((text) => Promise.reject(text))
-    );
+    return backendFetchJson(getMergeUrl(processUuid, date, 'report'));
 }
 
 export function fetchTsosList() {
     console.info('Fetching list of authorized tsos...');
     const fetchTsosListUrl = PREFIX_BOUNDARY_QUERIES + '/v1/tsos';
-    return backendFetch(fetchTsosListUrl).then((response) => response.json());
+    return backendFetchJson(fetchTsosListUrl);
 }
 
 export function fetchBusinessProcessesList() {
     console.info('Fetching list of authorized business processes...');
     const fetchBusinessProcessesListUrl =
         PREFIX_BOUNDARY_QUERIES + '/v1/business-processes';
-    return backendFetch(fetchBusinessProcessesListUrl).then((response) =>
-        response.json()
-    );
+    return backendFetchJson(fetchBusinessProcessesListUrl);
 }
 
 export function fetchBoundariesList() {
     console.info('Fetching list of boundaries...');
     const fetchBoundariesListUrl =
         PREFIX_BOUNDARY_QUERIES + '/v1/boundaries/infos';
-    return backendFetch(fetchBoundariesListUrl).then((response) =>
-        response.json()
-    );
+    return backendFetchJson(fetchBoundariesListUrl);
 }
 
 export const MergeType = PropTypes.shape({
