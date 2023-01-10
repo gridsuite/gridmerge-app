@@ -32,6 +32,7 @@ import {
     getPreLoginPath,
     initializeAuthenticationProd,
     setShowAuthenticationRouterLogin,
+    getIdTokenExpiresIn,
 } from '@gridsuite/commons-ui';
 import { FormattedMessage } from 'react-intl';
 
@@ -152,7 +153,7 @@ const App = () => {
                 setUserManager({ instance: userManager, error: null });
                 return userManager.getUser().then((user) => {
                     if (
-                        user == null &&
+                        (user == null || getIdTokenExpiresIn(user) < 0) &&
                         initialMatchSilentRenewCallbackUrl == null
                     ) {
                         return userManager.signinSilent().catch((error) => {
@@ -176,7 +177,7 @@ const App = () => {
             })
             .catch(function (error) {
                 setUserManager({ instance: null, error: error.message });
-                console.debug('error when importing the idp settings');
+                console.debug('error when importing the idp settings', error);
                 dispatch(setShowAuthenticationRouterLogin(true));
             });
         // Note: initialMatchSilentRenewCallbackUrl and dispatch don't change
