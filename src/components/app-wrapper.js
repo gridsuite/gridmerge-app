@@ -30,6 +30,8 @@ import { BrowserRouter } from 'react-router-dom';
 import { Provider, useSelector } from 'react-redux';
 import messages_en from '../translations/en.json';
 import messages_fr from '../translations/fr.json';
+import messages_plugins_en from '../plugins/translations/en.json';
+import messages_plugins_fr from '../plugins/translations/fr.json';
 import { store } from '../redux/store';
 import CssBaseline from '@mui/material/CssBaseline';
 import { PARAM_THEME } from '../utils/config-params';
@@ -101,6 +103,7 @@ const messages = {
         ...login_en,
         ...top_bar_en,
         ...card_error_boundary_en,
+        ...messages_plugins_en, // keep it at the end to allow translation overwritting
     },
     fr: {
         ...messages_fr,
@@ -108,6 +111,7 @@ const messages = {
         ...login_fr,
         ...top_bar_fr,
         ...card_error_boundary_fr,
+        ...messages_plugins_fr, // keep it at the end to allow translation overwritting
     },
 };
 
