@@ -197,10 +197,9 @@ const Process = (props) => {
                                 KeyboardButtonProps={{
                                     'aria-label': 'change date',
                                 }}
-                                inputProps={{ readOnly: true }}
                                 slotProps={{
                                     textField: {
-                                        disabled: true,
+                                        readOnly: true,
                                     },
                                 }}
                             />
