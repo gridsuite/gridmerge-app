@@ -26,7 +26,7 @@ import { store } from '../redux/store';
 import Timeline from './timeline';
 import StepperWithStatus from './stepper';
 import CountryStatesList from './country-state-list';
-import { Grid, Chip, TextField } from '@mui/material';
+import { Grid, Chip } from '@mui/material';
 
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
@@ -198,9 +198,11 @@ const Process = (props) => {
                                     'aria-label': 'change date',
                                 }}
                                 inputProps={{ readOnly: true }}
-                                renderInput={(props) => (
-                                    <TextField {...props} />
-                                )}
+                                slotProps={{
+                                    textField: {
+                                        disabled: true,
+                                    },
+                                }}
                             />
                         </LocalizationProvider>
                     </Grid>

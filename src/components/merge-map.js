@@ -17,7 +17,7 @@ import {
     MergeType,
     CgmStatus,
 } from '../utils/rest-api';
-import ReactTooltip from 'react-tooltip';
+import { Tooltip } from 'react-tooltip';
 import { getDetailsByCountryOrTso } from '../utils/tso-country-details';
 
 const TSO_STROKE_COLOR = 'white';
@@ -150,7 +150,7 @@ const MergeMap = (props) => {
     const projectionConfig = { center: data.center, scale: data.scale };
 
     return (
-        <div>
+        <div className={'maps'}>
             <ComposableMap
                 data-tip=""
                 style={{
@@ -214,7 +214,12 @@ const MergeMap = (props) => {
                     }
                 </Geographies>
             </ComposableMap>
-            <ReactTooltip>{tooltip}</ReactTooltip>
+            <Tooltip
+                anchorSelect=".maps"
+                float={true}
+                style={{ position: 'absolute' }}
+                content={tooltip}
+            />
             {props.children}
         </div>
     );
