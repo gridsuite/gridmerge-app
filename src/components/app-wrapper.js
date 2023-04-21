@@ -25,6 +25,7 @@ import {
     card_error_boundary_en,
     card_error_boundary_fr,
 } from '@gridsuite/commons-ui';
+import 'react-tooltip/dist/react-tooltip.css';
 import { IntlProvider } from 'react-intl';
 import { BrowserRouter } from 'react-router-dom';
 import { Provider, useSelector } from 'react-redux';
