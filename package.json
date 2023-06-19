@@ -13,6 +13,9 @@
         "@mui/styles": "^5.5.3",
         "@mui/x-date-pickers": "^6.0.0",
         "@reduxjs/toolkit": "^1.2.3",
+        "@types/node": "^20.2.5",
+        "@types/react": "^18.2.9",
+        "@types/react-dom": "^18.2.4",
         "date-fns": "^2.16.1",
         "geojson-bbox": "0.0.1",
         "moment": "^2.29.0",
@@ -30,7 +33,8 @@
         "react-window": "^1.8.5",
         "reconnecting-websocket": "^4.4.0",
         "redux": "^4.0.5",
-        "typeface-roboto": "^1.0.0"
+        "typeface-roboto": "^1.0.0",
+        "typescript": "^5.1.3"
     },
     "scripts": {
         "start": "react-scripts start",
