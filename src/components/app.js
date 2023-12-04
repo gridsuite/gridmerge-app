@@ -38,6 +38,7 @@ import Process from './process';
 
 import {
     connectNotificationsWsUpdateConfig,
+    fetchAuthorizationCodeFlowFeatureFlag,
     fetchConfigParameter,
     fetchConfigParameters,
     fetchValidateUser,
@@ -141,12 +142,16 @@ const App = () => {
     });
 
     useEffect(() => {
-        initializeAuthenticationProd(
-            dispatch,
-            initialMatchSilentRenewCallbackUrl != null,
-            fetch('idpSettings.json'),
-            fetchValidateUser
-        )
+        fetchAuthorizationCodeFlowFeatureFlag()
+            .then((authorizationCodeFlowEnabled) => {
+                return initializeAuthenticationProd(
+                    dispatch,
+                    initialMatchSilentRenewCallbackUrl != null,
+                    fetch('idpSettings.json'),
+                    fetchValidateUser,
+                    authorizationCodeFlowEnabled
+                );
+            })
             .then((userManager) => {
                 setUserManager({ instance: userManager, error: null });
             })
