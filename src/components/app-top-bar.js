@@ -114,10 +114,10 @@ const AppTopBar = ({ user, userManager }) => {
                     fetchVersion()
                         .then((res) => setGlobalVersion(res.deployVersion))
                         .catch((reason) => {
-                          console.error(
-                            'Error while fetching the version : ' + reason
-                          );
-                          setGlobalVersion(null);
+                            console.error(
+                                'Error while fetching the version : ' + reason
+                            );
+                            setGlobalVersion(null);
                         })
                 }
                 getAdditionalComponents={(setServers) =>
@@ -140,11 +140,11 @@ const AppTopBar = ({ user, userManager }) => {
                             )
                         )
                         .catch((reason) => {
-                          console.error(
-                            'Error while fetching the servers infos : ' +
-                            reason
-                          );
-                          setServers(null);
+                            console.error(
+                                'Error while fetching the servers infos : ' +
+                                    reason
+                            );
+                            setServers(null);
                         })
                 }
             >
