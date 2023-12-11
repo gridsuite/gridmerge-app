@@ -120,7 +120,7 @@ const AppTopBar = ({ user, userManager }) => {
                             setGlobalVersion(null);
                         })
                 }
-                getAdditionalComponents={(setServers) =>
+                getAdditionalModules={(setServers) =>
                     getServersInfos()
                         .then((res) =>
                             setServers(
