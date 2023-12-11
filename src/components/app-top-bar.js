@@ -9,7 +9,12 @@ import { LIGHT_THEME, logout, TopBar } from '@gridsuite/commons-ui';
 import Parameters, { useParameterState } from './parameters';
 import { PARAM_LANGUAGE, PARAM_THEME } from '../utils/config-params';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchAppsAndUrls, fetchMergeConfigs } from '../utils/rest-api';
+import {
+    fetchAppsAndUrls,
+    fetchMergeConfigs,
+    fetchVersion,
+    getServersInfos,
+} from '../utils/rest-api';
 import PropTypes from 'prop-types';
 import { useNavigate, useMatch } from 'react-router-dom';
 import { ReactComponent as GridMergeLogoLight } from '../images/GridMerge_logo_light.svg';
@@ -19,6 +24,7 @@ import { FormattedMessage } from 'react-intl';
 import ProcessesConfigurationDialog from './processes-configuration-dialog';
 import { makeStyles } from '@mui/styles';
 import { initProcesses } from '../redux/actions';
+import AppPackage from '../../package.json';
 
 export const PREFIX_URL_PROCESSES = '/processes';
 
@@ -81,26 +87,6 @@ const AppTopBar = ({ user, userManager }) => {
         return index !== -1 ? matchProcess.params.processName : false;
     }, [configs, matchProcess]);
 
-    function toggleTab(newTabValue) {
-        navigate(PREFIX_URL_PROCESSES + '/' + newTabValue);
-    }
-
-    function showParametersClicked() {
-        setShowParameters(true);
-    }
-
-    function hideParameters() {
-        setShowParameters(false);
-    }
-
-    function onLogoClicked() {
-        navigate('/', { replace: true });
-    }
-
-    const showPopupConfigurationProcesses = () => {
-        setShowConfigurationProcesses(true);
-    };
-
     return (
         <>
             <TopBar
@@ -113,23 +99,63 @@ const AppTopBar = ({ user, userManager }) => {
                         <GridMergeLogoDark />
                     )
                 }
-                onParametersClick={() => showParametersClicked()}
+                appVersion={AppPackage.version}
+                appLicense={AppPackage.license}
+                onParametersClick={() => setShowParameters(true)}
                 onLogoutClick={() => logout(dispatch, userManager.instance)}
-                onLogoClick={() => onLogoClicked()}
+                onLogoClick={() => navigate('/', { replace: true })}
                 user={user}
                 appsAndUrls={appsAndUrls}
                 onThemeClick={handleChangeTheme}
                 theme={themeLocal}
-                onAboutClick={() => console.debug('about')}
                 onLanguageClick={handleChangeLanguage}
                 language={languageLocal}
+                getGlobalVersion={(setGlobalVersion) =>
+                    fetchVersion()
+                        .then((res) => setGlobalVersion(res.deployVersion))
+                        .catch((reason) => {
+                            console.error(
+                                'Error while fetching the version : ' + reason
+                            );
+                            setGlobalVersion(null);
+                        })
+                }
+                getAdditionalModules={(setServers) =>
+                    getServersInfos()
+                        .then((res) =>
+                            setServers(
+                                Object.entries(res).map(([name, infos]) => ({
+                                    name:
+                                        infos?.build?.name ||
+                                        infos?.build?.artifact ||
+                                        name,
+                                    type: 'server',
+                                    version: infos?.build?.version,
+                                    gitTag:
+                                        infos?.git?.tags ||
+                                        infos?.git?.commit?.id[
+                                            'describe-short'
+                                        ],
+                                }))
+                            )
+                        )
+                        .catch((reason) => {
+                            console.error(
+                                'Error while fetching the servers infos : ' +
+                                    reason
+                            );
+                            setServers(null);
+                        })
+                }
             >
                 <Tabs
                     value={selectedTabId}
                     indicatorColor="primary"
                     variant="scrollable"
                     scrollButtons="auto"
-                    onChange={(event, newValue) => toggleTab(newValue)}
+                    onChange={(event, newValue) =>
+                        navigate(PREFIX_URL_PROCESSES + '/' + newValue)
+                    }
                     aria-label="parameters"
                     className={classes.process}
                 >
@@ -145,7 +171,7 @@ const AppTopBar = ({ user, userManager }) => {
                     <>
                         <Button
                             className={classes.btnConfigurationProcesses}
-                            onClick={showPopupConfigurationProcesses}
+                            onClick={() => setShowConfigurationProcesses(true)}
                         >
                             <FormattedMessage id="configureProcesses" />
                         </Button>
@@ -161,7 +187,7 @@ const AppTopBar = ({ user, userManager }) => {
             </TopBar>
             <Parameters
                 showParameters={showParameters}
-                hideParameters={hideParameters}
+                hideParameters={() => setShowParameters(false)}
             />
         </>
     );
