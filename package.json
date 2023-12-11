@@ -7,7 +7,7 @@
     "dependencies": {
         "@emotion/react": "^11.8.2",
         "@emotion/styled": "^11.8.1",
-        "@gridsuite/commons-ui": "^0.41.0",
+        "@gridsuite/commons-ui": "^0.42.0",
         "@mui/icons-material": "^5.5.1",
         "@mui/lab": "^5.0.0-alpha.75",
         "@mui/material": "^5.5.3",
@@ -66,9 +66,9 @@
         ]
     },
     "devDependencies": {
-        "http-proxy-middleware": "^2.0.0",
-        "prettier": "^2.0.5",
         "eslint-config-prettier": "^8.0.0",
-        "eslint-plugin-prettier": "^4.0.0"
+        "eslint-plugin-prettier": "^4.0.0",
+        "http-proxy-middleware": "^2.0.0",
+        "prettier": "^2.0.5"
     }
 }
