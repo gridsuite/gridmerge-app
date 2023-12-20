@@ -107,6 +107,12 @@ const App = () => {
         })
     );
 
+    const [initialMatchSigninCallbackUrl] = useState(
+        useMatch({
+            path: '/sign-in-callback',
+        })
+    );
+
     const updateParams = useCallback(
         (params) => {
             console.debug('received UI parameters : ', params);
@@ -149,7 +155,8 @@ const App = () => {
                     initialMatchSilentRenewCallbackUrl != null,
                     fetch('idpSettings.json'),
                     fetchValidateUser,
-                    authorizationCodeFlowEnabled
+                    authorizationCodeFlowEnabled,
+                    initialMatchSigninCallbackUrl != null
                 );
             })
             .then((userManager) => {
@@ -159,7 +166,11 @@ const App = () => {
                 setUserManager({ instance: null, error: error.message });
             });
         // Note: initialMatchSilentRenewCallbackUrl and dispatch don't change
-    }, [initialMatchSilentRenewCallbackUrl, dispatch]);
+    }, [
+        initialMatchSilentRenewCallbackUrl,
+        dispatch,
+        initialMatchSigninCallbackUrl,
+    ]);
 
     const connectNotificationsUpdateConfig = useCallback(() => {
         const ws = connectNotificationsWsUpdateConfig();
