@@ -58,51 +58,51 @@ const initialState = {
     ...paramsInitialState,
 };
 
-export const reducer = createReducer(initialState, {
-    [SELECT_THEME]: (state, action) => {
+export const reducer = createReducer(initialState, (builder) => {
+    builder.addCase(SELECT_THEME, (state, action) => {
         state[PARAM_THEME] = action[PARAM_THEME];
         saveLocalStorageTheme(state[PARAM_THEME]);
-    },
+    });
 
-    [SELECT_LANGUAGE]: (state, action) => {
+    builder.addCase(SELECT_LANGUAGE, (state, action) => {
         state[PARAM_LANGUAGE] = action[PARAM_LANGUAGE];
         saveLocalStorageLanguage(state[PARAM_LANGUAGE]);
-    },
+    });
 
-    [SELECT_COMPUTED_LANGUAGE]: (state, action) => {
+    builder.addCase(SELECT_COMPUTED_LANGUAGE, (state, action) => {
         state.computedLanguage = action.computedLanguage;
-    },
+    });
 
-    [USER]: (state, action) => {
+    builder.addCase(USER, (state, action) => {
         state.user = action.user;
-    },
+    });
 
-    [SIGNIN_CALLBACK_ERROR]: (state, action) => {
+    builder.addCase(SIGNIN_CALLBACK_ERROR, (state, action) => {
         state.signInCallbackError = action.signInCallbackError;
-    },
+    });
 
-    [UNAUTHORIZED_USER_INFO]: (state, action) => {
+    builder.addCase(UNAUTHORIZED_USER_INFO, (state, action) => {
         state.authenticationRouterError = action.authenticationRouterError;
-    },
+    });
 
-    [LOGOUT_ERROR]: (state, action) => {
+    builder.addCase(LOGOUT_ERROR, (state, action) => {
         state.authenticationRouterError = action.authenticationRouterError;
-    },
+    });
 
-    [USER_VALIDATION_ERROR]: (state, action) => {
+    builder.addCase(USER_VALIDATION_ERROR, (state, action) => {
         state.authenticationRouterError = action.authenticationRouterError;
-    },
+    });
 
-    [RESET_AUTHENTICATION_ROUTER_ERROR]: (state, action) => {
+    builder.addCase(RESET_AUTHENTICATION_ROUTER_ERROR, (state, action) => {
         state.authenticationRouterError = null;
-    },
+    });
 
-    [SHOW_AUTH_INFO_LOGIN]: (state, action) => {
+    builder.addCase(SHOW_AUTH_INFO_LOGIN, (state, action) => {
         state.showAuthenticationRouterLogin =
             action.showAuthenticationRouterLogin;
-    },
+    });
 
-    [INIT_PROCESSES]: (state, action) => {
+    builder.addCase(INIT_PROCESSES, (state, action) => {
         state.configs = action.configs;
         // by default set date to current day
         state.processes = state.configs.map(() => {
@@ -112,25 +112,25 @@ export const reducer = createReducer(initialState, {
                 selectedMergeDate: null,
             };
         });
-    },
+    });
 
-    [UPDATE_MERGES]: (state, action) => {
+    builder.addCase(UPDATE_MERGES, (state, action) => {
         const process = state.processes[action.processIndex];
         process.merges = action.merges;
-    },
+    });
 
-    [UPDATE_PROCESS_DATE]: (state, action) => {
+    builder.addCase(UPDATE_PROCESS_DATE, (state, action) => {
         const process = state.processes[action.processIndex];
         process.date = action.date;
-    },
+    });
 
-    [UPDATE_SELECTED_MERGE_DATE]: (state, action) => {
+    builder.addCase(UPDATE_SELECTED_MERGE_DATE, (state, action) => {
         const process = state.processes[action.processIndex];
         process.selectedMergeDate = action.selectedMergeDate;
-    },
+    });
 
-    [TIMELINE_DIAGONAL_LABELS]: (state, action) => {
+    builder.addCase(TIMELINE_DIAGONAL_LABELS, (state, action) => {
         state[PARAM_TIMELINE_DIAGONAL_LABELS] =
             action[PARAM_TIMELINE_DIAGONAL_LABELS];
-    },
+    });
 });
