@@ -5,12 +5,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import React, { useCallback, useEffect, useState } from 'react';
-
+import { useCallback, useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
-
 import { useSelector } from 'react-redux';
-
 import {
     Box,
     Button,
@@ -19,26 +16,23 @@ import {
     DialogContent,
     DialogTitle,
     Grid,
+    Switch,
     Tab,
     Tabs,
     Typography,
-    Switch,
 } from '@mui/material';
-
-import makeStyles from '@mui/styles/makeStyles';
-
 import { updateConfigParameter } from '../utils/rest-api';
 import { PARAM_TIMELINE_DIAGONAL_LABELS } from '../utils/config-params';
 import { useSnackMessage } from '@gridsuite/commons-ui';
 
-const useStyles = makeStyles((theme) => ({
+const classes = {
     controlItem: {
         justifyContent: 'flex-end',
     },
     button: {
         marginBottom: '30px',
     },
-}));
+};
 
 export function useParameterState(paramName) {
     const { snackError } = useSnackMessage();
@@ -68,57 +62,55 @@ export function useParameterState(paramName) {
     return [paramLocalState, handleChangeParamLocalState];
 }
 
-const Parameters = ({ showParameters, hideParameters }) => {
-    const classes = useStyles();
+function TabPanel(props) {
+    const { children, value, index, ...other } = props;
 
-    const [tabIndex, setTabIndex] = useState(0);
+    return (
+        <Typography
+            component="div"
+            role="tabpanel"
+            hidden={value !== index}
+            id={`simple-tabpanel-${index}`}
+            aria-labelledby={`simple-tab-${index}`}
+            {...other}
+        >
+            {value === index && <Box p={3}>{children}</Box>}
+        </Typography>
+    );
+}
 
+function GUITab() {
     const [timelineDiagonalLabelLocal, handleChangeTimelineDiagonalLabelLocal] =
         useParameterState(PARAM_TIMELINE_DIAGONAL_LABELS);
 
-    function TabPanel(props) {
-        const { children, value, index, ...other } = props;
-
-        return (
-            <Typography
-                component="div"
-                role="tabpanel"
-                hidden={value !== index}
-                id={`simple-tabpanel-${index}`}
-                aria-labelledby={`simple-tab-${index}`}
-                {...other}
-            >
-                {value === index && <Box p={3}>{children}</Box>}
-            </Typography>
-        );
-    }
-
-    function GUITab() {
-        return (
-            <Grid container spacing={2} className={classes.grid}>
-                <Grid item xs={8}>
-                    <Typography component="span" variant="body1">
-                        <Box fontWeight="fontWeightBold" m={1}>
-                            <FormattedMessage id="timelineDiagonalLabels" />
-                        </Box>
-                    </Typography>
-                </Grid>
-                <Grid item container xs={4} className={classes.controlItem}>
-                    <Switch
-                        checked={timelineDiagonalLabelLocal}
-                        onChange={(event) => {
-                            handleChangeTimelineDiagonalLabelLocal(
-                                event.target.value !== 'true'
-                            );
-                        }}
-                        value={timelineDiagonalLabelLocal}
-                        color="primary"
-                        inputProps={{ 'aria-label': 'primary checkbox' }}
-                    />
-                </Grid>
+    return (
+        <Grid container spacing={2} sx={classes.grid}>
+            <Grid item xs={8}>
+                <Typography component="span" variant="body1">
+                    <Box fontWeight="fontWeightBold" m={1}>
+                        <FormattedMessage id="timelineDiagonalLabels" />
+                    </Box>
+                </Typography>
             </Grid>
-        );
-    }
+            <Grid item container xs={4} sx={classes.controlItem}>
+                <Switch
+                    checked={timelineDiagonalLabelLocal}
+                    onChange={(event) => {
+                        handleChangeTimelineDiagonalLabelLocal(
+                            event.target.value !== 'true'
+                        );
+                    }}
+                    value={timelineDiagonalLabelLocal}
+                    color="primary"
+                    inputProps={{ 'aria-label': 'primary checkbox' }}
+                />
+            </Grid>
+        </Grid>
+    );
+}
+
+const Parameters = ({ showParameters, hideParameters }) => {
+    const [tabIndex, setTabIndex] = useState(0);
 
     return (
         <Dialog
@@ -129,11 +121,7 @@ const Parameters = ({ showParameters, hideParameters }) => {
             fullWidth={true}
         >
             <DialogTitle id="form-dialog-title">
-                <Typography
-                    component="span"
-                    variant="h5"
-                    className={classes.title}
-                >
+                <Typography component="span" variant="h5" sx={classes.title}>
                     <FormattedMessage id="parameters" />
                 </Typography>
             </DialogTitle>
@@ -159,7 +147,7 @@ const Parameters = ({ showParameters, hideParameters }) => {
                             onClick={hideParameters}
                             variant="contained"
                             color="primary"
-                            className={classes.button}
+                            sx={classes.button}
                         >
                             <FormattedMessage id="close" />
                         </Button>

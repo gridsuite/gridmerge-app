@@ -5,57 +5,55 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import React, { useCallback, useEffect, useState } from 'react';
-
+import { useCallback, useEffect, useState } from 'react';
 import {
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    Typography,
-    IconButton,
+    Autocomplete,
     Button,
-    TextField,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    FormControlLabel,
     Grid,
+    IconButton,
+    Radio,
+    RadioGroup,
+    TextField,
+    Typography,
+    withStyles,
 } from '@mui/material';
-
-import CloseIcon from '@mui/icons-material/Close';
-import DeleteIcon from '@mui/icons-material/Delete';
-import AddCircleIcon from '@mui/icons-material/AddCircle';
+import {
+    AddCircle as AddCircleIcon,
+    Close as CloseIcon,
+    Delete as DeleteIcon,
+} from '@mui/icons-material';
 import { FormattedMessage, useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
-
-import makeStyles from '@mui/styles/makeStyles';
-import withStyles from '@mui/styles/withStyles';
 import {
     createProcess,
     deleteProcess,
+    fetchBoundariesList,
+    fetchBusinessProcessesList,
     fetchMergeConfigs,
     fetchTsosList,
-    fetchBusinessProcessesList,
-    fetchBoundariesList,
 } from '../utils/rest-api';
 import { initProcesses } from '../redux/actions';
 import { useDispatch, useSelector } from 'react-redux';
-import RadioGroup from '@mui/material/RadioGroup';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Radio from '@mui/material/Radio';
 import { useNavigate } from 'react-router-dom';
-import Autocomplete from '@mui/material/Autocomplete';
 
-const useStyles = makeStyles((theme) => ({
-    addNewTso: {
+const classes = {
+    addNewTso: (theme) => ({
         border: '1px solid',
         padding: theme.spacing(1),
         margin: theme.spacing(2, 0, 2, 0),
-    },
+    }),
     newTsoContainerLabel: {
         fontWeight: 'bold',
     },
     input: {
         textOverflow: 'ellipsis',
     },
-}));
+};
 
 const styles = () => ({
     // Link : https://material-ui.com/components/dialogs/#customized-dialogs
@@ -72,14 +70,14 @@ const styles = () => ({
 const CustomDialogTitle = withStyles(styles)((props) => {
     const { children, classes, onClose, ...other } = props;
     return (
-        <DialogTitle className={classes.root} {...other}>
+        <DialogTitle sx={classes.root} {...other}>
             <Typography variant="h6" component="span">
                 {children}
             </Typography>
             {onClose && (
                 <IconButton
                     aria-label="close"
-                    className={classes.closeButton}
+                    sx={classes.closeButton}
                     onClick={onClose}
                 >
                     <CloseIcon />
@@ -298,7 +296,6 @@ const ProcessBoundarySet = ({
 };
 
 const ProcessesContainer = ({ handleProcessesChanged, currentProcess }) => {
-    const classes = useStyles();
     const intl = useIntl();
 
     const [authorizedTsosCodes, setAuthorizedTsosCodes] = useState([]);
@@ -404,7 +401,7 @@ const ProcessesContainer = ({ handleProcessesChanged, currentProcess }) => {
 
     return (
         <div>
-            <Grid container className={classes.newTsoContainerLabel}>
+            <Grid container sx={classes.newTsoContainerLabel}>
                 <Grid item xs={12} sm={7}>
                     <FormattedMessage id="processes" />
                 </Grid>
@@ -416,7 +413,7 @@ const ProcessesContainer = ({ handleProcessesChanged, currentProcess }) => {
                 <Grid
                     container
                     spacing={1}
-                    className={classes.addNewTso}
+                    sx={classes.addNewTso}
                     key={process.processUuid}
                 >
                     {/* Process input*/}
@@ -723,50 +720,43 @@ const ProcessesConfigurationDialog = ({ open, onClose, matchProcess }) => {
     };
 
     return (
-        <>
-            <Dialog
-                open={open}
-                onClose={cancel}
-                maxWidth={'lg'}
-                fullWidth={true}
-            >
-                <CustomDialogTitle id="form-dialog-title" onClose={cancel}>
-                    {confirmSave ? (
-                        <FormattedMessage id="deletionProcessesTitle" />
-                    ) : (
-                        <FormattedMessage id="mergingProcessConfigurationTitle" />
-                    )}
-                </CustomDialogTitle>
-                <DialogContent dividers>
-                    {confirmSave ? (
-                        <h3>
-                            <FormattedMessage id="confirmMessage" />
-                        </h3>
-                    ) : (
-                        <ProcessesContainer
-                            currentProcess={processes}
-                            handleProcessesChanged={handleProcessesChanged}
-                        />
-                    )}
-                    {confirmSave &&
-                        processesToBeDeleted().map((e) => (
-                            <h3 key={e.processUuid}>{e.process}</h3>
-                        ))}
-                </DialogContent>
-                <DialogActions>
-                    <Button autoFocus size="small" onClick={cancel}>
-                        <FormattedMessage id="cancel" />
-                    </Button>
-                    <Button
-                        variant="outlined"
-                        size="small"
-                        onClick={confirmSave ? handleSave : saveButtonClicked}
-                    >
-                        <FormattedMessage id="confirm" />
-                    </Button>
-                </DialogActions>
-            </Dialog>
-        </>
+        <Dialog open={open} onClose={cancel} maxWidth="lg" fullWidth={true}>
+            <CustomDialogTitle id="form-dialog-title" onClose={cancel}>
+                {confirmSave ? (
+                    <FormattedMessage id="deletionProcessesTitle" />
+                ) : (
+                    <FormattedMessage id="mergingProcessConfigurationTitle" />
+                )}
+            </CustomDialogTitle>
+            <DialogContent dividers>
+                {confirmSave ? (
+                    <h3>
+                        <FormattedMessage id="confirmMessage" />
+                    </h3>
+                ) : (
+                    <ProcessesContainer
+                        currentProcess={processes}
+                        handleProcessesChanged={handleProcessesChanged}
+                    />
+                )}
+                {confirmSave &&
+                    processesToBeDeleted().map((e) => (
+                        <h3 key={e.processUuid}>{e.process}</h3>
+                    ))}
+            </DialogContent>
+            <DialogActions>
+                <Button autoFocus size="small" onClick={cancel}>
+                    <FormattedMessage id="cancel" />
+                </Button>
+                <Button
+                    variant="outlined"
+                    size="small"
+                    onClick={confirmSave ? handleSave : saveButtonClicked}
+                >
+                    <FormattedMessage id="confirm" />
+                </Button>
+            </DialogActions>
+        </Dialog>
     );
 };
 

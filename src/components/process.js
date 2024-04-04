@@ -5,12 +5,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import React, { useCallback, useEffect } from 'react';
-
+import { useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
-
 import { useDispatch, useSelector } from 'react-redux';
-
 import MergeMap from './merge-map';
 import {
     connectNotificationsWebsocket,
@@ -26,23 +23,18 @@ import { store } from '../redux/store';
 import Timeline from './timeline';
 import StepperWithStatus from './stepper';
 import CountryStatesList from './country-state-list';
-import { Grid, Chip } from '@mui/material';
-
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { Chip, Grid } from '@mui/material';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
-import { LocalizationProvider } from '@mui/x-date-pickers';
+import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { useSnackbar } from 'notistack';
-import makeStyles from '@mui/styles/makeStyles';
 
-const useStyles = makeStyles((theme) => ({
+const classes = {
     itemBusinessProcess: {
         margin: '20px',
     },
-}));
+};
 
 const Process = (props) => {
-    const classes = useStyles();
-
     const config = useSelector((state) => state.configs[props.index]);
 
     const date = useSelector((state) => state.processes[props.index].date);
@@ -181,7 +173,7 @@ const Process = (props) => {
                         xs={12}
                         md={2}
                         key="businessProcess"
-                        className={classes.itemBusinessProcess}
+                        sx={classes.itemBusinessProcess}
                     >
                         <Chip label={config.businessProcess} />
                     </Grid>

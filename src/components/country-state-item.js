@@ -4,17 +4,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-import React from 'react';
+
 import { Box, Divider, Grid, Typography } from '@mui/material';
 import LensIcon from '@mui/icons-material/Lens';
 import PropTypes from 'prop-types';
-import makeStyles from '@mui/styles/makeStyles';
 import { getIgmStatus, MergeType } from '../utils/rest-api';
 import { getDetailsByCountryOrTso } from '../utils/tso-country-details';
 import { tsoColor } from './merge-map';
 import { useIntl } from 'react-intl';
 
-const useStyles = makeStyles((theme) => ({
+const classes = {
     tsosColumn: {
         flexGrow: 1,
         width: 80,
@@ -31,18 +30,17 @@ const useStyles = makeStyles((theme) => ({
         width: 32,
         marginTop: 8,
     },
-    listItem: {
+    listItem: (theme) => ({
         backgroundColor: theme.palette.background.paper,
-    },
+    }),
     divider: {
         marginTop: 4,
         color: '#ECF5FD',
     },
-    smallText: theme.typography.caption,
-}));
+    smallText: (theme) => theme.typography.caption,
+};
 
 const CountryStateItem = (props) => {
-    const classes = useStyles();
     const intl = useIntl();
 
     const detail = getDetailsByCountryOrTso(props.tso.toUpperCase());
@@ -57,42 +55,33 @@ const CountryStateItem = (props) => {
         replacedWith += new Date(status.replacingDate).toLocaleString();
     }
     return (
-        <Box className={classes.listItem}>
+        <Box sx={classes.listItem}>
             <Grid container>
                 <Grid
                     item
                     xs={12}
                     style={{ display: 'flex', width: '100%', padding: 8 }}
                 >
-                    <LensIcon
-                        className={classes.stateIcon}
-                        style={{ color: color }}
-                    />
-                    <Box className={classes.tsosColumn}>
+                    <LensIcon sx={classes.stateIcon} style={{ color: color }} />
+                    <Box sx={classes.tsosColumn}>
                         <Typography variant="body1">{props.tso}</Typography>
                         <Typography variant="caption">
                             {detail.countryName}
                         </Typography>
                     </Box>
                     {replacedWith && (
-                        <Box className={classes.textReplace}>
-                            <Typography
-                                variant="body1"
-                                className={classes.smallText}
-                            >
+                        <Box sx={classes.textReplace}>
+                            <Typography variant="body1" sx={classes.smallText}>
                                 {intl.formatMessage({ id: 'ReplacedWith' })}
                             </Typography>
-                            <Typography
-                                variant="body1"
-                                className={classes.smallText}
-                            >
+                            <Typography variant="body1" sx={classes.smallText}>
                                 {replacedWith}
                             </Typography>
                         </Box>
                     )}
                 </Grid>
                 <Grid item xs={12}>
-                    <Divider className={classes.divider} />
+                    <Divider sx={classes.divider} />
                 </Grid>
             </Grid>
         </Box>

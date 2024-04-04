@@ -5,32 +5,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import React, { useEffect, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { ComposableMap, Geographies, Geography } from 'react-simple-maps';
-
-import makeStyles from '@mui/styles/makeStyles';
 import bbox from 'geojson-bbox';
 import {
-    IgmStatus,
-    getIgmStatus,
-    MergeType,
     CgmStatus,
+    getIgmStatus,
+    IgmStatus,
+    MergeType,
 } from '../utils/rest-api';
 import { Tooltip } from 'react-tooltip';
 import { getDetailsByCountryOrTso } from '../utils/tso-country-details';
+import './merge-map.css';
 
-const TSO_STROKE_COLOR = 'white';
 const DEFAULT_CENTER = [0, 0];
 const DEFAULT_SCALE = 35000;
-
-const useStyles = makeStyles((theme) => ({
-    tso: {
-        stroke: TSO_STROKE_COLOR,
-        strokeWidth: '1px',
-        vectorEffect: 'non-scaling-stroke',
-    },
-}));
 
 const LIGHT_BLUE_COLOR = '#009CD8';
 const LIGHT_YELLOW_COLOR = '#F8E67E';
@@ -90,8 +80,6 @@ const MergeMap = (props) => {
     });
 
     const [tooltip, setTooltip] = useState('');
-
-    const classes = useStyles();
 
     function computeBoundingBox(geoJsons) {
         const reducer = (oldBb, json) => {
@@ -170,7 +158,7 @@ const MergeMap = (props) => {
                                 <Geography
                                     key={geo.rsmKey}
                                     geography={geo}
-                                    className={classes.tso}
+                                    className="tso"
                                     fill={color}
                                     onMouseEnter={() => {
                                         if (
@@ -235,4 +223,4 @@ MergeMap.propTypes = {
     config: PropTypes.object,
 };
 
-export default React.memo(MergeMap);
+export default memo(MergeMap);
