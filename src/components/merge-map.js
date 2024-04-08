@@ -7,7 +7,12 @@
 
 import { memo, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { ComposableMap, Geographies, Geography } from 'react-simple-maps';
+import styled from '@emotion/styled';
+import {
+    ComposableMap,
+    Geographies,
+    Geography as RawGeography,
+} from 'react-simple-maps';
 import bbox from 'geojson-bbox';
 import {
     CgmStatus,
@@ -17,7 +22,12 @@ import {
 } from '../utils/rest-api';
 import { Tooltip } from 'react-tooltip';
 import { getDetailsByCountryOrTso } from '../utils/tso-country-details';
-import './merge-map.css';
+
+const Geography = styled(RawGeography)`
+    stroke: white;
+    stroke-width: 1px;
+    vector-effect: non-scaling-stroke;
+`;
 
 const DEFAULT_CENTER = [0, 0];
 const DEFAULT_SCALE = 35000;
