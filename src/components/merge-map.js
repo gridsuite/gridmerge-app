@@ -7,7 +7,7 @@
 
 import { memo, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import styled from '@emotion/styled';
+import { styled } from '@mui/material';
 import {
     ComposableMap,
     Geographies,
@@ -23,11 +23,11 @@ import {
 import { Tooltip } from 'react-tooltip';
 import { getDetailsByCountryOrTso } from '../utils/tso-country-details';
 
-const Geography = styled(RawGeography)`
-    stroke: white;
-    stroke-width: 1px;
-    vector-effect: non-scaling-stroke;
-`;
+const Geography = styled(RawGeography)({
+    stroke: 'white',
+    strokeWidth: '1px',
+    vectorEffect: 'non-scaling-stroke',
+});
 
 const DEFAULT_CENTER = [0, 0];
 const DEFAULT_SCALE = 35000;
