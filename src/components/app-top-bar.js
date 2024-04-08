@@ -28,7 +28,7 @@ import AppPackage from '../../package.json';
 
 export const PREFIX_URL_PROCESSES = '/processes';
 
-const classes = {
+const styles = {
     process: {
         marginLeft: 18,
     },
@@ -122,7 +122,7 @@ const AppTopBar = ({ user, userManager }) => {
                         navigate(PREFIX_URL_PROCESSES + '/' + newValue)
                     }
                     aria-label="parameters"
-                    sx={classes.process}
+                    sx={styles.process}
                 >
                     {configs.map((config) => (
                         <Tab
@@ -135,7 +135,7 @@ const AppTopBar = ({ user, userManager }) => {
                 {user && (
                     <>
                         <Button
-                            sx={classes.btnConfigurationProcesses}
+                            sx={styles.btnConfigurationProcesses}
                             onClick={() => setShowConfigurationProcesses(true)}
                         >
                             <FormattedMessage id="configureProcesses" />

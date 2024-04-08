@@ -28,7 +28,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { useSnackbar } from 'notistack';
 
-const classes = {
+const styles = {
     itemBusinessProcess: {
         margin: '20px',
     },
@@ -173,7 +173,7 @@ const Process = (props) => {
                         xs={12}
                         md={2}
                         key="businessProcess"
-                        sx={classes.itemBusinessProcess}
+                        sx={styles.itemBusinessProcess}
                     >
                         <Chip label={config.businessProcess} />
                     </Grid>

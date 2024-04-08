@@ -20,7 +20,6 @@ import {
     RadioGroup,
     TextField,
     Typography,
-    withStyles,
 } from '@mui/material';
 import {
     AddCircle as AddCircleIcon,
@@ -41,7 +40,7 @@ import { initProcesses } from '../redux/actions';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
-const classes = {
+const styles = {
     addNewTso: (theme) => ({
         border: '1px solid',
         padding: theme.spacing(1),
@@ -53,31 +52,29 @@ const classes = {
     input: {
         textOverflow: 'ellipsis',
     },
-};
 
-const styles = () => ({
     // Link : https://material-ui.com/components/dialogs/#customized-dialogs
     // Material ui recommends position:absolute for the close button but we prefer display:flex  instead
-    root: {
+    dialogTitle: {
         display: 'flex',
     },
     closeButton: {
         marginLeft: 'auto',
         padding: 0,
     },
-});
+};
 
-const CustomDialogTitle = withStyles(styles)((props) => {
-    const { children, classes, onClose, ...other } = props;
+const CustomDialogTitle = (props) => {
+    const { children, onClose, ...other } = props;
     return (
-        <DialogTitle sx={classes.root} {...other}>
+        <DialogTitle sx={styles.dialogTitle} {...other}>
             <Typography variant="h6" component="span">
                 {children}
             </Typography>
             {onClose && (
                 <IconButton
                     aria-label="close"
-                    sx={classes.closeButton}
+                    sx={styles.closeButton}
                     onClick={onClose}
                 >
                     <CloseIcon />
@@ -85,7 +82,7 @@ const CustomDialogTitle = withStyles(styles)((props) => {
             )}
         </DialogTitle>
     );
-});
+};
 
 const keyGenerator = (() => {
     let key = 1;
@@ -401,7 +398,7 @@ const ProcessesContainer = ({ handleProcessesChanged, currentProcess }) => {
 
     return (
         <div>
-            <Grid container sx={classes.newTsoContainerLabel}>
+            <Grid container sx={styles.newTsoContainerLabel}>
                 <Grid item xs={12} sm={7}>
                     <FormattedMessage id="processes" />
                 </Grid>
@@ -413,7 +410,7 @@ const ProcessesContainer = ({ handleProcessesChanged, currentProcess }) => {
                 <Grid
                     container
                     spacing={1}
-                    sx={classes.addNewTso}
+                    sx={styles.addNewTso}
                     key={process.processUuid}
                 >
                     {/* Process input*/}
@@ -426,7 +423,7 @@ const ProcessesContainer = ({ handleProcessesChanged, currentProcess }) => {
                                 })}
                                 value={process.process}
                                 InputProps={{
-                                    classes: { input: classes.input },
+                                    classes: { input: styles.input },
                                 }}
                                 onChange={(e) =>
                                     handleProcessNameChanged(e, index)

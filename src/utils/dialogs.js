@@ -21,7 +21,7 @@ import {
 } from '@mui/material';
 import PropTypes from 'prop-types';
 
-const classes = {
+const styles = {
     formControl: {
         minWidth: 300,
     },
@@ -87,7 +87,7 @@ const ExportDialog = ({
         >
             <DialogTitle>{title}</DialogTitle>
             <DialogContent>
-                <FormControl sx={classes.formControl}>
+                <FormControl sx={styles.formControl}>
                     <InputLabel id="select-format-label">
                         <FormattedMessage id="exportFormat" />
                     </InputLabel>

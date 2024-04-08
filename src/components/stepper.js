@@ -24,7 +24,13 @@ import {
 } from '../utils/rest-api';
 import PropTypes from 'prop-types';
 
-const classes = {
+const baseStyles = {
+    stepperGridMargins: {
+        marginLeft: '2px',
+        marginRight: '2px',
+    },
+};
+const styles = {
     stepper: {
         '& .MuiStepper-root': {
             padding: '30px 15px 25px 15px',
@@ -34,10 +40,12 @@ const classes = {
         position: 'absolute',
         bottom: '15px',
     },
-    stepperGridMargins: {
-        marginLeft: '2px',
-        marginRight: '2px',
-    },
+    stepperGridMargins: baseStyles.stepperGridMargins,
+    stepperButtonContainer: (theme) => ({
+        ...baseStyles.stepperGridMargins,
+        textAlign: 'center',
+        backgroundColor: theme.palette.background.paper,
+    }),
     stepperButton: {
         padding: '3px',
     },
@@ -72,13 +80,6 @@ const classes = {
         [theme.breakpoints.down('sm')]: {
             minHeight: '120px',
         },
-    }),
-};
-const classes2 = {
-    stepperButtonContainer: (theme) => ({
-        ...classes.stepperGridMargins,
-        textAlign: 'center',
-        backgroundColor: theme.palette.background.paper,
     }),
 };
 
@@ -209,83 +210,80 @@ const StepperWithStatus = (props) => {
     }, [stepper]);
 
     return (
-        <Grid container direction="row" sx={classes.stepperGridContainer}>
+        <Grid container direction="row" sx={styles.stepperGridContainer}>
             <Grid item xs={12} md={2} />
-            <Grid item xs={12} md={1} sx={classes2.stepperButtonContainer}>
+            <Grid item xs={12} md={1} sx={styles.stepperButtonContainer}>
                 <IconButton
                     aria-label="replace"
-                    sx={classes.stepperButton}
+                    sx={styles.stepperButton}
                     onClick={handleReplaceIGM}
                     disabled={!replaceIGMEnabled}
                 >
-                    <BuildIcon
-                        fontSize="large"
-                        sx={classes.stepperButtonIcon}
-                    />
+                    <BuildIcon fontSize="large" sx={styles.stepperButtonIcon} />
                 </IconButton>
                 <Box
                     component="span"
                     sx={
                         replaceIGMEnabled
-                            ? classes.buttonLabelEnabled
-                            : classes.buttonLabelDisabled
+                            ? styles.buttonLabelEnabled
+                            : styles.buttonLabelDisabled
                     }
                 >
                     <FormattedMessage id="replaceIGM" />
                 </Box>
             </Grid>
-            <Grid item xs={12} md={5} sx={classes.stepperGridMargins}>
-                <Stepper sx={classes.stepper}>
+            <Grid item xs={12} md={5} sx={styles.stepperGridMargins}>
+                <Stepper sx={styles.stepper}>
                     <Step active={availableStep}>
-                        <StepLabel sx={classes.stepLabel}>
+                        <StepLabel sx={styles.stepLabel}>
                             <FormattedMessage id="igmReception" />
                         </StepLabel>
                     </Step>
                     <Step active={validStep}>
-                        <StepLabel sx={classes.stepLabel}>
+                        <StepLabel sx={styles.stepLabel}>
                             <FormattedMessage id="imgMerged" />
                         </StepLabel>
                     </Step>
                     <Step active={mergedStep}>
-                        <StepLabel sx={classes.stepLabel}>
+                        <StepLabel sx={styles.stepLabel}>
                             <FormattedMessage id="cgmValid" />
                         </StepLabel>
                     </Step>
                 </Stepper>
             </Grid>
-            <Grid item xs={12} md={1} sx={classes2.stepperButtonContainer}>
+            <Grid item xs={12} md={1} sx={styles.stepperButtonContainer}>
                 <IconButton
                     aria-label="report"
-                    sx={classes.stepperButton}
+                    sx={styles.stepperButton}
                     onClick={handleClickShowReport}
                     disabled={!mergedStep}
                 >
                     <AccountTreeIcon
                         fontSize="large"
-                        sx={classes.stepperButtonIcon}
+                        sx={styles.stepperButtonIcon}
                     />
                 </IconButton>
                 <Box
                     component="span"
                     sx={
                         mergedStep
-                            ? classes.buttonLabelEnabled
-                            : classes.buttonLabelDisabled
+                            ? styles.buttonLabelEnabled
+                            : styles.buttonLabelDisabled
                     }
                 >
                     <FormattedMessage id="showReport" />
                 </Box>
             </Grid>
-            <Grid item xs={12} md={1} sx={classes2.stepperButtonContainer}>
+            <Grid item xs={12} md={1} sx={styles.stepperButtonContainer}>
                 <IconButton
                     aria-label="download"
-                    sx={classes.stepperButton}
+                    sx={styles.stepperButton}
                     onClick={handleOpenExport}
                     disabled={!mergedStep}
                 >
                     <GetAppIcon
                         fontSize="large"
-                        sx={classes.stepperButtonIcon}
+                        sx={styles.stepperButtonIcon}
                     />
                 </IconButton>
                 <Box
@@ -293,14 +291,14 @@ const StepperWithStatus = (props) => {
                     title="download"
                     id={DownloadIframe}
                     name={DownloadIframe}
-                    sx={classes.iframe}
+                    sx={styles.iframe}
                 />
                 <Box
                     component="span"
                     sx={
                         mergedStep
-                            ? classes.buttonLabelEnabled
-                            : classes.buttonLabelDisabled
+                            ? styles.buttonLabelEnabled
+                            : styles.buttonLabelDisabled
                     }
                 >
                     <FormattedMessage id="downloadCgm" />

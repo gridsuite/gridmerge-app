@@ -13,7 +13,7 @@ import PropTypes from 'prop-types';
 import moment from 'moment';
 import { PARAM_TIMELINE_DIAGONAL_LABELS } from '../utils/config-params';
 
-const classes = {
+const styles = {
     customSlider: {
         padding: '10px 20px',
         width: '100%',
@@ -158,9 +158,9 @@ const Timeline = (props) => {
     const TheSlider = empty ? EmptySlider : ClockSlider;
 
     return (
-        <Box sx={classes.customSlider}>
+        <Box sx={styles.customSlider}>
             <TheSlider
-                sx={timelineDiagonalLabels ? classes.obliqueLabels : undefined}
+                sx={timelineDiagonalLabels ? styles.obliqueLabels : undefined}
                 value={value}
                 marks={marks}
                 onChangeCommitted={handleSliderChange}

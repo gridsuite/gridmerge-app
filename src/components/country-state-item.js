@@ -13,7 +13,7 @@ import { getDetailsByCountryOrTso } from '../utils/tso-country-details';
 import { tsoColor } from './merge-map';
 import { useIntl } from 'react-intl';
 
-const classes = {
+const styles = {
     tsosColumn: {
         flexGrow: 1,
         width: 80,
@@ -55,33 +55,33 @@ const CountryStateItem = (props) => {
         replacedWith += new Date(status.replacingDate).toLocaleString();
     }
     return (
-        <Box sx={classes.listItem}>
+        <Box sx={styles.listItem}>
             <Grid container>
                 <Grid
                     item
                     xs={12}
                     style={{ display: 'flex', width: '100%', padding: 8 }}
                 >
-                    <LensIcon sx={classes.stateIcon} style={{ color: color }} />
-                    <Box sx={classes.tsosColumn}>
+                    <LensIcon sx={styles.stateIcon} style={{ color: color }} />
+                    <Box sx={styles.tsosColumn}>
                         <Typography variant="body1">{props.tso}</Typography>
                         <Typography variant="caption">
                             {detail.countryName}
                         </Typography>
                     </Box>
                     {replacedWith && (
-                        <Box sx={classes.textReplace}>
-                            <Typography variant="body1" sx={classes.smallText}>
+                        <Box sx={styles.textReplace}>
+                            <Typography variant="body1" sx={styles.smallText}>
                                 {intl.formatMessage({ id: 'ReplacedWith' })}
                             </Typography>
-                            <Typography variant="body1" sx={classes.smallText}>
+                            <Typography variant="body1" sx={styles.smallText}>
                                 {replacedWith}
                             </Typography>
                         </Box>
                     )}
                 </Grid>
                 <Grid item xs={12}>
-                    <Divider sx={classes.divider} />
+                    <Divider sx={styles.divider} />
                 </Grid>
             </Grid>
         </Box>

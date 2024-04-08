@@ -25,7 +25,7 @@ import { updateConfigParameter } from '../utils/rest-api';
 import { PARAM_TIMELINE_DIAGONAL_LABELS } from '../utils/config-params';
 import { useSnackMessage } from '@gridsuite/commons-ui';
 
-const classes = {
+const styles = {
     controlItem: {
         justifyContent: 'flex-end',
     },
@@ -84,7 +84,7 @@ function GUITab() {
         useParameterState(PARAM_TIMELINE_DIAGONAL_LABELS);
 
     return (
-        <Grid container spacing={2} sx={classes.grid}>
+        <Grid container spacing={2} sx={styles.grid}>
             <Grid item xs={8}>
                 <Typography component="span" variant="body1">
                     <Box fontWeight="fontWeightBold" m={1}>
@@ -92,7 +92,7 @@ function GUITab() {
                     </Box>
                 </Typography>
             </Grid>
-            <Grid item container xs={4} sx={classes.controlItem}>
+            <Grid item container xs={4} sx={styles.controlItem}>
                 <Switch
                     checked={timelineDiagonalLabelLocal}
                     onChange={(event) => {
@@ -121,7 +121,7 @@ const Parameters = ({ showParameters, hideParameters }) => {
             fullWidth={true}
         >
             <DialogTitle id="form-dialog-title">
-                <Typography component="span" variant="h5" sx={classes.title}>
+                <Typography component="span" variant="h5" sx={styles.title}>
                     <FormattedMessage id="parameters" />
                 </Typography>
             </DialogTitle>
@@ -147,7 +147,7 @@ const Parameters = ({ showParameters, hideParameters }) => {
                             onClick={hideParameters}
                             variant="contained"
                             color="primary"
-                            sx={classes.button}
+                            sx={styles.button}
                         >
                             <FormattedMessage id="close" />
                         </Button>
