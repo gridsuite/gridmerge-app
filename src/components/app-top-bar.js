@@ -4,8 +4,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-import React, { useEffect, useMemo, useState } from 'react';
-import { LIGHT_THEME, logout, TopBar } from '@gridsuite/commons-ui';
+
+import { useEffect, useMemo, useState } from 'react';
+import { logout, TopBar } from '@gridsuite/commons-ui';
 import Parameters, { useParameterState } from './parameters';
 import { PARAM_LANGUAGE, PARAM_THEME } from '../utils/config-params';
 import { useDispatch, useSelector } from 'react-redux';
@@ -16,37 +17,34 @@ import {
     getServersInfos,
 } from '../utils/rest-api';
 import PropTypes from 'prop-types';
-import { useNavigate, useMatch } from 'react-router-dom';
+import { useMatch, useNavigate } from 'react-router-dom';
 import { ReactComponent as GridMergeLogoLight } from '../images/GridMerge_logo_light.svg';
 import { ReactComponent as GridMergeLogoDark } from '../images/GridMerge_logo_dark.svg';
-import { Tabs, Tab, Button } from '@mui/material';
+import { Button, Tab, Tabs, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import ProcessesConfigurationDialog from './processes-configuration-dialog';
-import { makeStyles } from '@mui/styles';
 import { initProcesses } from '../redux/actions';
 import AppPackage from '../../package.json';
 
 export const PREFIX_URL_PROCESSES = '/processes';
 
-const useStyles = makeStyles(() => ({
+const styles = {
     process: {
         marginLeft: 18,
     },
     btnConfigurationProcesses: {
         marginLeft: 'auto',
     },
-}));
+};
 
 const AppTopBar = ({ user, userManager }) => {
     const navigate = useNavigate();
 
     const dispatch = useDispatch();
 
-    const classes = useStyles();
-
     const [appsAndUrls, setAppsAndUrls] = useState([]);
 
-    const theme = useSelector((state) => state[PARAM_THEME]);
+    const theme = useTheme();
 
     const configs = useSelector((state) => state.configs);
 
@@ -93,7 +91,7 @@ const AppTopBar = ({ user, userManager }) => {
                 appName="Merge"
                 appColor="#4795D1"
                 appLogo={
-                    theme === LIGHT_THEME ? (
+                    theme.palette.mode === 'light' ? (
                         <GridMergeLogoLight />
                     ) : (
                         <GridMergeLogoDark />
@@ -124,7 +122,7 @@ const AppTopBar = ({ user, userManager }) => {
                         navigate(PREFIX_URL_PROCESSES + '/' + newValue)
                     }
                     aria-label="parameters"
-                    className={classes.process}
+                    sx={styles.process}
                 >
                     {configs.map((config) => (
                         <Tab
@@ -137,7 +135,7 @@ const AppTopBar = ({ user, userManager }) => {
                 {user && (
                     <>
                         <Button
-                            className={classes.btnConfigurationProcesses}
+                            sx={styles.btnConfigurationProcesses}
                             onClick={() => setShowConfigurationProcesses(true)}
                         >
                             <FormattedMessage id="configureProcesses" />
