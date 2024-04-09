@@ -5,19 +5,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import React, { useEffect, useState } from 'react';
-
+import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-
-import makeStyles from '@mui/styles/makeStyles';
-import withStyles from '@mui/styles/withStyles';
-import Slider from '@mui/material/Slider';
+import { Box, Slider, withStyles } from '@mui/material';
 import ClockIcon from '../images/clock.svg';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import { PARAM_TIMELINE_DIAGONAL_LABELS } from '../utils/config-params';
 
-const useStyles = makeStyles((theme) => ({
+const styles = {
     customSlider: {
         padding: '10px 20px',
         width: '100%',
@@ -30,7 +26,7 @@ const useStyles = makeStyles((theme) => ({
             margin: '15px 0 0 -25px',
         },
     },
-}));
+};
 
 const EmptySlider = withStyles((theme) => ({
     root: {
@@ -102,8 +98,6 @@ const ClockSlider = withStyles((theme) => ({
 }))(EmptySlider);
 
 const Timeline = (props) => {
-    const classes = useStyles();
-
     const [marks, setMarks] = useState([]);
 
     const [value, setValue] = useState(null);
@@ -164,23 +158,19 @@ const Timeline = (props) => {
     const TheSlider = empty ? EmptySlider : ClockSlider;
 
     return (
-        <>
-            <div className={classes.customSlider}>
-                <TheSlider
-                    className={
-                        timelineDiagonalLabels ? classes.obliqueLabels : ''
-                    }
-                    value={value}
-                    marks={marks}
-                    onChangeCommitted={handleSliderChange}
-                    min={0}
-                    step={null}
-                    max={24 * 60 - 1}
-                    valueLabelFormat={getValueLabelFormat}
-                    disabled={empty}
-                />
-            </div>
-        </>
+        <Box sx={styles.customSlider}>
+            <TheSlider
+                sx={timelineDiagonalLabels ? styles.obliqueLabels : undefined}
+                value={value}
+                marks={marks}
+                onChangeCommitted={handleSliderChange}
+                min={0}
+                step={null}
+                max={24 * 60 - 1}
+                valueLabelFormat={getValueLabelFormat}
+                disabled={empty}
+            />
+        </Box>
     );
 };
 

@@ -5,23 +5,27 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+import { useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import {
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
+    Alert,
     Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
     FormControl,
+    InputLabel,
     MenuItem,
+    Select,
 } from '@mui/material';
 import PropTypes from 'prop-types';
-import React from 'react';
-import { Select, InputLabel } from '@mui/material';
 
-import makeStyles from '@mui/styles/makeStyles';
-
-import Alert from '@mui/material/Alert';
+const styles = {
+    formControl: {
+        minWidth: 300,
+    },
+};
 
 /**
  * Dialog to export the network case #TODO To be moved in the common-ui repository once it has been created
@@ -43,16 +47,8 @@ const ExportDialog = ({
     formats,
     errorMessage,
 }) => {
-    const [selectedFormat, setSelectedFormat] = React.useState('');
-    const [exportStudyErr, setExportStudyErr] = React.useState('');
-
-    const useStyles = makeStyles(() => ({
-        formControl: {
-            minWidth: 300,
-        },
-    }));
-
-    const classes = useStyles();
+    const [selectedFormat, setSelectedFormat] = useState('');
+    const [exportStudyErr, setExportStudyErr] = useState('');
 
     const handleClick = () => {
         console.debug('Request for exporting in format: ' + selectedFormat);
@@ -91,7 +87,7 @@ const ExportDialog = ({
         >
             <DialogTitle>{title}</DialogTitle>
             <DialogContent>
-                <FormControl className={classes.formControl}>
+                <FormControl sx={styles.formControl}>
                     <InputLabel id="select-format-label">
                         <FormattedMessage id="exportFormat" />
                     </InputLabel>
@@ -104,14 +100,13 @@ const ExportDialog = ({
                             id: 'select-format',
                         }}
                     >
-                        {formats &&
-                            formats.map(function (element) {
-                                return (
-                                    <MenuItem key={element} value={element}>
-                                        {element}
-                                    </MenuItem>
-                                );
-                            })}
+                        {formats?.map(function (element) {
+                            return (
+                                <MenuItem key={element} value={element}>
+                                    {element}
+                                </MenuItem>
+                            );
+                        })}
                     </Select>
                 </FormControl>
                 {exportStudyErr && (

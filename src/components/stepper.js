@@ -4,15 +4,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-import React, { useCallback, useEffect, useState } from 'react';
-
-import { makeStyles, withStyles } from '@mui/styles';
-import { Stepper, Step, StepLabel, IconButton, Grid } from '@mui/material';
+import { useCallback, useEffect, useState } from 'react';
+import { Box, Grid, IconButton, Step, StepLabel, Stepper } from '@mui/material';
 import { FormattedMessage, useIntl } from 'react-intl';
-import GetAppIcon from '@mui/icons-material/GetApp';
-import AccountTreeIcon from '@mui/icons-material/AccountTree';
-import BuildIcon from '@mui/icons-material/Build';
-import { ReportViewerDialog } from '@gridsuite/commons-ui';
+import {
+    AccountTree as AccountTreeIcon,
+    Build as BuildIcon,
+    GetApp as GetAppIcon,
+} from '@mui/icons-material';
+import { ReportViewerDialog, useSnackMessage } from '@gridsuite/commons-ui';
 import { ExportDialog } from '../utils/dialogs';
 import {
     CgmStatus,
@@ -23,21 +23,29 @@ import {
     replaceIGM,
 } from '../utils/rest-api';
 import PropTypes from 'prop-types';
-import { useSnackMessage } from '@gridsuite/commons-ui';
 
-const useStyles = makeStyles((theme) => ({
-    stepperGridContainer: {
-        position: 'absolute',
-        bottom: '15px',
-    },
+const baseStyles = {
     stepperGridMargins: {
         marginLeft: '2px',
         marginRight: '2px',
     },
-    stepperButtonContainer: {
+};
+const styles = {
+    stepper: {
+        '& .MuiStepper-root': {
+            padding: '30px 15px 25px 15px',
+        },
+    },
+    stepperGridContainer: {
+        position: 'absolute',
+        bottom: '15px',
+    },
+    stepperGridMargins: baseStyles.stepperGridMargins,
+    stepperButtonContainer: (theme) => ({
+        ...baseStyles.stepperGridMargins,
         textAlign: 'center',
         backgroundColor: theme.palette.background.paper,
-    },
+    }),
     stepperButton: {
         padding: '3px',
     },
@@ -63,43 +71,32 @@ const useStyles = makeStyles((theme) => ({
         width: 0,
         height: 0,
     },
-    [theme.breakpoints.down('xs') && theme.breakpoints.down('sm')]: {
-        downloadContainer: {
+    downloadContainer: (theme) => ({
+        [theme.breakpoints.down('sm')]: {
             minHeight: '120px',
         },
-        replaceIGMContainer: {
+    }),
+    replaceIGMContainer: (theme) => ({
+        [theme.breakpoints.down('sm')]: {
             minHeight: '120px',
         },
-    },
-}));
-
-const CustomStepper = withStyles({
-    root: {
-        padding: '30px 15px 25px 15px',
-    },
-})(Stepper);
-
-const CustomStepLabel = withStyles({
-    label: {
-        fontSize: '16px',
-    },
-})(StepLabel);
+    }),
+};
 
 const StepperWithStatus = (props) => {
     const intl = useIntl();
     const DownloadIframe = 'downloadIframe';
     const availableFormats = ['CGMES', 'XIIDM'];
-    const classes = useStyles();
     const [availableStep, setAvailableStep] = useState(false);
     const [validStep, setValidStep] = useState(false);
     const [mergedStep, setMergedStep] = useState(false);
     const [replaceIGMEnabled, setReplaceIGMEnabled] = useState(false);
     const { snackError, snackInfo } = useSnackMessage();
 
-    const [openExportDialog, setOpenExport] = React.useState(false);
+    const [openExportDialog, setOpenExport] = useState(false);
 
-    const [openReportViewer, setOpenReportViewer] = React.useState(false);
-    const [report, setReport] = React.useState(null);
+    const [openReportViewer, setOpenReportViewer] = useState(false);
+    const [report, setReport] = useState(null);
 
     const handleCloseExport = () => {
         setOpenExport(false);
@@ -213,129 +210,99 @@ const StepperWithStatus = (props) => {
     }, [stepper]);
 
     return (
-        <Grid
-            container
-            direction="row"
-            className={classes.stepperGridContainer}
-        >
+        <Grid container direction="row" sx={styles.stepperGridContainer}>
             <Grid item xs={12} md={2} />
-            <Grid
-                item
-                xs={12}
-                md={1}
-                className={
-                    classes.stepperButtonContainer +
-                    ' ' +
-                    classes.stepperGridMargins
-                }
-            >
+            <Grid item xs={12} md={1} sx={styles.stepperButtonContainer}>
                 <IconButton
                     aria-label="replace"
-                    className={classes.stepperButton}
+                    sx={styles.stepperButton}
                     onClick={handleReplaceIGM}
                     disabled={!replaceIGMEnabled}
                 >
-                    <BuildIcon
-                        fontSize="large"
-                        className={classes.stepperButtonIcon}
-                    />
+                    <BuildIcon fontSize="large" sx={styles.stepperButtonIcon} />
                 </IconButton>
-                <span
-                    className={
-                        !replaceIGMEnabled
-                            ? classes.buttonLabelDisabled
-                            : classes.buttonLabelEnabled
+                <Box
+                    component="span"
+                    sx={
+                        replaceIGMEnabled
+                            ? styles.buttonLabelEnabled
+                            : styles.buttonLabelDisabled
                     }
                 >
                     <FormattedMessage id="replaceIGM" />
-                </span>
+                </Box>
             </Grid>
-            <Grid item xs={12} md={5} className={classes.stepperGridMargins}>
-                <CustomStepper>
+            <Grid item xs={12} md={5} sx={styles.stepperGridMargins}>
+                <Stepper sx={styles.stepper}>
                     <Step active={availableStep}>
-                        <CustomStepLabel className={classes.stepLabel}>
+                        <StepLabel sx={styles.stepLabel}>
                             <FormattedMessage id="igmReception" />
-                        </CustomStepLabel>
+                        </StepLabel>
                     </Step>
                     <Step active={validStep}>
-                        <CustomStepLabel className={classes.stepLabel}>
+                        <StepLabel sx={styles.stepLabel}>
                             <FormattedMessage id="imgMerged" />
-                        </CustomStepLabel>
+                        </StepLabel>
                     </Step>
                     <Step active={mergedStep}>
-                        <CustomStepLabel className={classes.stepLabel}>
+                        <StepLabel sx={styles.stepLabel}>
                             <FormattedMessage id="cgmValid" />
-                        </CustomStepLabel>
+                        </StepLabel>
                     </Step>
-                </CustomStepper>
+                </Stepper>
             </Grid>
-            <Grid
-                item
-                xs={12}
-                md={1}
-                className={
-                    classes.stepperButtonContainer +
-                    ' ' +
-                    classes.stepperGridMargins
-                }
-            >
+            <Grid item xs={12} md={1} sx={styles.stepperButtonContainer}>
                 <IconButton
                     aria-label="report"
-                    className={classes.stepperButton}
+                    sx={styles.stepperButton}
                     onClick={handleClickShowReport}
                     disabled={!mergedStep}
                 >
                     <AccountTreeIcon
                         fontSize="large"
-                        className={classes.stepperButtonIcon}
+                        sx={styles.stepperButtonIcon}
                     />
                 </IconButton>
-                <span
-                    className={
-                        !mergedStep
-                            ? classes.buttonLabelDisabled
-                            : classes.buttonLabelEnabled
+                <Box
+                    component="span"
+                    sx={
+                        mergedStep
+                            ? styles.buttonLabelEnabled
+                            : styles.buttonLabelDisabled
                     }
                 >
                     <FormattedMessage id="showReport" />
-                </span>
+                </Box>
             </Grid>
-            <Grid
-                item
-                xs={12}
-                md={1}
-                className={
-                    classes.stepperButtonContainer +
-                    ' ' +
-                    classes.stepperGridMargins
-                }
-            >
+            <Grid item xs={12} md={1} sx={styles.stepperButtonContainer}>
                 <IconButton
                     aria-label="download"
-                    className={classes.stepperButton}
+                    sx={styles.stepperButton}
                     onClick={handleOpenExport}
                     disabled={!mergedStep}
                 >
                     <GetAppIcon
                         fontSize="large"
-                        className={classes.stepperButtonIcon}
+                        sx={styles.stepperButtonIcon}
                     />
                 </IconButton>
-                <iframe
+                <Box
+                    component="iframe"
                     title="download"
                     id={DownloadIframe}
                     name={DownloadIframe}
-                    className={classes.iframe}
+                    sx={styles.iframe}
                 />
-                <span
-                    className={
-                        !mergedStep
-                            ? classes.buttonLabelDisabled
-                            : classes.buttonLabelEnabled
+                <Box
+                    component="span"
+                    sx={
+                        mergedStep
+                            ? styles.buttonLabelEnabled
+                            : styles.buttonLabelDisabled
                     }
                 >
                     <FormattedMessage id="downloadCgm" />
-                </span>
+                </Box>
             </Grid>
             <Grid item xs={12} md={2} />
             {report && (
@@ -355,8 +322,8 @@ const StepperWithStatus = (props) => {
                 open={openExportDialog}
                 onClose={handleCloseExport}
                 onClick={handleClickExport}
-                processUuid={props.merge && props.merge.processUuid}
-                date={props.merge && props.merge.date}
+                processUuid={props.merge?.processUuid}
+                date={props.merge?.date}
                 title={intl.formatMessage({ id: 'exportNetwork' })}
                 getDownloadUrl={getExportMergeUrl}
                 formats={availableFormats}
