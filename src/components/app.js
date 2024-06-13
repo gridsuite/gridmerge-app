@@ -5,54 +5,47 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import React, { useEffect, useState, useCallback } from 'react';
-
+import React, { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-
 import {
     Navigate,
-    Routes,
     Route,
-    useNavigate,
+    Routes,
     useLocation,
-    useParams,
     useMatch,
+    useNavigate,
+    useParams,
 } from 'react-router-dom';
-
 import {
+    selectComputedLanguage,
+    selectLanguage,
     selectTheme,
     selectTimelineDiagonalLabels,
-    selectLanguage,
-    selectComputedLanguage,
 } from '../redux/actions';
-
 import {
     AuthenticationRouter,
     CardErrorBoundary,
     getPreLoginPath,
     initializeAuthenticationProd,
+    useSnackMessage,
 } from '@gridsuite/commons-ui';
 import { FormattedMessage } from 'react-intl';
-
 import Process from './process';
-
 import {
     connectNotificationsWsUpdateConfig,
-    fetchAuthorizationCodeFlowFeatureFlag,
     fetchConfigParameter,
     fetchConfigParameters,
+    fetchIdpSettings,
     fetchValidateUser,
 } from '../utils/rest-api';
-
 import {
     APP_NAME,
     COMMON_APP_NAME,
-    PARAM_THEME,
     PARAM_LANGUAGE,
+    PARAM_THEME,
     PARAM_TIMELINE_DIAGONAL_LABELS,
 } from '../utils/config-params';
 import { getComputedLanguage } from '../utils/language';
-import { useSnackMessage } from '@gridsuite/commons-ui';
 import AppTopBar, { PREFIX_URL_PROCESSES } from './app-top-bar';
 
 const noUserManager = { instance: null, error: null };
@@ -65,6 +58,7 @@ const ProcessRouteElement = () => {
     function getProcessIndex(processName) {
         return configs.findIndex((c) => c.process === processName);
     }
+
     let index = getProcessIndex(processName);
     return index !== -1 ? (
         <Process index={index} />
@@ -148,23 +142,23 @@ const App = () => {
     });
 
     useEffect(() => {
-        fetchAuthorizationCodeFlowFeatureFlag()
-            .then((authorizationCodeFlowEnabled) => {
-                return initializeAuthenticationProd(
-                    dispatch,
-                    initialMatchSilentRenewCallbackUrl != null,
-                    fetch('idpSettings.json'),
-                    fetchValidateUser,
-                    authorizationCodeFlowEnabled,
-                    initialMatchSigninCallbackUrl != null
-                );
-            })
-            .then((userManager) => {
-                setUserManager({ instance: userManager, error: null });
-            })
-            .catch(function (error) {
+        // need subfunction when async as suggested by rule react-hooks/exhaustive-deps
+        (async function initializeAuthentication() {
+            try {
+                setUserManager({
+                    instance: await initializeAuthenticationProd(
+                        dispatch,
+                        initialMatchSilentRenewCallbackUrl != null,
+                        fetchIdpSettings,
+                        fetchValidateUser,
+                        initialMatchSigninCallbackUrl != null
+                    ),
+                    error: null,
+                });
+            } catch (error) {
                 setUserManager({ instance: null, error: error.message });
-            });
+            }
+        })();
         // Note: initialMatchSilentRenewCallbackUrl and dispatch don't change
     }, [
         initialMatchSilentRenewCallbackUrl,
