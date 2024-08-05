@@ -48,26 +48,18 @@ const CountryStateItem = (props) => {
     const status = getIgmStatus(props.tso, props.merge);
     const color = tsoColor(status);
 
-    let replacedWith = status.replacingBusinessProcess
-        ? status.replacingBusinessProcess + ' '
-        : '';
+    let replacedWith = status.replacingBusinessProcess ? status.replacingBusinessProcess + ' ' : '';
     if (status.replacingDate) {
         replacedWith += new Date(status.replacingDate).toLocaleString();
     }
     return (
         <Box sx={styles.listItem}>
             <Grid container>
-                <Grid
-                    item
-                    xs={12}
-                    style={{ display: 'flex', width: '100%', padding: 8 }}
-                >
+                <Grid item xs={12} style={{ display: 'flex', width: '100%', padding: 8 }}>
                     <LensIcon sx={styles.stateIcon} style={{ color: color }} />
                     <Box sx={styles.tsosColumn}>
                         <Typography variant="body1">{props.tso}</Typography>
-                        <Typography variant="caption">
-                            {detail.countryName}
-                        </Typography>
+                        <Typography variant="caption">{detail.countryName}</Typography>
                     </Box>
                     {replacedWith && (
                         <Box sx={styles.textReplace}>

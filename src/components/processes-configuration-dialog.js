@@ -21,11 +21,7 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
-import {
-    AddCircle as AddCircleIcon,
-    Close as CloseIcon,
-    Delete as DeleteIcon,
-} from '@mui/icons-material';
+import { AddCircle as AddCircleIcon, Close as CloseIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { FormattedMessage, useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import {
@@ -72,11 +68,7 @@ const CustomDialogTitle = (props) => {
                 {children}
             </Typography>
             {onClose && (
-                <IconButton
-                    aria-label="close"
-                    sx={styles.closeButton}
-                    onClick={onClose}
-                >
+                <IconButton aria-label="close" sx={styles.closeButton} onClick={onClose}>
                     <CloseIcon />
                 </IconButton>
             )}
@@ -89,12 +81,7 @@ const keyGenerator = (() => {
     return () => key++;
 })();
 
-const ProcessTsos = ({
-    tsosList,
-    processIndex,
-    handleProcessTsosChanged,
-    authorizedTsosCodes,
-}) => {
+const ProcessTsos = ({ tsosList, processIndex, handleProcessTsosChanged, authorizedTsosCodes }) => {
     const intl = useIntl();
 
     const handleTsoSourcingActorChanged = (newValue, index) => {
@@ -126,18 +113,11 @@ const ProcessTsos = ({
                             disableClearable
                             autoHighlight
                             onChange={(event, newValue) => {
-                                handleTsoSourcingActorChanged(
-                                    authorizedTsosCodes[newValue],
-                                    index
-                                );
+                                handleTsoSourcingActorChanged(authorizedTsosCodes[newValue], index);
                             }}
                             options={Object.keys(authorizedTsosCodes)}
-                            getOptionLabel={(code) =>
-                                code !== -1 ? authorizedTsosCodes[code] : ''
-                            }
-                            getOptionSelected={(option, value) =>
-                                option.value === value.value
-                            }
+                            getOptionLabel={(code) => (code !== -1 ? authorizedTsosCodes[code] : '')}
+                            getOptionSelected={(option, value) => option.value === value.value}
                             size="small"
                             renderInput={(props) => (
                                 <TextField
@@ -151,9 +131,7 @@ const ProcessTsos = ({
                         />
                     </Grid>
                     <Grid item xs={12} sm={2} align="center">
-                        <IconButton
-                            onClick={() => handleRemoveProcessTso(index)}
-                        >
+                        <IconButton onClick={() => handleRemoveProcessTso(index)}>
                             <DeleteIcon />
                         </IconButton>
                     </Grid>
@@ -195,11 +173,7 @@ const ProcessBoundarySet = ({
                 row
                 aria-label="useBoundarySet"
                 name="useBoundarySet"
-                value={
-                    process.useLastBoundarySet !== null
-                        ? process.useLastBoundarySet.toString()
-                        : 'true'
-                }
+                value={process.useLastBoundarySet !== null ? process.useLastBoundarySet.toString() : 'true'}
                 onChange={(e) => {
                     handleProcessUseBoundarySetChanged(e, processIndex);
                     setDisabledBoundaries(e.target.value === 'true');
@@ -231,18 +205,11 @@ const ProcessBoundarySet = ({
                         disableClearable
                         autoHighlight
                         onChange={(event, newValue) => {
-                            handleProcessEqBoundarySetChanged(
-                                newValue,
-                                processIndex
-                            );
+                            handleProcessEqBoundarySetChanged(newValue, processIndex);
                         }}
-                        options={boundaries.filter((b) =>
-                            b.filename.match(/^.*__ENTSOE_EQBD.*$/)
-                        )}
+                        options={boundaries.filter((b) => b.filename.match(/^.*__ENTSOE_EQBD.*$/))}
                         getOptionLabel={(boundary) => boundary.filename}
-                        getOptionSelected={(option, value) =>
-                            option.filename === value.filename
-                        }
+                        getOptionSelected={(option, value) => option.filename === value.filename}
                         size="small"
                         renderInput={(props) => (
                             <TextField
@@ -263,18 +230,11 @@ const ProcessBoundarySet = ({
                         disableClearable
                         autoHighlight
                         onChange={(event, newValue) => {
-                            handleProcessTpBoundarySetChanged(
-                                newValue,
-                                processIndex
-                            );
+                            handleProcessTpBoundarySetChanged(newValue, processIndex);
                         }}
-                        options={boundaries.filter((b) =>
-                            b.filename.match(/^.*__ENTSOE_TPBD.*$/)
-                        )}
+                        options={boundaries.filter((b) => b.filename.match(/^.*__ENTSOE_TPBD.*$/))}
                         getOptionLabel={(boundary) => boundary.filename}
-                        getOptionSelected={(option, value) =>
-                            option.filename === value.filename
-                        }
+                        getOptionSelected={(option, value) => option.filename === value.filename}
                         size="small"
                         renderInput={(props) => (
                             <TextField
@@ -296,8 +256,7 @@ const ProcessesContainer = ({ handleProcessesChanged, currentProcess }) => {
     const intl = useIntl();
 
     const [authorizedTsosCodes, setAuthorizedTsosCodes] = useState([]);
-    const [authorizedBusinessProcesses, setAuthorizedBusinessProcesses] =
-        useState([]);
+    const [authorizedBusinessProcesses, setAuthorizedBusinessProcesses] = useState([]);
     const [boundaries, setBoundaries] = useState([]);
 
     function handleAddProcess() {
@@ -407,12 +366,7 @@ const ProcessesContainer = ({ handleProcessesChanged, currentProcess }) => {
                 </Grid>
             </Grid>
             {currentProcess.map((process, index) => (
-                <Grid
-                    container
-                    spacing={1}
-                    sx={styles.addNewTso}
-                    key={process.processUuid}
-                >
+                <Grid container spacing={1} sx={styles.addNewTso} key={process.processUuid}>
                     {/* Process input*/}
                     <Grid container item xs={12} sm={7}>
                         <Grid item xs={12} sm={8}>
@@ -425,36 +379,21 @@ const ProcessesContainer = ({ handleProcessesChanged, currentProcess }) => {
                                 InputProps={{
                                     classes: { input: styles.input },
                                 }}
-                                onChange={(e) =>
-                                    handleProcessNameChanged(e, index)
-                                }
+                                onChange={(e) => handleProcessNameChanged(e, index)}
                             />
                             <Autocomplete
                                 id="select_business_process"
-                                value={authorizedBusinessProcesses.indexOf(
-                                    process.businessProcess
-                                )}
+                                value={authorizedBusinessProcesses.indexOf(process.businessProcess)}
                                 disableClearable
                                 autoHighlight
                                 onChange={(event, newValue) => {
-                                    handleBusinessProcessChanged(
-                                        authorizedBusinessProcesses[newValue],
-                                        index
-                                    );
+                                    handleBusinessProcessChanged(authorizedBusinessProcesses[newValue], index);
                                 }}
-                                options={Object.keys(
-                                    authorizedBusinessProcesses
-                                )}
+                                options={Object.keys(authorizedBusinessProcesses)}
                                 size="small"
                                 style={{ marginTop: 15, marginBottom: 5 }}
-                                getOptionLabel={(code) =>
-                                    code !== -1
-                                        ? authorizedBusinessProcesses[code]
-                                        : ''
-                                }
-                                getOptionSelected={(option, value) =>
-                                    option.value === value.value
-                                }
+                                getOptionLabel={(code) => (code !== -1 ? authorizedBusinessProcesses[code] : '')}
+                                getOptionSelected={(option, value) => option.value === value.value}
                                 renderInput={(props) => (
                                     <TextField
                                         {...props}
@@ -471,9 +410,7 @@ const ProcessesContainer = ({ handleProcessesChanged, currentProcess }) => {
                                 aria-label="runBalancesAdjustment"
                                 name="runBalancesAdjustment"
                                 value={process.runBalancesAdjustment + ''}
-                                onChange={(e) =>
-                                    handleProcessAlgorithmChanged(e, index)
-                                }
+                                onChange={(e) => handleProcessAlgorithmChanged(e, index)}
                             >
                                 <FormControlLabel
                                     value="true"
@@ -493,22 +430,14 @@ const ProcessesContainer = ({ handleProcessesChanged, currentProcess }) => {
                             <ProcessBoundarySet
                                 process={process}
                                 processIndex={index}
-                                handleProcessUseBoundarySetChanged={
-                                    handleProcessUseBoundarySetChanged
-                                }
-                                handleProcessEqBoundarySetChanged={
-                                    handleProcessEqBoundarySetChanged
-                                }
-                                handleProcessTpBoundarySetChanged={
-                                    handleProcessTpBoundarySetChanged
-                                }
+                                handleProcessUseBoundarySetChanged={handleProcessUseBoundarySetChanged}
+                                handleProcessEqBoundarySetChanged={handleProcessEqBoundarySetChanged}
+                                handleProcessTpBoundarySetChanged={handleProcessTpBoundarySetChanged}
                                 boundaries={boundaries}
                             />
                         </Grid>
                         <Grid item xs={12} sm={4} align="center">
-                            <IconButton
-                                onClick={() => handleDeleteProcess(index)}
-                            >
+                            <IconButton onClick={() => handleDeleteProcess(index)}>
                                 <DeleteIcon />
                             </IconButton>
                         </Grid>
@@ -587,11 +516,7 @@ const ProcessesConfigurationDialog = ({ open, onClose, matchProcess }) => {
         let toBeDeleted = [];
 
         for (let i = 0; i < initialProcesses.length; i++) {
-            if (
-                !currentProcesses.find(
-                    (e) => e.processUuid === initialProcesses[i].processUuid
-                )
-            ) {
+            if (!currentProcesses.find((e) => e.processUuid === initialProcesses[i].processUuid)) {
                 toBeDeleted.push(initialProcesses[i]);
             }
         }
@@ -605,12 +530,8 @@ const ProcessesConfigurationDialog = ({ open, onClose, matchProcess }) => {
             businessProcess: process.businessProcess,
             runBalancesAdjustment: process.runBalancesAdjustment,
             useLastBoundarySet: process.useLastBoundarySet,
-            eqBoundary: !process.useLastBoundarySet
-                ? process.eqBoundary
-                : undefined,
-            tpBoundary: !process.useLastBoundarySet
-                ? process.tpBoundary
-                : undefined,
+            eqBoundary: !process.useLastBoundarySet ? process.eqBoundary : undefined,
+            tpBoundary: !process.useLastBoundarySet ? process.tpBoundary : undefined,
             tsos: process.tsos.map((tso) => tso.name),
         };
     };
@@ -623,30 +544,19 @@ const ProcessesConfigurationDialog = ({ open, onClose, matchProcess }) => {
 
     const areDifferent = (initialProcess, currentProcess) => {
         const initialsTSOs = new Set(initialProcess.tsos);
-        const currentTSOs = new Set(
-            [...currentProcess.tsos].map((tso) => tso.name)
-        );
+        const currentTSOs = new Set([...currentProcess.tsos].map((tso) => tso.name));
         const areTsoListsIdentical =
-            initialsTSOs.size === currentTSOs.size &&
-            [...currentTSOs].every((tso) => initialsTSOs.has(tso));
+            initialsTSOs.size === currentTSOs.size && [...currentTSOs].every((tso) => initialsTSOs.has(tso));
 
-        const isEqBoundaryIdentical = isBoundaryIdentical(
-            initialProcess.eqBoundary,
-            currentProcess.eqBoundary
-        );
-        const isTpBoundaryIdentical = isBoundaryIdentical(
-            initialProcess.tpBoundary,
-            currentProcess.tpBoundary
-        );
+        const isEqBoundaryIdentical = isBoundaryIdentical(initialProcess.eqBoundary, currentProcess.eqBoundary);
+        const isTpBoundaryIdentical = isBoundaryIdentical(initialProcess.tpBoundary, currentProcess.tpBoundary);
 
         return (
             !areTsoListsIdentical ||
-            initialProcess.useLastBoundarySet !==
-                currentProcess.useLastBoundarySet ||
+            initialProcess.useLastBoundarySet !== currentProcess.useLastBoundarySet ||
             !isEqBoundaryIdentical ||
             !isTpBoundaryIdentical ||
-            initialProcess.runBalancesAdjustment !==
-                currentProcess.runBalancesAdjustment ||
+            initialProcess.runBalancesAdjustment !== currentProcess.runBalancesAdjustment ||
             initialProcess.businessProcess !== currentProcess.businessProcess ||
             initialProcess.process !== currentProcess.process
         );
@@ -666,15 +576,12 @@ const ProcessesConfigurationDialog = ({ open, onClose, matchProcess }) => {
                 processes[i].process === '' ||
                 processes[i].businessProcess === '' ||
                 (!processes[i].useLastBoundarySet &&
-                    (processes[i].eqBoundary == null ||
-                        processes[i].tpBoundary == null))
+                    (processes[i].eqBoundary == null || processes[i].tpBoundary == null))
             ) {
                 continue;
             }
 
-            let initialProcess = configs.find(
-                (element) => element.processUuid === processes[i].processUuid
-            );
+            let initialProcess = configs.find((element) => element.processUuid === processes[i].processUuid);
 
             if (!initialProcess) {
                 let newProcess = processes[i];
@@ -696,9 +603,7 @@ const ProcessesConfigurationDialog = ({ open, onClose, matchProcess }) => {
                 dispatch(initProcesses(configs));
                 if (
                     matchProcess !== null &&
-                    (listProcessesToBeDeleted.includes(
-                        matchProcess.params.processName
-                    ) ||
+                    (listProcessesToBeDeleted.includes(matchProcess.params.processName) ||
                         !configs.includes(matchProcess.params.processName))
                 ) {
                     navigate('/', { replace: true });
@@ -731,25 +636,15 @@ const ProcessesConfigurationDialog = ({ open, onClose, matchProcess }) => {
                         <FormattedMessage id="confirmMessage" />
                     </h3>
                 ) : (
-                    <ProcessesContainer
-                        currentProcess={processes}
-                        handleProcessesChanged={handleProcessesChanged}
-                    />
+                    <ProcessesContainer currentProcess={processes} handleProcessesChanged={handleProcessesChanged} />
                 )}
-                {confirmSave &&
-                    processesToBeDeleted().map((e) => (
-                        <h3 key={e.processUuid}>{e.process}</h3>
-                    ))}
+                {confirmSave && processesToBeDeleted().map((e) => <h3 key={e.processUuid}>{e.process}</h3>)}
             </DialogContent>
             <DialogActions>
                 <Button autoFocus size="small" onClick={cancel}>
                     <FormattedMessage id="cancel" />
                 </Button>
-                <Button
-                    variant="outlined"
-                    size="small"
-                    onClick={confirmSave ? handleSave : saveButtonClicked}
-                >
+                <Button variant="outlined" size="small" onClick={confirmSave ? handleSave : saveButtonClicked}>
                     <FormattedMessage id="confirm" />
                 </Button>
             </DialogActions>

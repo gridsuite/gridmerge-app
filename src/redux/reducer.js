@@ -35,11 +35,7 @@ import {
     saveLocalStorageLanguage,
     getLocalStorageComputedLanguage,
 } from './local-storage';
-import {
-    PARAM_LANGUAGE,
-    PARAM_THEME,
-    PARAM_TIMELINE_DIAGONAL_LABELS,
-} from '../utils/config-params';
+import { PARAM_LANGUAGE, PARAM_THEME, PARAM_TIMELINE_DIAGONAL_LABELS } from '../utils/config-params';
 
 const paramsInitialState = {
     [PARAM_THEME]: getLocalStorageTheme(),
@@ -98,8 +94,7 @@ export const reducer = createReducer(initialState, (builder) => {
     });
 
     builder.addCase(SHOW_AUTH_INFO_LOGIN, (state, action) => {
-        state.showAuthenticationRouterLogin =
-            action.showAuthenticationRouterLogin;
+        state.showAuthenticationRouterLogin = action.showAuthenticationRouterLogin;
     });
 
     builder.addCase(INIT_PROCESSES, (state, action) => {
@@ -130,7 +125,6 @@ export const reducer = createReducer(initialState, (builder) => {
     });
 
     builder.addCase(TIMELINE_DIAGONAL_LABELS, (state, action) => {
-        state[PARAM_TIMELINE_DIAGONAL_LABELS] =
-            action[PARAM_TIMELINE_DIAGONAL_LABELS];
+        state[PARAM_TIMELINE_DIAGONAL_LABELS] = action[PARAM_TIMELINE_DIAGONAL_LABELS];
     });
 });

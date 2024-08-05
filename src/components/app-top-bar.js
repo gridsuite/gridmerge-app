@@ -10,12 +10,7 @@ import { logout, TopBar } from '@gridsuite/commons-ui';
 import Parameters, { useParameterState } from './parameters';
 import { PARAM_LANGUAGE, PARAM_THEME } from '../utils/config-params';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-    fetchAppsAndUrls,
-    fetchMergeConfigs,
-    fetchVersion,
-    getServersInfos,
-} from '../utils/rest-api';
+import { fetchAppsAndUrls, fetchMergeConfigs, fetchVersion, getServersInfos } from '../utils/rest-api';
 import PropTypes from 'prop-types';
 import { useMatch, useNavigate } from 'react-router-dom';
 import { ReactComponent as GridMergeLogoLight } from '../images/GridMerge_logo_light.svg';
@@ -50,13 +45,11 @@ const AppTopBar = ({ user, userManager }) => {
 
     const [themeLocal, handleChangeTheme] = useParameterState(PARAM_THEME);
 
-    const [languageLocal, handleChangeLanguage] =
-        useParameterState(PARAM_LANGUAGE);
+    const [languageLocal, handleChangeLanguage] = useParameterState(PARAM_LANGUAGE);
 
     const [showParameters, setShowParameters] = useState(false);
 
-    const [showConfigurationProcesses, setShowConfigurationProcesses] =
-        useState(false);
+    const [showConfigurationProcesses, setShowConfigurationProcesses] = useState(false);
 
     useEffect(() => {
         if (user !== null) {
@@ -77,11 +70,7 @@ const AppTopBar = ({ user, userManager }) => {
 
     const selectedTabId = useMemo(() => {
         let index =
-            matchProcess !== null
-                ? configs.findIndex(
-                      (c) => c.process === matchProcess.params.processName
-                  )
-                : -1;
+            matchProcess !== null ? configs.findIndex((c) => c.process === matchProcess.params.processName) : -1;
         return index !== -1 ? matchProcess.params.processName : false;
     }, [configs, matchProcess]);
 
@@ -90,13 +79,7 @@ const AppTopBar = ({ user, userManager }) => {
             <TopBar
                 appName="Merge"
                 appColor="#4795D1"
-                appLogo={
-                    theme.palette.mode === 'light' ? (
-                        <GridMergeLogoLight />
-                    ) : (
-                        <GridMergeLogoDark />
-                    )
-                }
+                appLogo={theme.palette.mode === 'light' ? <GridMergeLogoLight /> : <GridMergeLogoDark />}
                 appVersion={AppPackage.version}
                 appLicense={AppPackage.license}
                 onParametersClick={() => setShowParameters(true)}
@@ -108,9 +91,7 @@ const AppTopBar = ({ user, userManager }) => {
                 theme={themeLocal}
                 onLanguageClick={handleChangeLanguage}
                 language={languageLocal}
-                globalVersionPromise={() =>
-                    fetchVersion().then((res) => res?.deployVersion)
-                }
+                globalVersionPromise={() => fetchVersion().then((res) => res?.deployVersion)}
                 additionalModulesPromise={getServersInfos}
             >
                 <Tabs
@@ -118,18 +99,12 @@ const AppTopBar = ({ user, userManager }) => {
                     indicatorColor="primary"
                     variant="scrollable"
                     scrollButtons="auto"
-                    onChange={(event, newValue) =>
-                        navigate(PREFIX_URL_PROCESSES + '/' + newValue)
-                    }
+                    onChange={(event, newValue) => navigate(PREFIX_URL_PROCESSES + '/' + newValue)}
                     aria-label="parameters"
                     sx={styles.process}
                 >
                     {configs.map((config) => (
-                        <Tab
-                            key={config.processUuid}
-                            label={config.process}
-                            value={config.process}
-                        />
+                        <Tab key={config.processUuid} label={config.process} value={config.process} />
                     ))}
                 </Tabs>
                 {user && (
@@ -150,10 +125,7 @@ const AppTopBar = ({ user, userManager }) => {
                     </>
                 )}
             </TopBar>
-            <Parameters
-                showParameters={showParameters}
-                hideParameters={() => setShowParameters(false)}
-            />
+            <Parameters showParameters={showParameters} hideParameters={() => setShowParameters(false)} />
         </>
     );
 };

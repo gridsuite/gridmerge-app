@@ -11,14 +11,10 @@ import { store } from '../redux/store';
 import PropTypes from 'prop-types';
 import { APP_NAME, getAppName } from './config-params';
 
-const PREFIX_USER_ADMIN_SERVER_QUERIES =
-    process.env.REACT_APP_API_GATEWAY + '/user-admin';
-const PREFIX_NOTIFICATION_WS =
-    process.env.REACT_APP_WS_GATEWAY + '/merge-notification';
-const PREFIX_ORCHESTRATOR_QUERIES =
-    process.env.REACT_APP_API_GATEWAY + '/merge';
-const PREFIX_CONFIG_NOTIFICATION_WS =
-    process.env.REACT_APP_WS_GATEWAY + '/config-notification';
+const PREFIX_USER_ADMIN_SERVER_QUERIES = process.env.REACT_APP_API_GATEWAY + '/user-admin';
+const PREFIX_NOTIFICATION_WS = process.env.REACT_APP_WS_GATEWAY + '/merge-notification';
+const PREFIX_ORCHESTRATOR_QUERIES = process.env.REACT_APP_API_GATEWAY + '/merge';
+const PREFIX_CONFIG_NOTIFICATION_WS = process.env.REACT_APP_WS_GATEWAY + '/config-notification';
 const PREFIX_CONFIG_QUERIES = process.env.REACT_APP_API_GATEWAY + '/config';
 const PREFIX_BOUNDARY_QUERIES = process.env.REACT_APP_API_GATEWAY + '/boundary';
 const PREFIX_STUDY_QUERIES = process.env.REACT_APP_API_GATEWAY + '/study';
@@ -41,25 +37,13 @@ function handleError(response) {
         const errorName = 'HttpResponseError : ';
         let error;
         const errorJson = parseError(text);
-        if (
-            errorJson &&
-            errorJson.status &&
-            errorJson.error &&
-            errorJson.message
-        ) {
+        if (errorJson && errorJson.status && errorJson.error && errorJson.message) {
             error = new Error(
-                errorName +
-                    errorJson.status +
-                    ' ' +
-                    errorJson.error +
-                    ', message : ' +
-                    errorJson.message
+                errorName + errorJson.status + ' ' + errorJson.error + ', message : ' + errorJson.message
             );
             error.status = errorJson.status;
         } else {
-            error = new Error(
-                errorName + response.status + ' ' + response.statusText
-            );
+            error = new Error(errorName + response.status + ' ' + response.statusText);
             error.status = response.status;
         }
         throw error;
@@ -68,9 +52,7 @@ function handleError(response) {
 
 function prepareRequest(init, token) {
     if (!(typeof init == 'undefined' || typeof init == 'object')) {
-        throw new TypeError(
-            'Argument 2 of backendFetch is not an object' + typeof init
-        );
+        throw new TypeError('Argument 2 of backendFetch is not an object' + typeof init);
     }
     const initCopy = Object.assign({}, init);
     initCopy.headers = new Headers(initCopy.headers || {});
@@ -80,9 +62,7 @@ function prepareRequest(init, token) {
 }
 
 function safeFetch(url, initCopy) {
-    return fetch(url, initCopy).then((response) =>
-        response.ok ? response : handleError(response)
-    );
+    return fetch(url, initCopy).then((response) => (response.ok ? response : handleError(response)));
 }
 
 export function backendFetch(url, init, token) {
@@ -103,16 +83,11 @@ export function backendFetchJson(url, init, token) {
 export function fetchValidateUser(user) {
     const sub = user?.profile?.sub;
     if (!sub) {
-        return Promise.reject(
-            new Error(
-                'Error : Fetching access for missing user.profile.sub : ' + user
-            )
-        );
+        return Promise.reject(new Error('Error : Fetching access for missing user.profile.sub : ' + user));
     }
 
     console.info(`Fetching access for user...`);
-    const CheckAccessUrl =
-        PREFIX_USER_ADMIN_SERVER_QUERIES + `/v1/users/${sub}`;
+    const CheckAccessUrl = PREFIX_USER_ADMIN_SERVER_QUERIES + `/v1/users/${sub}`;
     console.debug(CheckAccessUrl);
 
     return backendFetch(
@@ -136,9 +111,7 @@ export function fetchValidateUser(user) {
 
 export function connectNotificationsWebsocket(processUuid, businessProcess) {
     // The websocket API doesn't allow relative urls
-    const wsbase = document.baseURI
-        .replace(/^http:\/\//, 'ws://')
-        .replace(/^https:\/\//, 'wss://');
+    const wsbase = document.baseURI.replace(/^http:\/\//, 'ws://').replace(/^https:\/\//, 'wss://');
     const wsadress =
         wsbase +
         PREFIX_NOTIFICATION_WS +
@@ -147,9 +120,7 @@ export function connectNotificationsWebsocket(processUuid, businessProcess) {
         '&businessProcess=' +
         encodeURIComponent(businessProcess);
 
-    const rws = new ReconnectingWebSocket(
-        () => wsadress + '&access_token=' + getToken()
-    );
+    const rws = new ReconnectingWebSocket(() => wsadress + '&access_token=' + getToken());
     // don't log the token, it's private
     rws.onopen = function (event) {
         console.info('Connected Websocket ' + wsadress + ' ...');
@@ -158,58 +129,34 @@ export function connectNotificationsWebsocket(processUuid, businessProcess) {
 }
 
 export function connectNotificationsWsUpdateConfig() {
-    const webSocketBaseUrl = document.baseURI
-        .replace(/^http:\/\//, 'ws://')
-        .replace(/^https:\/\//, 'wss://');
-    const webSocketUrl =
-        webSocketBaseUrl +
-        PREFIX_CONFIG_NOTIFICATION_WS +
-        '/notify?appName=' +
-        APP_NAME;
+    const webSocketBaseUrl = document.baseURI.replace(/^http:\/\//, 'ws://').replace(/^https:\/\//, 'wss://');
+    const webSocketUrl = webSocketBaseUrl + PREFIX_CONFIG_NOTIFICATION_WS + '/notify?appName=' + APP_NAME;
 
-    const reconnectingWebSocket = new ReconnectingWebSocket(
-        () => webSocketUrl + '&access_token=' + getToken()
-    );
+    const reconnectingWebSocket = new ReconnectingWebSocket(() => webSocketUrl + '&access_token=' + getToken());
     reconnectingWebSocket.onopen = function (event) {
-        console.info(
-            'Connected Websocket update config ' + webSocketUrl + ' ...'
-        );
+        console.info('Connected Websocket update config ' + webSocketUrl + ' ...');
     };
     return reconnectingWebSocket;
 }
 
 export function fetchConfigParameters(appName) {
     console.info('Fetching UI configuration params for app : ' + appName);
-    const fetchParams =
-        PREFIX_CONFIG_QUERIES + `/v1/applications/${appName}/parameters`;
+    const fetchParams = PREFIX_CONFIG_QUERIES + `/v1/applications/${appName}/parameters`;
     return backendFetchJson(fetchParams);
 }
 
 export function fetchConfigParameter(name) {
     const appName = getAppName(name);
-    console.info(
-        "Fetching UI config parameter '%s' for app '%s' ",
-        name,
-        appName
-    );
-    const fetchParams =
-        PREFIX_CONFIG_QUERIES +
-        `/v1/applications/${appName}/parameters/${name}`;
+    console.info("Fetching UI config parameter '%s' for app '%s' ", name, appName);
+    const fetchParams = PREFIX_CONFIG_QUERIES + `/v1/applications/${appName}/parameters/${name}`;
     return backendFetchJson(fetchParams);
 }
 
 export function updateConfigParameter(name, value) {
     const appName = getAppName(name);
-    console.info(
-        "Updating config parameter '%s=%s' for app '%s' ",
-        name,
-        value,
-        appName
-    );
+    console.info("Updating config parameter '%s=%s' for app '%s' ", name, value, appName);
     const updateParams =
-        PREFIX_CONFIG_QUERIES +
-        `/v1/applications/${appName}/parameters/${name}?value=` +
-        encodeURIComponent(value);
+        PREFIX_CONFIG_QUERIES + `/v1/applications/${appName}/parameters/${name}?value=` + encodeURIComponent(value);
     return backendFetch(updateParams, { method: 'put' });
 }
 
@@ -224,14 +171,7 @@ function getUrlWithToken(baseUrl) {
 }
 
 export function getExportMergeUrl(processUuid, date, format) {
-    const url =
-        PREFIX_ORCHESTRATOR_QUERIES +
-        '/v1/' +
-        processUuid +
-        '/' +
-        date +
-        '/export/' +
-        format;
+    const url = PREFIX_ORCHESTRATOR_QUERIES + '/v1/' + processUuid + '/' + date + '/export/' + format;
     return getUrlWithToken(url);
 }
 
@@ -242,18 +182,10 @@ function fetchEnv() {
 export function fetchAuthorizationCodeFlowFeatureFlag() {
     console.info(`Fetching authorization code flow feature flag...`);
     return fetchEnv()
-        .then((res) =>
-            fetch(res.appsMetadataServerUrl + '/authentication.json')
-        )
+        .then((res) => fetch(res.appsMetadataServerUrl + '/authentication.json'))
         .then((res) => res.json())
         .then((res) => {
-            console.log(
-                `Authorization code flow is ${
-                    res.authorizationCodeFlowFeatureFlag
-                        ? 'enabled'
-                        : 'disabled'
-                }`
-            );
+            console.log(`Authorization code flow is ${res.authorizationCodeFlowFeatureFlag ? 'enabled' : 'disabled'}`);
             return res.authorizationCodeFlowFeatureFlag;
         })
         .catch((error) => {
@@ -287,9 +219,7 @@ export function fetchVersion() {
  * Function return list of merges by process uuid, date min and date max
  */
 export function fetchMergesByProcessUuidAndDate(processUuid, minDate, maxDate) {
-    console.info(
-        `Fetching merges from '${minDate.toISOString()}' to '${maxDate.toISOString()}'...`
-    );
+    console.info(`Fetching merges from '${minDate.toISOString()}' to '${maxDate.toISOString()}'...`);
     const fetchConfigsUrl =
         PREFIX_ORCHESTRATOR_QUERIES +
         '/v1/' +
@@ -411,29 +341,19 @@ export function createProcess(json) {
 
 export function deleteProcess(processUuid) {
     console.info('Deleting Process', processUuid, ' ...');
-    const deleteProcessUrl =
-        PREFIX_ORCHESTRATOR_QUERIES + '/v1/configs/' + processUuid;
+    const deleteProcessUrl = PREFIX_ORCHESTRATOR_QUERIES + '/v1/configs/' + processUuid;
     return backendFetch(deleteProcessUrl, {
         method: 'delete',
     });
 }
 
 function getMergeUrl(processUuid, date, uri) {
-    const url =
-        PREFIX_ORCHESTRATOR_QUERIES +
-        '/v1/' +
-        processUuid +
-        '/' +
-        date +
-        '/' +
-        uri;
+    const url = PREFIX_ORCHESTRATOR_QUERIES + '/v1/' + processUuid + '/' + date + '/' + uri;
     return getUrlWithToken(url);
 }
 
 export function replaceIGM(processUuid, date) {
-    console.info(
-        'replacing igm for process : ' + processUuid + ' at : ' + date
-    );
+    console.info('replacing igm for process : ' + processUuid + ' at : ' + date);
     return backendFetchJson(getMergeUrl(processUuid, date, 'replace-igms'), {
         method: 'put',
     });
@@ -452,15 +372,13 @@ export function fetchTsosList() {
 
 export function fetchBusinessProcessesList() {
     console.info('Fetching list of authorized business processes...');
-    const fetchBusinessProcessesListUrl =
-        PREFIX_BOUNDARY_QUERIES + '/v1/business-processes';
+    const fetchBusinessProcessesListUrl = PREFIX_BOUNDARY_QUERIES + '/v1/business-processes';
     return backendFetchJson(fetchBusinessProcessesListUrl);
 }
 
 export function fetchBoundariesList() {
     console.info('Fetching list of boundaries...');
-    const fetchBoundariesListUrl =
-        PREFIX_BOUNDARY_QUERIES + '/v1/boundaries/infos';
+    const fetchBoundariesListUrl = PREFIX_BOUNDARY_QUERIES + '/v1/boundaries/infos';
     return backendFetchJson(fetchBoundariesListUrl);
 }
 
@@ -476,9 +394,7 @@ export const MergeType = PropTypes.shape({
 
 export function getServersInfos() {
     console.info('get backend servers informations');
-    return backendFetchJson(
-        PREFIX_STUDY_QUERIES + '/v1/servers/about?view=merge'
-    ).catch((reason) => {
+    return backendFetchJson(PREFIX_STUDY_QUERIES + '/v1/servers/about?view=merge').catch((reason) => {
         console.error('Error while fetching the servers infos : ' + reason);
         return reason;
     });

@@ -36,28 +36,14 @@ const styles = {
  * @param {String} title Title of the dialog
  * @param {String} message Message of the dialog
  */
-const ExportDialog = ({
-    open,
-    onClose,
-    onClick,
-    processUuid,
-    date,
-    title,
-    getDownloadUrl,
-    formats,
-    errorMessage,
-}) => {
+const ExportDialog = ({ open, onClose, onClick, processUuid, date, title, getDownloadUrl, formats, errorMessage }) => {
     const [selectedFormat, setSelectedFormat] = useState('');
     const [exportStudyErr, setExportStudyErr] = useState('');
 
     const handleClick = () => {
         console.debug('Request for exporting in format: ' + selectedFormat);
         if (selectedFormat) {
-            const url = getDownloadUrl(
-                processUuid,
-                new Date(date).toISOString(),
-                selectedFormat
-            );
+            const url = getDownloadUrl(processUuid, new Date(date).toISOString(), selectedFormat);
             onClick(url);
         } else {
             setExportStudyErr(errorMessage);
@@ -79,12 +65,7 @@ const ExportDialog = ({
     };
 
     return (
-        <Dialog
-            open={open}
-            onClose={handleClose}
-            onExited={handleExited}
-            aria-labelledby="dialog-title-export"
-        >
+        <Dialog open={open} onClose={handleClose} onExited={handleExited} aria-labelledby="dialog-title-export">
             <DialogTitle>{title}</DialogTitle>
             <DialogContent>
                 <FormControl sx={styles.formControl}>
@@ -109,19 +90,13 @@ const ExportDialog = ({
                         })}
                     </Select>
                 </FormControl>
-                {exportStudyErr && (
-                    <Alert severity="error">{exportStudyErr}</Alert>
-                )}
+                {exportStudyErr && <Alert severity="error">{exportStudyErr}</Alert>}
             </DialogContent>
             <DialogActions>
                 <Button onClick={handleClose} variant="text">
                     <FormattedMessage id="cancel" />
                 </Button>
-                <Button
-                    onClick={handleClick}
-                    variant="outlined"
-                    disabled={!selectedFormat}
-                >
+                <Button onClick={handleClick} variant="outlined" disabled={!selectedFormat}>
                     <FormattedMessage id="export" />
                 </Button>
             </DialogActions>

@@ -102,9 +102,7 @@ const Timeline = (props) => {
 
     const [value, setValue] = useState(null);
 
-    const timelineDiagonalLabels = useSelector(
-        (state) => state[PARAM_TIMELINE_DIAGONAL_LABELS]
-    );
+    const timelineDiagonalLabels = useSelector((state) => state[PARAM_TIMELINE_DIAGONAL_LABELS]);
 
     function findMergeIndex(value) {
         return marks.findIndex((mark) => mark.value === value);
@@ -147,11 +145,7 @@ const Timeline = (props) => {
     }, [props.merges]);
 
     useEffect(() => {
-        setValue(
-            props.merges.length > 0 && props.mergeIndex < marks.length
-                ? marks[props.mergeIndex].value
-                : null
-        );
+        setValue(props.merges.length > 0 && props.mergeIndex < marks.length ? marks[props.mergeIndex].value : null);
     }, [marks, props.mergeIndex, props.merges.length]);
 
     const empty = props.merges.length === 0;
