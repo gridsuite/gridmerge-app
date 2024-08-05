@@ -5,11 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import {
-    PARAM_LANGUAGE,
-    PARAM_THEME,
-    PARAM_TIMELINE_DIAGONAL_LABELS,
-} from '../utils/config-params';
+import { PARAM_LANGUAGE, PARAM_THEME, PARAM_TIMELINE_DIAGONAL_LABELS } from '../utils/config-params';
 
 export const SELECT_THEME = 'SELECT_THEME';
 export const LIGHT_THEME = 'Light';

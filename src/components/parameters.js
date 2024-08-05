@@ -96,9 +96,7 @@ function GUITab() {
                 <Switch
                     checked={timelineDiagonalLabelLocal}
                     onChange={(event) => {
-                        handleChangeTimelineDiagonalLabelLocal(
-                            event.target.value !== 'true'
-                        );
+                        handleChangeTimelineDiagonalLabelLocal(event.target.value !== 'true');
                     }}
                     value={timelineDiagonalLabelLocal}
                     color="primary"
@@ -143,12 +141,7 @@ const Parameters = ({ showParameters, hideParameters }) => {
                     </TabPanel>
 
                     <Grid item xs={12}>
-                        <Button
-                            onClick={hideParameters}
-                            variant="contained"
-                            color="primary"
-                            sx={styles.button}
-                        >
+                        <Button onClick={hideParameters} variant="contained" color="primary" sx={styles.button}>
                             <FormattedMessage id="close" />
                         </Button>
                     </Grid>

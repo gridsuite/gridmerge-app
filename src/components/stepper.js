@@ -7,21 +7,10 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Box, Grid, IconButton, Step, StepLabel, Stepper } from '@mui/material';
 import { FormattedMessage, useIntl } from 'react-intl';
-import {
-    AccountTree as AccountTreeIcon,
-    Build as BuildIcon,
-    GetApp as GetAppIcon,
-} from '@mui/icons-material';
+import { AccountTree as AccountTreeIcon, Build as BuildIcon, GetApp as GetAppIcon } from '@mui/icons-material';
 import { ReportViewerDialog, useSnackMessage } from '@gridsuite/commons-ui';
 import { ExportDialog } from '../utils/dialogs';
-import {
-    CgmStatus,
-    fetchReport,
-    getExportMergeUrl,
-    getIgmStatus,
-    IgmStatus,
-    replaceIGM,
-} from '../utils/rest-api';
+import { CgmStatus, fetchReport, getExportMergeUrl, getIgmStatus, IgmStatus, replaceIGM } from '../utils/rest-api';
 import PropTypes from 'prop-types';
 
 const baseStyles = {
@@ -151,8 +140,7 @@ const StepperWithStatus = (props) => {
             });
     };
 
-    const allStatusEqualValueArray = (arr) =>
-        arr.every((v) => v.status === arr[0].status);
+    const allStatusEqualValueArray = (arr) => arr.every((v) => v.status === arr[0].status);
 
     const setStepsStatus = (available, valid, merge) => {
         setAvailableStep(available);
@@ -168,30 +156,16 @@ const StepperWithStatus = (props) => {
             if (allStatusEqualValueArray(allStatus)) {
                 let status = allStatus[allStatus.length - 1];
                 if (status.status === IgmStatus.MERGED) {
-                    setStepsStatus(
-                        true,
-                        true,
-                        status.cgmStatus !== CgmStatus.INVALID
-                    );
+                    setStepsStatus(true, true, status.cgmStatus !== CgmStatus.INVALID);
                 } else if (status.status === IgmStatus.VALID) {
                     setStepsStatus(true, true, false);
                 }
-            } else if (
-                allStatus.some(
-                    (s) =>
-                        s.status === IgmStatus.AVAILABLE ||
-                        s.status === IgmStatus.VALID
-                )
-            ) {
+            } else if (allStatus.some((s) => s.status === IgmStatus.AVAILABLE || s.status === IgmStatus.VALID)) {
                 setStepsStatus(true, false, false);
             }
 
             if (
-                allStatus.some(
-                    (s) =>
-                        s.status === IgmStatus.INVALID ||
-                        s.status === IgmStatus.ABSENT
-                ) &&
+                allStatus.some((s) => s.status === IgmStatus.INVALID || s.status === IgmStatus.ABSENT) &&
                 !allStatus.some((s) => s.status === IgmStatus.AVAILABLE)
             ) {
                 setReplaceIGMEnabled(true);
@@ -221,14 +195,7 @@ const StepperWithStatus = (props) => {
                 >
                     <BuildIcon fontSize="large" sx={styles.stepperButtonIcon} />
                 </IconButton>
-                <Box
-                    component="span"
-                    sx={
-                        replaceIGMEnabled
-                            ? styles.buttonLabelEnabled
-                            : styles.buttonLabelDisabled
-                    }
-                >
+                <Box component="span" sx={replaceIGMEnabled ? styles.buttonLabelEnabled : styles.buttonLabelDisabled}>
                     <FormattedMessage id="replaceIGM" />
                 </Box>
             </Grid>
@@ -258,19 +225,9 @@ const StepperWithStatus = (props) => {
                     onClick={handleClickShowReport}
                     disabled={!mergedStep}
                 >
-                    <AccountTreeIcon
-                        fontSize="large"
-                        sx={styles.stepperButtonIcon}
-                    />
+                    <AccountTreeIcon fontSize="large" sx={styles.stepperButtonIcon} />
                 </IconButton>
-                <Box
-                    component="span"
-                    sx={
-                        mergedStep
-                            ? styles.buttonLabelEnabled
-                            : styles.buttonLabelDisabled
-                    }
-                >
+                <Box component="span" sx={mergedStep ? styles.buttonLabelEnabled : styles.buttonLabelDisabled}>
                     <FormattedMessage id="showReport" />
                 </Box>
             </Grid>
@@ -281,26 +238,10 @@ const StepperWithStatus = (props) => {
                     onClick={handleOpenExport}
                     disabled={!mergedStep}
                 >
-                    <GetAppIcon
-                        fontSize="large"
-                        sx={styles.stepperButtonIcon}
-                    />
+                    <GetAppIcon fontSize="large" sx={styles.stepperButtonIcon} />
                 </IconButton>
-                <Box
-                    component="iframe"
-                    title="download"
-                    id={DownloadIframe}
-                    name={DownloadIframe}
-                    sx={styles.iframe}
-                />
-                <Box
-                    component="span"
-                    sx={
-                        mergedStep
-                            ? styles.buttonLabelEnabled
-                            : styles.buttonLabelDisabled
-                    }
-                >
+                <Box component="iframe" title="download" id={DownloadIframe} name={DownloadIframe} sx={styles.iframe} />
+                <Box component="span" sx={mergedStep ? styles.buttonLabelEnabled : styles.buttonLabelDisabled}>
                     <FormattedMessage id="downloadCgm" />
                 </Box>
             </Grid>

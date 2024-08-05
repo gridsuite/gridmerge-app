@@ -8,18 +8,9 @@
 import { memo, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { styled } from '@mui/material';
-import {
-    ComposableMap,
-    Geographies,
-    Geography as RawGeography,
-} from 'react-simple-maps';
+import { ComposableMap, Geographies, Geography as RawGeography } from 'react-simple-maps';
 import bbox from 'geojson-bbox';
-import {
-    CgmStatus,
-    getIgmStatus,
-    IgmStatus,
-    MergeType,
-} from '../utils/rest-api';
+import { CgmStatus, getIgmStatus, IgmStatus, MergeType } from '../utils/rest-api';
 import { Tooltip } from 'react-tooltip';
 import { getDetailsByCountryOrTso } from '../utils/tso-country-details';
 
@@ -48,31 +39,19 @@ const GREY_COLOR = '#78899a';
 export function tsoColor(status) {
     switch (status.status) {
         case IgmStatus.AVAILABLE:
-            return status.replacingDate == null
-                ? LIGHT_BLUE_COLOR
-                : LIGHT_YELLOW_COLOR;
+            return status.replacingDate == null ? LIGHT_BLUE_COLOR : LIGHT_YELLOW_COLOR;
         case IgmStatus.VALID:
-            return status.replacingDate == null
-                ? DARK_BLUE_COLOR
-                : DARK_YELLOW_COLOR;
+            return status.replacingDate == null ? DARK_BLUE_COLOR : DARK_YELLOW_COLOR;
         case IgmStatus.INVALID:
-            return status.replacingDate == null
-                ? LIGHT_RED_COLOR
-                : DARK_RED_COLOR;
+            return status.replacingDate == null ? LIGHT_RED_COLOR : DARK_RED_COLOR;
         case IgmStatus.MERGED: {
             switch (status.cgmStatus) {
                 case CgmStatus.VALID:
-                    return status.replacingDate == null
-                        ? GREEN_COLOR
-                        : LIGHT_GREEN_COLOR;
+                    return status.replacingDate == null ? GREEN_COLOR : LIGHT_GREEN_COLOR;
                 case CgmStatus.VALID_WITH_WARNING:
-                    return status.replacingDate == null
-                        ? ORANGE_COLOR
-                        : LIGHT_ORANGE_COLOR;
+                    return status.replacingDate == null ? ORANGE_COLOR : LIGHT_ORANGE_COLOR;
                 case CgmStatus.INVALID:
-                    return status.replacingDate == null
-                        ? RED_COLOR
-                        : LIGHT_RED_COLOR;
+                    return status.replacingDate == null ? RED_COLOR : LIGHT_RED_COLOR;
                 default:
                     return GREY_COLOR;
             }
@@ -171,13 +150,8 @@ const MergeMap = (props) => {
                                     className="tso"
                                     fill={color}
                                     onMouseEnter={() => {
-                                        if (
-                                            status.replacingDate &&
-                                            status.replacingBusinessProcess
-                                        ) {
-                                            let dt = new Date(
-                                                status.replacingDate
-                                            );
+                                        if (status.replacingDate && status.replacingBusinessProcess) {
+                                            let dt = new Date(status.replacingDate);
                                             setTooltip(
                                                 '' +
                                                     tso +
@@ -186,10 +160,7 @@ const MergeMap = (props) => {
                                                     ' - ' +
                                                     status.replacingBusinessProcess
                                             );
-                                        } else if (
-                                            props.merge &&
-                                            status.status !== IgmStatus.ABSENT
-                                        ) {
+                                        } else if (props.merge && status.status !== IgmStatus.ABSENT) {
                                             let dt = new Date(props.merge.date);
                                             setTooltip(
                                                 '' +
@@ -212,12 +183,7 @@ const MergeMap = (props) => {
                     }
                 </Geographies>
             </ComposableMap>
-            <Tooltip
-                anchorSelect=".maps"
-                float={true}
-                style={{ position: 'absolute' }}
-                content={tooltip}
-            />
+            <Tooltip anchorSelect=".maps" float={true} style={{ position: 'absolute' }} content={tooltip} />
             {props.children}
         </div>
     );

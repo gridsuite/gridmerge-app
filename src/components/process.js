@@ -9,16 +9,8 @@ import { useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import MergeMap from './merge-map';
-import {
-    connectNotificationsWebsocket,
-    fetchMergesByProcessUuidAndDate,
-    removeTime,
-} from '../utils/rest-api';
-import {
-    updateMerges,
-    updateProcessDate,
-    updateSelectedMergeDate,
-} from '../redux/actions';
+import { connectNotificationsWebsocket, fetchMergesByProcessUuidAndDate, removeTime } from '../utils/rest-api';
+import { updateMerges, updateProcessDate, updateSelectedMergeDate } from '../redux/actions';
 import { store } from '../redux/store';
 import Timeline from './timeline';
 import StepperWithStatus from './stepper';
@@ -41,9 +33,7 @@ const Process = (props) => {
 
     const merges = useSelector((state) => state.processes[props.index].merges);
 
-    const selectedMergeDate = useSelector(
-        (state) => state.processes[props.index].selectedMergeDate
-    );
+    const selectedMergeDate = useSelector((state) => state.processes[props.index].selectedMergeDate);
 
     const dispatch = useDispatch();
 
@@ -97,10 +87,7 @@ const Process = (props) => {
                 `Connecting to notifications for process : '${processUuid}' and business process : '${businessProcess}' ...`
             );
 
-            const ws = connectNotificationsWebsocket(
-                processUuid,
-                businessProcess
-            );
+            const ws = connectNotificationsWebsocket(processUuid, businessProcess);
             ws.onmessage = function (event) {
                 const message = JSON.parse(event.data);
                 update(message);
@@ -124,10 +111,7 @@ const Process = (props) => {
     }, [config.process, date, loadMerges]);
 
     useEffect(() => {
-        const ws = connectNotifications(
-            config.processUuid,
-            config.businessProcess
-        );
+        const ws = connectNotifications(config.processUuid, config.businessProcess);
 
         return function () {
             ws.close();
@@ -139,20 +123,12 @@ const Process = (props) => {
     };
 
     const mergeIndexChangeHandler = (newMergeIndex) => {
-        dispatch(
-            updateSelectedMergeDate(
-                props.index,
-                new Date(merges[newMergeIndex].date)
-            )
-        );
+        dispatch(updateSelectedMergeDate(props.index, new Date(merges[newMergeIndex].date)));
     };
 
     let mergeIndex;
     if (merges.length > 0 && selectedMergeDate) {
-        mergeIndex = merges.findIndex(
-            (merge) =>
-                new Date(merge.date).getTime() === selectedMergeDate.getTime()
-        );
+        mergeIndex = merges.findIndex((merge) => new Date(merge.date).getTime() === selectedMergeDate.getTime());
     }
     if (!mergeIndex || mergeIndex === -1) {
         mergeIndex = 0;
@@ -162,19 +138,8 @@ const Process = (props) => {
     return (
         <Grid container direction="row" justify="space-around">
             <Grid item xs={12} md={10} key="map">
-                <Grid
-                    container
-                    direction="row"
-                    justifyContent="center"
-                    alignItems="center"
-                >
-                    <Grid
-                        item
-                        xs={12}
-                        md={2}
-                        key="businessProcess"
-                        sx={styles.itemBusinessProcess}
-                    >
+                <Grid container direction="row" justifyContent="center" alignItems="center">
+                    <Grid item xs={12} md={2} key="businessProcess" sx={styles.itemBusinessProcess}>
                         <Chip label={config.businessProcess} />
                     </Grid>
                     <Grid item xs={12} md={2} key="datePicker">
@@ -198,17 +163,9 @@ const Process = (props) => {
                         </LocalizationProvider>
                     </Grid>
                 </Grid>
-                <Timeline
-                    merges={merges}
-                    mergeIndex={mergeIndex}
-                    onMergeIndexChange={mergeIndexChangeHandler}
-                />
+                <Timeline merges={merges} mergeIndex={mergeIndex} onMergeIndexChange={mergeIndexChangeHandler} />
                 <MergeMap tsos={config.tsos} merge={merge} config={config} />
-                <StepperWithStatus
-                    processName={config.process}
-                    tsos={config.tsos}
-                    merge={merge}
-                />
+                <StepperWithStatus processName={config.process} tsos={config.tsos} merge={merge} />
             </Grid>
             <Grid item xs={12} md={2} key="list">
                 <CountryStatesList tsos={config.tsos} merge={merge} />

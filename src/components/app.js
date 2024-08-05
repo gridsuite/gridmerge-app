@@ -9,22 +9,9 @@ import React, { useEffect, useState, useCallback } from 'react';
 
 import { useDispatch, useSelector } from 'react-redux';
 
-import {
-    Navigate,
-    Routes,
-    Route,
-    useNavigate,
-    useLocation,
-    useParams,
-    useMatch,
-} from 'react-router-dom';
+import { Navigate, Routes, Route, useNavigate, useLocation, useParams, useMatch } from 'react-router-dom';
 
-import {
-    selectTheme,
-    selectTimelineDiagonalLabels,
-    selectLanguage,
-    selectComputedLanguage,
-} from '../redux/actions';
+import { selectTheme, selectTimelineDiagonalLabels, selectLanguage, selectComputedLanguage } from '../redux/actions';
 
 import {
     AuthenticationRouter,
@@ -82,15 +69,9 @@ const App = () => {
 
     const user = useSelector((state) => state.user);
 
-    const signInCallbackError = useSelector(
-        (state) => state.signInCallbackError
-    );
-    const authenticationRouterError = useSelector(
-        (state) => state.authenticationRouterError
-    );
-    const showAuthenticationRouterLogin = useSelector(
-        (state) => state.showAuthenticationRouterLogin
-    );
+    const signInCallbackError = useSelector((state) => state.signInCallbackError);
+    const authenticationRouterError = useSelector((state) => state.authenticationRouterError);
+    const showAuthenticationRouterLogin = useSelector((state) => state.showAuthenticationRouterLogin);
 
     const [userManager, setUserManager] = useState(noUserManager);
 
@@ -122,17 +103,11 @@ const App = () => {
                         dispatch(selectTheme(param.value));
                         break;
                     case PARAM_TIMELINE_DIAGONAL_LABELS:
-                        dispatch(
-                            selectTimelineDiagonalLabels(param.value === 'true')
-                        );
+                        dispatch(selectTimelineDiagonalLabels(param.value === 'true'));
                         break;
                     case PARAM_LANGUAGE:
                         dispatch(selectLanguage(param.value));
-                        dispatch(
-                            selectComputedLanguage(
-                                getComputedLanguage(param.value)
-                            )
-                        );
+                        dispatch(selectComputedLanguage(getComputedLanguage(param.value)));
                         break;
                     default:
                 }
@@ -166,11 +141,7 @@ const App = () => {
                 setUserManager({ instance: null, error: error.message });
             });
         // Note: initialMatchSilentRenewCallbackUrl and dispatch don't change
-    }, [
-        initialMatchSilentRenewCallbackUrl,
-        dispatch,
-        initialMatchSigninCallbackUrl,
-    ]);
+    }, [initialMatchSilentRenewCallbackUrl, dispatch, initialMatchSigninCallbackUrl]);
 
     const connectNotificationsUpdateConfig = useCallback(() => {
         const ws = connectNotificationsWsUpdateConfig();
@@ -219,13 +190,7 @@ const App = () => {
                 ws.close();
             };
         }
-    }, [
-        user,
-        dispatch,
-        updateParams,
-        connectNotificationsUpdateConfig,
-        snackError,
-    ]);
+    }, [user, dispatch, updateParams, connectNotificationsUpdateConfig, snackError]);
 
     return (
         <>
@@ -238,39 +203,19 @@ const App = () => {
                                 path={'/'}
                                 element={
                                     configs.length > 0 && (
-                                        <Navigate
-                                            replace
-                                            to={
-                                                PREFIX_URL_PROCESSES +
-                                                '/' +
-                                                configs[0].process
-                                            }
-                                        />
+                                        <Navigate replace to={PREFIX_URL_PROCESSES + '/' + configs[0].process} />
                                     )
                                 }
                             />
                             <Route
                                 path="/sign-in-callback"
-                                element={
-                                    <Navigate
-                                        replace
-                                        to={getPreLoginPath() || '/'}
-                                    />
-                                }
+                                element={<Navigate replace to={getPreLoginPath() || '/'} />}
                             />
                             <Route
                                 path="/logout-callback"
-                                element={
-                                    <h1>
-                                        Error: logout failed; you are still
-                                        logged in.
-                                    </h1>
-                                }
+                                element={<h1>Error: logout failed; you are still logged in.</h1>}
                             />
-                            <Route
-                                path={PREFIX_URL_PROCESSES + '/:processName'}
-                                element={<ProcessRouteElement />}
-                            />
+                            <Route path={PREFIX_URL_PROCESSES + '/:processName'} element={<ProcessRouteElement />} />
                             <Route
                                 path="*"
                                 element={
@@ -286,9 +231,7 @@ const App = () => {
                         userManager={userManager}
                         signInCallbackError={signInCallbackError}
                         authenticationRouterError={authenticationRouterError}
-                        showAuthenticationRouterLogin={
-                            showAuthenticationRouterLogin
-                        }
+                        showAuthenticationRouterLogin={showAuthenticationRouterLogin}
                         dispatch={dispatch}
                         navigate={navigate}
                         location={location}

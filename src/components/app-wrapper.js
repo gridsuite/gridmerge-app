@@ -7,11 +7,7 @@
 
 import App from './app';
 import React from 'react';
-import {
-    createTheme,
-    ThemeProvider,
-    StyledEngineProvider,
-} from '@mui/material/styles';
+import { createTheme, ThemeProvider, StyledEngineProvider } from '@mui/material/styles';
 import {
     LIGHT_THEME,
     CardErrorBoundary,
@@ -124,10 +120,7 @@ const AppWrapperWithRedux = () => {
     const theme = useSelector((state) => state[PARAM_THEME]);
 
     return (
-        <IntlProvider
-            locale={computedLanguage}
-            messages={messages[computedLanguage]}
-        >
+        <IntlProvider locale={computedLanguage} messages={messages[computedLanguage]}>
             <BrowserRouter basename={basename}>
                 <StyledEngineProvider injectFirst>
                     <ThemeProvider theme={getMuiTheme(theme)}>
